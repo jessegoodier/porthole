@@ -41,6 +41,115 @@
             gap: 1rem;
             flex-wrap: wrap;
             margin-top: 0.75rem;
+            align-items: center;
+        }
+
+        /* Namespace Dropdown */
+        .namespace-dropdown {
+            position: relative;
+            display: inline-block;
+            margin-right: auto;
+        }
+
+        .namespace-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 150px;
+        }
+
+        .namespace-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .namespace-button::after {
+            content: '▼';
+            font-size: 0.8rem;
+            transition: transform 0.2s ease;
+        }
+
+        .namespace-button.active::after {
+            transform: rotate(180deg);
+        }
+
+        .namespace-selector {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(45, 45, 45, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            min-width: 200px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .namespace-selector.show {
+            display: block;
+        }
+
+        .namespace-selector h3 {
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .namespace-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .namespace-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .namespace-option:hover {
+            background: rgba(100, 181, 246, 0.2);
+        }
+
+        .namespace-option.selected {
+            background: rgba(100, 181, 246, 0.3);
+            color: #64b5f6;
+        }
+
+        .namespace-option input[type="radio"] {
+            width: 14px;
+            height: 14px;
+            accent-color: #64b5f6;
+        }
+
+        .namespace-option label {
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        .namespace-option.selected label {
+            color: #64b5f6;
+            font-weight: 500;
         }
 
         .stat-card {
@@ -289,6 +398,23 @@
 
             .header-nav {
                 gap: 0.5rem;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .namespace-dropdown {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+
+            .namespace-button {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .namespace-selector {
+                min-width: 100%;
+                left: 0;
             }
 
             .stat-card {
@@ -334,6 +460,21 @@
 <body>
     <header>
         <div class="header-nav">
+            <div class="namespace-dropdown">
+                <button class="namespace-button" onclick="toggleNamespaceSelector()">
+                    Namespace: <span id="current-namespace">All</span>
+                </button>
+                <div class="namespace-selector" id="namespace-selector">
+                    <h3>Select Namespace</h3>
+                    <div class="namespace-options" id="namespace-options">
+                        <div class="namespace-option selected">
+                            <input type="radio" name="namespace" value="all" checked>
+                            <label>All Namespaces</label>
+                        </div>
+                        <!-- Namespaces will be populated here -->
+                    </div>
+                </div>
+            </div>
             <div class="stat-card" data-filter="all" onclick="filterByStat('all')">
                 <div class="stat-value" id="total-services">-</div>
                 <div class="stat-label">Total Services</div>
@@ -473,6 +614,7 @@
                 updateUI();
                 renderTable();
                 setupFieldSelector();
+                setupNamespaceSelector();
             } catch (error) {
                 console.error('Failed to load services data:', error);
                 document.getElementById('loading').innerHTML = '<p>Failed to load services data. Please check if services.json exists.</p>';
@@ -489,7 +631,6 @@
             document.getElementById('healthy-services').textContent = meta.healthy_services || 0;
             document.getElementById('unhealthy-services').textContent = meta.unhealthy_services || 0;
             document.getElementById('frontend-services').textContent = meta.frontend_services || 0;
-            document.getElementById('total-namespaces').textContent = meta.namespaces_scanned?.length || 0;
         }
 
         // Render table
@@ -506,6 +647,7 @@
                     <tr data-proxy-url="${service.proxy_url}" 
                         data-endpoint-status="${service.endpoint_status}"
                         data-is-frontend="${service.is_frontend}"
+                        data-namespace="${service.namespace}"
                         onclick="openService('${service.proxy_url}')">
                         <td class="col-status">${statusIndicator}</td>
                         <td class="col-namespace">${service.namespace}</td>
@@ -578,6 +720,95 @@
             fieldSelector.classList.toggle('show');
         }
 
+        // Setup namespace selector
+        function setupNamespaceSelector() {
+            if (!servicesData || !servicesData.meta || !servicesData.meta.namespaces_scanned) return;
+
+            const namespaceOptions = document.getElementById('namespace-options');
+            const namespaces = servicesData.meta.namespaces_scanned;
+
+            // Add namespace options
+            namespaces.forEach(namespace => {
+                const option = document.createElement('div');
+                option.className = 'namespace-option';
+                option.innerHTML = `
+                    <input type="radio" name="namespace" value="${namespace}">
+                    <label>${namespace}</label>
+                `;
+                namespaceOptions.appendChild(option);
+            });
+
+            // Setup event listeners
+            const namespaceSelector = document.getElementById('namespace-selector');
+            const namespaceButton = document.querySelector('.namespace-button');
+            const currentNamespaceSpan = document.getElementById('current-namespace');
+
+            // Toggle dropdown
+            namespaceButton.addEventListener('click', function(event) {
+                event.stopPropagation();
+                namespaceSelector.classList.toggle('show');
+                namespaceButton.classList.toggle('active');
+            });
+
+            // Handle namespace selection
+            namespaceOptions.addEventListener('click', function(event) {
+                const option = event.target.closest('.namespace-option');
+                if (!option) return;
+
+                // Update selected state
+                namespaceOptions.querySelectorAll('.namespace-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+
+                // Update button text
+                const selectedLabel = option.querySelector('label').textContent;
+                currentNamespaceSpan.textContent = selectedLabel;
+
+                // Filter by namespace
+                const selectedValue = option.querySelector('input[type="radio"]').value;
+                filterByNamespace(selectedValue);
+
+                // Close dropdown
+                namespaceSelector.classList.remove('show');
+                namespaceButton.classList.remove('active');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!namespaceSelector.contains(event.target) && !namespaceButton.contains(event.target)) {
+                    namespaceSelector.classList.remove('show');
+                    namespaceButton.classList.remove('active');
+                }
+            });
+        }
+
+        // Filter by namespace
+        function filterByNamespace(namespace) {
+            // Reset stat card selections
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            const rows = document.querySelectorAll('tbody tr');
+            currentFilter = 'namespaces'; // Override currentFilter for namespace filtering
+
+            rows.forEach(row => {
+                const serviceNamespace = row.dataset.namespace;
+                let show = true;
+
+                if (namespace === 'all') {
+                    show = true;
+                } else {
+                    show = serviceNamespace === namespace;
+                }
+
+                if (show) {
+                    row.classList.remove('filtered-out');
+                } else {
+                    row.classList.add('filtered-out');
+                }
+            });
+        }
+
         // Filter by stat card
         function filterByStat(filterType) {
             // Update active state
@@ -585,6 +816,12 @@
                 card.classList.remove('active');
             });
             event.target.closest('.stat-card').classList.add('active');
+
+            // Reset namespace filter
+            const currentNamespaceSpan = document.getElementById('current-namespace');
+            currentNamespaceSpan.textContent = 'All';
+            document.querySelectorAll('.namespace-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector('.namespace-option input[value="all"]').closest('.namespace-option').classList.add('selected');
 
             // Filter table rows
             const rows = document.querySelectorAll('tbody tr');
@@ -610,7 +847,7 @@
                         show = isFrontend;
                         break;
                     case 'namespaces':
-                        show = true;
+                        show = true; // Namespace filtering handles this
                         break;
                 }
 
