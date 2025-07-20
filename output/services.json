@@ -12,7 +12,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/cert-manager_cert-manager_9402",
+      "proxy_url": "/cert-manager_cert-manager_9402/",
       "display_name": "cert-manager/cert-manager:9402",
       "created_at": "2025-07-17T17:26:04+00:00"
     },
@@ -28,7 +28,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/cert-manager_cert-manager-cainjector_9402",
+      "proxy_url": "/cert-manager_cert-manager-cainjector_9402/",
       "display_name": "cert-manager/cert-manager-cainjector:9402",
       "created_at": "2025-07-17T17:26:04+00:00"
     },
@@ -44,7 +44,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
-      "proxy_url": "/cert-manager_cert-manager-webhook_443",
+      "proxy_url": "/cert-manager_cert-manager-webhook_443/",
       "display_name": "cert-manager/cert-manager-webhook:443",
       "created_at": "2025-07-17T17:26:04+00:00"
     },
@@ -60,7 +60,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
-      "proxy_url": "/cert-manager_cert-manager-webhook_9402",
+      "proxy_url": "/cert-manager_cert-manager-webhook_9402/",
       "display_name": "cert-manager/cert-manager-webhook:9402",
       "created_at": "2025-07-17T17:26:04+00:00"
     },
@@ -76,7 +76,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
-      "proxy_url": "/default_kubernetes_443",
+      "proxy_url": "/default_kubernetes_443/",
       "display_name": "default/kubernetes:443",
       "created_at": "2025-07-16T19:30:55+00:00"
     },
@@ -92,7 +92,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
-      "proxy_url": "/ingress-nginx_ingress-nginx-controller_80",
+      "proxy_url": "/ingress-nginx_ingress-nginx-controller_80/",
       "display_name": "ingress-nginx/ingress-nginx-controller:80",
       "created_at": "2025-07-17T17:29:05+00:00"
     },
@@ -108,7 +108,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
-      "proxy_url": "/ingress-nginx_ingress-nginx-controller_443",
+      "proxy_url": "/ingress-nginx_ingress-nginx-controller_443/",
       "display_name": "ingress-nginx/ingress-nginx-controller:443",
       "created_at": "2025-07-17T17:29:05+00:00"
     },
@@ -124,7 +124,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/ingress-nginx_ingress-nginx-controller-admission_443",
+      "proxy_url": "/ingress-nginx_ingress-nginx-controller-admission_443/",
       "display_name": "ingress-nginx/ingress-nginx-controller-admission:443",
       "created_at": "2025-07-17T17:29:05+00:00"
     },
@@ -140,7 +140,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/ingress-nginx_ingress-nginx-controller-metrics_10254",
+      "proxy_url": "/ingress-nginx_ingress-nginx-controller-metrics_10254/",
       "display_name": "ingress-nginx/ingress-nginx-controller-metrics:10254",
       "created_at": "2025-07-17T17:29:05+00:00"
     },
@@ -156,7 +156,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/k8s-service-proxy_k8s-service-proxy_7070",
+      "proxy_url": "/k8s-service-proxy_k8s-service-proxy_7070/",
       "display_name": "k8s-service-proxy/k8s-service-proxy:7070",
       "created_at": "2025-07-19T13:42:08+00:00"
     },
@@ -172,7 +172,7 @@
       "is_frontend": false,
       "has_endpoints": false,
       "endpoint_count": 0,
-      "proxy_url": "/k8s-service-proxy_oauth-proxy-k8s-service-proxy-oauth2-proxy_80",
+      "proxy_url": "/k8s-service-proxy_oauth-proxy-k8s-service-proxy-oauth2-proxy_80/",
       "display_name": "k8s-service-proxy/oauth-proxy-k8s-service-proxy-oauth2-proxy:80",
       "created_at": "2025-07-19T13:44:14+00:00"
     },
@@ -188,7 +188,7 @@
       "is_frontend": false,
       "has_endpoints": false,
       "endpoint_count": 0,
-      "proxy_url": "/k8s-service-proxy_oauth-proxy-k8s-service-proxy-oauth2-proxy_44180",
+      "proxy_url": "/k8s-service-proxy_oauth-proxy-k8s-service-proxy-oauth2-proxy_44180/",
       "display_name": "k8s-service-proxy/oauth-proxy-k8s-service-proxy-oauth2-proxy:44180",
       "created_at": "2025-07-19T13:44:14+00:00"
     },
@@ -204,7 +204,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kc28_kc28-aggregator_9004",
+      "proxy_url": "/kc28_kc28-aggregator_9004/",
       "display_name": "kc28/kc28-aggregator:9004",
       "created_at": "2025-07-17T15:42:55+00:00"
     },
@@ -220,7 +220,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kc28_kc28-cloud-cost_9005",
+      "proxy_url": "/kc28_kc28-cloud-cost_9005/",
       "display_name": "kc28/kc28-cloud-cost:9005",
       "created_at": "2025-07-17T15:42:55+00:00"
     },
@@ -236,7 +236,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kc28_kc28-cost-analyzer_9003",
+      "proxy_url": "/kc28_kc28-cost-analyzer_9003/",
       "display_name": "kc28/kc28-cost-analyzer:9003",
       "created_at": "2025-07-17T15:42:55+00:00"
     },
@@ -252,7 +252,7 @@
       "is_frontend": true,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kc28_kc28-frontend_9090",
+      "proxy_url": "/kc28_kc28-frontend_9090/",
       "display_name": "kc28/kc28-frontend:9090",
       "created_at": "2025-07-17T15:42:55+00:00"
     },
@@ -268,7 +268,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kc28ch_kc28ch-aggregator_9004",
+      "proxy_url": "/kc28ch_kc28ch-aggregator_9004/",
       "display_name": "kc28ch/kc28ch-aggregator:9004",
       "created_at": "2025-07-17T15:42:59+00:00"
     },
@@ -284,7 +284,7 @@
       "is_frontend": false,
       "has_endpoints": false,
       "endpoint_count": 0,
-      "proxy_url": "/kc28ch_kc28ch-cloud-cost_9005",
+      "proxy_url": "/kc28ch_kc28ch-cloud-cost_9005/",
       "display_name": "kc28ch/kc28ch-cloud-cost:9005",
       "created_at": "2025-07-17T15:42:59+00:00"
     },
@@ -300,7 +300,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kc28ch_kc28ch-cost-analyzer_9003",
+      "proxy_url": "/kc28ch_kc28ch-cost-analyzer_9003/",
       "display_name": "kc28ch/kc28ch-cost-analyzer:9003",
       "created_at": "2025-07-17T15:42:59+00:00"
     },
@@ -316,7 +316,7 @@
       "is_frontend": true,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kc28ch_kc28ch-frontend_9090",
+      "proxy_url": "/kc28ch_kc28ch-frontend_9090/",
       "display_name": "kc28ch/kc28ch-frontend:9090",
       "created_at": "2025-07-17T15:42:59+00:00"
     },
@@ -332,7 +332,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kc30_kc30-aggregator_9004",
+      "proxy_url": "/kc30_kc30-aggregator_9004/",
       "display_name": "kc30/kc30-aggregator:9004",
       "created_at": "2025-07-17T15:43:03+00:00"
     },
@@ -348,7 +348,7 @@
       "is_frontend": false,
       "has_endpoints": false,
       "endpoint_count": 0,
-      "proxy_url": "/kc30_kc30-cloud-cost_9005",
+      "proxy_url": "/kc30_kc30-cloud-cost_9005/",
       "display_name": "kc30/kc30-cloud-cost:9005",
       "created_at": "2025-07-17T15:43:03+00:00"
     },
@@ -364,7 +364,7 @@
       "is_frontend": true,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kc30_kc30-frontend_9090",
+      "proxy_url": "/kc30_kc30-frontend_9090/",
       "display_name": "kc30/kc30-frontend:9090",
       "created_at": "2025-07-17T15:43:03+00:00"
     },
@@ -380,7 +380,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/kubetail-system_kubetail-cluster-api_8080",
+      "proxy_url": "/kubetail-system_kubetail-cluster-api_8080/",
       "display_name": "kubetail-system/kubetail-cluster-api:8080",
       "created_at": "2025-07-19T19:09:36+00:00"
     },
@@ -396,7 +396,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
-      "proxy_url": "/monitoring_kube-prometheus-stack-alertmanager_9093",
+      "proxy_url": "/monitoring_kube-prometheus-stack-alertmanager_9093/",
       "display_name": "monitoring/kube-prometheus-stack-alertmanager:9093",
       "created_at": "2025-07-17T17:26:52+00:00"
     },
@@ -412,7 +412,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
-      "proxy_url": "/monitoring_kube-prometheus-stack-alertmanager_8080",
+      "proxy_url": "/monitoring_kube-prometheus-stack-alertmanager_8080/",
       "display_name": "monitoring/kube-prometheus-stack-alertmanager:8080",
       "created_at": "2025-07-17T17:26:52+00:00"
     },
@@ -428,7 +428,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/monitoring_kube-prometheus-stack-grafana_80",
+      "proxy_url": "/monitoring_kube-prometheus-stack-grafana_80/",
       "display_name": "monitoring/kube-prometheus-stack-grafana:80",
       "created_at": "2025-07-17T17:26:51+00:00"
     },
@@ -444,7 +444,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/monitoring_kube-prometheus-stack-kube-state-metrics_8080",
+      "proxy_url": "/monitoring_kube-prometheus-stack-kube-state-metrics_8080/",
       "display_name": "monitoring/kube-prometheus-stack-kube-state-metrics:8080",
       "created_at": "2025-07-17T15:42:43+00:00"
     },
@@ -460,7 +460,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/monitoring_kube-prometheus-stack-operator_443",
+      "proxy_url": "/monitoring_kube-prometheus-stack-operator_443/",
       "display_name": "monitoring/kube-prometheus-stack-operator:443",
       "created_at": "2025-07-17T15:42:43+00:00"
     },
@@ -476,7 +476,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
-      "proxy_url": "/monitoring_kube-prometheus-stack-prometheus_9090",
+      "proxy_url": "/monitoring_kube-prometheus-stack-prometheus_9090/",
       "display_name": "monitoring/kube-prometheus-stack-prometheus:9090",
       "created_at": "2025-07-17T15:42:43+00:00"
     },
@@ -492,7 +492,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
-      "proxy_url": "/monitoring_kube-prometheus-stack-prometheus_8080",
+      "proxy_url": "/monitoring_kube-prometheus-stack-prometheus_8080/",
       "display_name": "monitoring/kube-prometheus-stack-prometheus:8080",
       "created_at": "2025-07-17T15:42:43+00:00"
     },
@@ -508,7 +508,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 4,
-      "proxy_url": "/monitoring_kube-prometheus-stack-prometheus-node-exporter_9100",
+      "proxy_url": "/monitoring_kube-prometheus-stack-prometheus-node-exporter_9100/",
       "display_name": "monitoring/kube-prometheus-stack-prometheus-node-exporter:9100",
       "created_at": "2025-07-17T17:26:52+00:00"
     },
@@ -524,7 +524,7 @@
       "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 1,
-      "proxy_url": "/nginx-router_nginx-router_8080",
+      "proxy_url": "/nginx-router_nginx-router_8080/",
       "display_name": "nginx-router/nginx-router:8080",
       "created_at": "2025-07-17T17:34:27+00:00"
     }
@@ -551,7 +551,7 @@
       "kube-public",
       "kube-system"
     ],
-    "discovery_time": "2025-07-20T11:42:10.971813",
-    "generated_at": "2025-07-20T11:42:10.973828"
+    "discovery_time": "2025-07-20T15:25:09.991166",
+    "generated_at": "2025-07-20T15:25:09.991742"
   }
 }

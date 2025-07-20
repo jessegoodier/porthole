@@ -1,7 +1,7 @@
 
 [project]
 name = "porthole"
-version = "0.2.4"
+version = "0.2.8"
 description = "Portal to your k8s services"
 authors = [
     { name = "Jesse Goodier", email = "31039225+jessegoodier@users.noreply.github.com" },
@@ -25,7 +25,6 @@ dependencies = [
     "jinja2>=3.1.0",
     "pydantic>=2.0.0",
     "click>=8.0.0",
-    "aiohttp>=3.8.0",
     "tabulate>=0.9.0",
     "requests>=2.28.0",
     "watchdog>=3.0.0",

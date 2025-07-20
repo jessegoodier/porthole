@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kubernetes Services Portal - Table View</title>
+    <title>Porthole - Kubernetes Services Portal</title>
     <style>
         * {
             margin: 0;
@@ -35,7 +35,7 @@
             margin-bottom: 0.75rem;
         }
 
-        .header-stats {
+        .header-nav {
             display: flex;
             justify-content: center;
             gap: 1rem;
@@ -287,7 +287,7 @@
                 font-size: 1.75rem;
             }
 
-            .header-stats {
+            .header-nav {
                 gap: 0.5rem;
             }
 
@@ -333,8 +333,7 @@
 </head>
 <body>
     <header>
-        <h1>Kubernetes Services Portal - Table View</h1>
-        <div class="header-stats">
+        <div class="header-nav">
             <div class="stat-card" data-filter="all" onclick="filterByStat('all')">
                 <div class="stat-value" id="total-services">-</div>
                 <div class="stat-label">Total Services</div>
@@ -351,17 +350,8 @@
                 <div class="stat-value" id="frontend-services">-</div>
                 <div class="stat-label">Frontend</div>
             </div>
-            <div class="stat-card" data-filter="namespaces" onclick="filterByStat('namespaces')">
-                <div class="stat-value" id="total-namespaces">-</div>
-                <div class="stat-label">Namespaces</div>
-            </div>
         </div>
     </header>
-
-    <div class="navigation">
-        <a href="portal.html" class="nav-link">Portal View</a>
-        <a href="table.html" class="nav-link active">Table View</a>
-    </div>
 
     <div class="table-header">
         <div class="table-title">Service Details</div>

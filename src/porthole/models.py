@@ -66,10 +66,16 @@ class KubernetesService(BaseModel):
     cluster_ip: str | None = Field(None, description="Service cluster IP")
     external_ips: list[str] = Field(default_factory=list, description="External IPs")
     ports: list[ServicePort] = Field(default_factory=list, description="Service ports")
-    endpoints: list[ServiceEndpoint] = Field(default_factory=list, description="Service endpoints")
+    endpoints: list[ServiceEndpoint] = Field(
+        default_factory=list, description="Service endpoints"
+    )
     labels: dict[str, str] = Field(default_factory=dict, description="Service labels")
-    annotations: dict[str, str] = Field(default_factory=dict, description="Service annotations")
-    selector: dict[str, str] = Field(default_factory=dict, description="Service selector")
+    annotations: dict[str, str] = Field(
+        default_factory=dict, description="Service annotations"
+    )
+    selector: dict[str, str] = Field(
+        default_factory=dict, description="Service selector"
+    )
     created_at: datetime | None = Field(None, description="Service creation timestamp")
     endpoint_status: EndpointStatus = Field(
         default=EndpointStatus.UNKNOWN,
@@ -138,7 +144,7 @@ class KubernetesService(BaseModel):
         """Get proxy URL for a service port."""
         port_suffix = f"_{port.port}" if port.name else f"_{port.port}"
         service_path = f"{self.namespace}_{self.name}{port_suffix}"
-        return f"{base_url}/{service_path}"
+        return f"{base_url}/{service_path}/"
 
 
 class ServiceDiscoveryResult(BaseModel):
@@ -166,7 +172,9 @@ class ServiceDiscoveryResult(BaseModel):
         description="Number of services with unhealthy endpoints",
     )
     frontend_services: int = Field(default=0, description="Number of frontend services")
-    discovery_time: datetime | None = Field(None, description="When discovery was performed")
+    discovery_time: datetime | None = Field(
+        None, description="When discovery was performed"
+    )
 
     @validator("total_services", pre=True, always=True)
     def calculate_total_services(cls, v: Any, values: dict[str, Any]) -> int:
@@ -209,10 +217,18 @@ class ServiceDiscoveryResult(BaseModel):
 class PortalData(BaseModel):
     """Data structure for portal generation."""
 
-    discovery_result: ServiceDiscoveryResult = Field(..., description="Service discovery result")
-    portal_title: str = Field(default="Kubernetes Services Portal", description="Portal title")
-    generated_at: datetime = Field(default_factory=datetime.now, description="Generation timestamp")
-    refresh_interval: int = Field(default=300, description="Refresh interval in seconds")
+    discovery_result: ServiceDiscoveryResult = Field(
+        ..., description="Service discovery result"
+    )
+    portal_title: str = Field(
+        default="Kubernetes Services Portal", description="Portal title"
+    )
+    generated_at: datetime = Field(
+        default_factory=datetime.now, description="Generation timestamp"
+    )
+    refresh_interval: int = Field(
+        default=300, description="Refresh interval in seconds"
+    )
 
     @property
     def services_by_namespace(self) -> dict[str, list[KubernetesService]]:
@@ -223,8 +239,6 @@ class PortalData(BaseModel):
     def sorted_services(self) -> list[KubernetesService]:
         """Get sorted services."""
         return self.discovery_result.get_sorted_services()
-
-
 
 
 class NginxLocation(BaseModel):
@@ -249,4 +263,6 @@ class NginxConfig(BaseModel):
         default_factory=list,
         description="Location configurations",
     )
-    generated_at: datetime = Field(default_factory=datetime.now, description="Generation timestamp")
+    generated_at: datetime = Field(
+        default_factory=datetime.now, description="Generation timestamp"
+    )

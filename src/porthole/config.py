@@ -18,7 +18,7 @@ class Config(BaseModel):
 
     # Output configuration
     output_dir: Path = Field(
-        default=Path("./output"),
+        default=Path("./generated-output"),
         description="Directory to write output files",
     )
 
@@ -93,7 +93,7 @@ class Config(BaseModel):
         """Create configuration from environment variables."""
         return cls(
             kubeconfig_path=os.getenv("KUBECONFIG"),
-            output_dir=Path(os.getenv("OUTPUT_DIR", "./output")),
+            output_dir=Path(os.getenv("OUTPUT_DIR", "./generated-output")),
             service_json_file=os.getenv("SERVICE_JSON_FILE", "services.json"),
             portal_html_file=os.getenv("PORTAL_HTML_FILE", "portal.html"),
             nginx_config_file=os.getenv("NGINX_CONFIG_FILE", "services.conf"),

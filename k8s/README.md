@@ -61,7 +61,7 @@ The deployment can be customized using environment variables in `deployment.yaml
 - `PORTAL_TITLE`: Title for the web portal
 - `DEBUG`: Enable debug logging (true/false)
 - `SKIP_NAMESPACES`: Comma-separated list of namespaces to skip
-- `OUTPUT_DIR`: Directory for generated files (default: /app/output)
+- `OUTPUT_DIR`: Directory for generated files (default: /app/generated-output)
 
 ### Resource Limits
 
@@ -149,12 +149,33 @@ kubectl -n k8s-service-proxy set image deployment/k8s-service-proxy k8s-service-
 
 Use Kustomize overlays or Helm charts for environment-specific configurations.
 
+## ConfigMap Generation
+
+The static HTML files are deployed as ConfigMaps. Use these commands to create or update them:
+
+```bash
+# Create ConfigMap for static files
+kubectl create configmap portal-static-files \
+  --from-file=portal.html=./src/porthole/static/portal.html \
+  --from-file=index.html=./src/porthole/static/index.html \
+  --from-file=favicon.ico=./src/porthole/static/favicon.ico \
+  --namespace=k8s-service-proxy \
+  --dry-run=client -o yaml | kubectl apply -f -
+
+
+# Restart deployment to pick up ConfigMap changes
+kubectl -n k8s-service-proxy rollout restart deployment/k8s-service-proxy
+```
+
 ## Cleanup
 
 ```bash
 # Remove everything
 kubectl delete -f deployment.yaml
 kubectl delete -f rbac.yaml
+
+# Remove ConfigMaps
+kubectl delete configmap portal-static-files -n k8s-service-proxy
 
 # Or with kustomize
 kubectl delete -k .

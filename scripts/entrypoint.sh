@@ -27,17 +27,12 @@ case "$STARTUP_MODE" in
         exec /app/scripts/startup-watch.sh
         ;;
     "generate")
-        echo -e "${BLUE}⚡ Starting in generate mode (one-time config + serve)${NC}"
+        echo -e "${BLUE}⚡ Starting in generate mode (one-time config, nginx serves content)${NC}"
         exec /app/scripts/startup.sh
-        ;;
-    "serve-only")
-        echo -e "${BLUE}🌐 Starting in serve-only mode (no initial config generation)${NC}"
-        mkdir -p /app/output
-        exec python -m porthole.porthole serve --host 0.0.0.0 --port 6060
         ;;
     *)
         echo -e "${RED}❌ Unknown startup mode: ${STARTUP_MODE}${NC}"
-        echo -e "${YELLOW}Valid modes: generate, watch, serve-only${NC}"
+        echo -e "${YELLOW}Valid modes: generate, watch${NC}"
         exit 1
         ;;
 esac

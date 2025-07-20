@@ -47,12 +47,11 @@ WORKDIR /app
 # Switch to non-root user
 USER app
 
-# Health check
+# Health check - check if output files exist
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:6060', timeout=5)" || exit 1
+    CMD test -f /app/output/portal.html || exit 1
 
-# Expose port
-EXPOSE 6060
+# No port exposure needed - nginx handles web serving
 
 # Run the smart entrypoint that chooses startup mode
 CMD ["/app/scripts/entrypoint.sh"]

@@ -14,14 +14,17 @@ echo "=================================="
 # Ensure output directory exists
 mkdir -p /app/output
 
-# Initial service discovery and configuration generation
-echo -e "${YELLOW}🔍 Performing initial service discovery...${NC}"
+# Service discovery and configuration generation
+echo -e "${YELLOW}🔍 Performing service discovery...${NC}"
 python -m porthole.porthole generate || {
-    echo -e "${RED}❌ Initial service discovery failed, continuing with serve mode...${NC}"
+    echo -e "${RED}❌ Service discovery failed${NC}"
+    exit 1
 }
 
-echo -e "${GREEN}✅ Initial configuration complete${NC}"
+echo -e "${GREEN}✅ Configuration complete - files served by nginx${NC}"
 
-# Start the HTTP server
-echo -e "${BLUE}🌐 Starting HTTP server on 0.0.0.0:6060${NC}"
-exec python -m porthole.porthole serve --host 0.0.0.0 --port 6060
+# Keep container running (nginx handles web serving)
+echo -e "${BLUE}💤 Keeping container alive - nginx serves content${NC}"
+while true; do
+    sleep 3600
+done

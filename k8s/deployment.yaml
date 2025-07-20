@@ -9,13 +9,21 @@ data:
         listen 7070;
         server_name _;
         location / {
-            root /app/output;
+            root /app/static;
+            index index.html;
+            try_files $uri $uri/ @fallback;
+        }
+        location /services.json {
+            root /app/generated-output;
+            try_files $uri =404;
+        }
+        location @fallback {
+            root /app/generated-output;
             autoindex on;
             autoindex_exact_size off;
             autoindex_localtime on;
-            # try_files $uri $uri/ =404;
         }
-        include /app/output/locations.conf;
+        include /app/generated-output/locations.conf;
     }
 ---
 apiVersion: apps/v1
@@ -26,7 +34,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8s-service-proxy
     app.kubernetes.io/component: service-discovery
-    app.kubernetes.io/version: "0.2.4"
+    app.kubernetes.io/version: "0.2.8"
 spec:
   replicas: 1
   selector:
@@ -38,7 +46,7 @@ spec:
       labels:
         app.kubernetes.io/name: k8s-service-proxy
         app.kubernetes.io/component: service-discovery
-        app.kubernetes.io/version: "0.2.4"
+        app.kubernetes.io/version: "0.2.8"
       annotations:
         prometheus.io/scrape: "false"
     spec:
@@ -50,10 +58,10 @@ spec:
         fsGroup: 101
       initContainers:
       - name: config-generator
-        image: jgoodier/k8s-service-proxy:0.2.4
+        image: jgoodier/k8s-service-proxy:0.2.8
         env:
         - name: OUTPUT_DIR
-          value: "/app/output"
+          value: "/app/generated-output"
         - name: DEBUG
           value: "false"
         - name: SKIP_NAMESPACES
@@ -69,8 +77,8 @@ spec:
             drop:
             - ALL
         volumeMounts:
-        - name: app-output
-          mountPath: /app/output
+        - name: app-generated-output
+          mountPath: /app/generated-output
       containers:
       - name: openresty
         image: bitnami/openresty:latest
@@ -79,22 +87,20 @@ spec:
           containerPort: 7070
           protocol: TCP
         volumeMounts:
-          - name: app-output
-            mountPath: /app/output
+          - name: app-generated-output
+            mountPath: /app/generated-output
+          - name: portal-static-files
+            mountPath: /app/static
           - name: openresty-server-config
             mountPath: /opt/bitnami/openresty/nginx/conf/server_blocks
           - name: openresty-tmp
             mountPath: /opt/bitnami/openresty/nginx/tmp
       - name: k8s-service-proxy
-        image: jgoodier/k8s-service-proxy:0.2.4
-        imagePullPolicy: Always
-        ports:
-        - name: backend
-          containerPort: 6060
-          protocol: TCP
+        image: jgoodier/k8s-service-proxy:0.2.8
+        imagePullPolicy: IfNotPresent
         env:
         - name: OUTPUT_DIR
-          value: "/app/output"
+          value: "/app/generated-output"
         - name: REFRESH_INTERVAL
           value: "300"
         - name: PORTAL_TITLE
@@ -111,22 +117,6 @@ spec:
           requests:
             memory: "256Mi"
             cpu: "100m"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: backend
-          initialDelaySeconds: 30
-          periodSeconds: 30
-          timeoutSeconds: 10
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /
-            port: backend
-          initialDelaySeconds: 5
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
@@ -137,11 +127,16 @@ spec:
             drop:
             - ALL
         volumeMounts:
-        - name: app-output
-          mountPath: /app/output
+        - name: app-generated-output
+          mountPath: /app/generated-output
+        - name: portal-static-files
+          mountPath: /app/static
       volumes:
-      - name: app-output
+      - name: app-generated-output
         emptyDir: {}
+      - name: portal-static-files
+        configMap:
+          name: portal-static-files
       - name: openresty-server-config
         configMap:
           name: openresty-server-config

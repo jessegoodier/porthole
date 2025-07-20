@@ -64,6 +64,29 @@
             margin-top: 0.25rem;
         }
 
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .nav-link {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(100, 181, 246, 0.2);
+            border-color: #64b5f6;
+        }
+
         /* Main Content */
         main {
             padding: 2rem;
@@ -167,6 +190,7 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .service-card::before {
@@ -377,30 +401,35 @@
 </head>
 <body>
     <header>
-        <h1>Kubernetes Services Portal</h1>
+        <h1 id="portal-title">Kubernetes Services Portal</h1>
         <div class="header-stats">
             <div class="stat-card">
-                <div class="stat-number">28</div>
+                <div class="stat-number" id="total-services">-</div>
                 <div class="stat-label">Total Services</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">25</div>
+                <div class="stat-number" id="healthy-services">-</div>
                 <div class="stat-label">Healthy</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">3</div>
+                <div class="stat-number" id="unhealthy-services">-</div>
                 <div class="stat-label">Unhealthy</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">3</div>
+                <div class="stat-number" id="frontend-services">-</div>
                 <div class="stat-label">Frontend</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">10</div>
+                <div class="stat-number" id="total-namespaces">-</div>
                 <div class="stat-label">Namespaces</div>
             </div>
         </div>
     </header>
+
+    <div class="navigation">
+        <a href="portal.html" class="nav-link active">Portal View</a>
+        <a href="table.html" class="nav-link">Table View</a>
+    </div>
 
     <main>
         <div class="filter-controls">
@@ -413,27 +442,6 @@
                     <label for="namespace-filter">Namespace:</label>
                     <select id="namespace-filter" class="filter-select">
                         <option value="">All Namespaces</option>
-                        
-                        <option value="cert-manager">cert-manager</option>
-                        
-                        <option value="default">default</option>
-                        
-                        <option value="ingress-nginx">ingress-nginx</option>
-                        
-                        <option value="k8s-service-proxy">k8s-service-proxy</option>
-                        
-                        <option value="kc28">kc28</option>
-                        
-                        <option value="kc28ch">kc28ch</option>
-                        
-                        <option value="kc30">kc30</option>
-                        
-                        <option value="kubetail-system">kubetail-system</option>
-                        
-                        <option value="monitoring">monitoring</option>
-                        
-                        <option value="nginx-router">nginx-router</option>
-                        
                     </select>
                 </div>
                 <div class="filter-group">
@@ -456,1352 +464,12 @@
             </div>
         </div>
 
-        <div class="service-grid">
-            
-            <div class="namespace-section" data-namespace="cert-manager">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">cert-manager</h2>
-                    <span class="namespace-count">3 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="cert-manager"
-                             data-namespace="cert-manager"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">cert-manager</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9402 (tcp-prometheus-servicemonitor)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/cert-manager_cert-manager_9402/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="cert-manager-cainjector"
-                             data-namespace="cert-manager"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">cert-manager-cainjector</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9402 (http-metrics)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/cert-manager_cert-manager-cainjector_9402/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="cert-manager-webhook"
-                             data-namespace="cert-manager"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">cert-manager-webhook</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>443 (https)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>2</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/cert-manager_cert-manager-webhook_443/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="service-card healthy" 
-                             data-service="cert-manager-webhook"
-                             data-namespace="cert-manager"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">cert-manager-webhook</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9402 (metrics)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>2</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/cert-manager_cert-manager-webhook_9402/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="namespace-section" data-namespace="default">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">default</h2>
-                    <span class="namespace-count">1 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kubernetes"
-                             data-namespace="default"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kubernetes</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>443 (https)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>2</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/default_kubernetes_443/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="namespace-section" data-namespace="ingress-nginx">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">ingress-nginx</h2>
-                    <span class="namespace-count">3 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="ingress-nginx-controller"
-                             data-namespace="ingress-nginx"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">ingress-nginx-controller</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>80 (http)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>LoadBalancer</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>2</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/ingress-nginx_ingress-nginx-controller_80/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="service-card healthy" 
-                             data-service="ingress-nginx-controller"
-                             data-namespace="ingress-nginx"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">ingress-nginx-controller</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>443 (https)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>LoadBalancer</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>2</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/ingress-nginx_ingress-nginx-controller_443/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="ingress-nginx-controller-admission"
-                             data-namespace="ingress-nginx"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">ingress-nginx-controller-admission</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>443 (https-webhook)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/ingress-nginx_ingress-nginx-controller-admission_443/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="ingress-nginx-controller-metrics"
-                             data-namespace="ingress-nginx"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">ingress-nginx-controller-metrics</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>10254 (metrics)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/ingress-nginx_ingress-nginx-controller-metrics_10254/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="namespace-section" data-namespace="k8s-service-proxy">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">k8s-service-proxy</h2>
-                    <span class="namespace-count">2 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="k8s-service-proxy"
-                             data-namespace="k8s-service-proxy"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">k8s-service-proxy</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>7070 (http)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/k8s-service-proxy_k8s-service-proxy_7070/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card unhealthy" 
-                             data-service="oauth-proxy-k8s-service-proxy-oauth2-proxy"
-                             data-namespace="k8s-service-proxy"
-                             data-status="unhealthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">❌</span>
-                                <span class="service-name">oauth-proxy-k8s-service-proxy-oauth2-proxy</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>80 (http)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>0</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/k8s-service-proxy_oauth-proxy-k8s-service-proxy-oauth2-proxy_80/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="service-card unhealthy" 
-                             data-service="oauth-proxy-k8s-service-proxy-oauth2-proxy"
-                             data-namespace="k8s-service-proxy"
-                             data-status="unhealthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">❌</span>
-                                <span class="service-name">oauth-proxy-k8s-service-proxy-oauth2-proxy</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>44180 (metrics)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>0</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/k8s-service-proxy_oauth-proxy-k8s-service-proxy-oauth2-proxy_44180/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="namespace-section" data-namespace="kc28">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">kc28</h2>
-                    <span class="namespace-count">4 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kc28-aggregator"
-                             data-namespace="kc28"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kc28-aggregator</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9004 (tcp-api)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc28_kc28-aggregator_9004/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kc28-cloud-cost"
-                             data-namespace="kc28"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kc28-cloud-cost</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9005 (tcp-api)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc28_kc28-cloud-cost_9005/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kc28-cost-analyzer"
-                             data-namespace="kc28"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kc28-cost-analyzer</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9003 (tcp-model)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc28_kc28-cost-analyzer_9003/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kc28-frontend"
-                             data-namespace="kc28"
-                             data-status="healthy"
-                             data-frontend="true">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kc28-frontend</span>
-                                <span class="frontend-icon">✅</span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9090 (tcp-frontend)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc28_kc28-frontend_9090/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="namespace-section" data-namespace="kc28ch">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">kc28ch</h2>
-                    <span class="namespace-count">4 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kc28ch-aggregator"
-                             data-namespace="kc28ch"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kc28ch-aggregator</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9004 (tcp-api)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc28ch_kc28ch-aggregator_9004/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card unhealthy" 
-                             data-service="kc28ch-cloud-cost"
-                             data-namespace="kc28ch"
-                             data-status="unhealthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">❌</span>
-                                <span class="service-name">kc28ch-cloud-cost</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9005 (tcp-api)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>0</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc28ch_kc28ch-cloud-cost_9005/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kc28ch-cost-analyzer"
-                             data-namespace="kc28ch"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kc28ch-cost-analyzer</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9003 (tcp-model)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc28ch_kc28ch-cost-analyzer_9003/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kc28ch-frontend"
-                             data-namespace="kc28ch"
-                             data-status="healthy"
-                             data-frontend="true">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kc28ch-frontend</span>
-                                <span class="frontend-icon">✅</span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9090 (tcp-frontend)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc28ch_kc28ch-frontend_9090/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="namespace-section" data-namespace="kc30">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">kc30</h2>
-                    <span class="namespace-count">3 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kc30-aggregator"
-                             data-namespace="kc30"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kc30-aggregator</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9004 (tcp-api)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc30_kc30-aggregator_9004/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card unhealthy" 
-                             data-service="kc30-cloud-cost"
-                             data-namespace="kc30"
-                             data-status="unhealthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">❌</span>
-                                <span class="service-name">kc30-cloud-cost</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9005 (tcp-api)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>0</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc30_kc30-cloud-cost_9005/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kc30-frontend"
-                             data-namespace="kc30"
-                             data-status="healthy"
-                             data-frontend="true">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kc30-frontend</span>
-                                <span class="frontend-icon">✅</span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9090 (tcp-frontend)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kc30_kc30-frontend_9090/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="namespace-section" data-namespace="kubetail-system">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">kubetail-system</h2>
-                    <span class="namespace-count">1 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kubetail-cluster-api"
-                             data-namespace="kubetail-system"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kubetail-cluster-api</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>8080 (http)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/kubetail-system_kubetail-cluster-api_8080/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="namespace-section" data-namespace="monitoring">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">monitoring</h2>
-                    <span class="namespace-count">6 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kube-prometheus-stack-alertmanager"
-                             data-namespace="monitoring"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kube-prometheus-stack-alertmanager</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9093 (http-web)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>2</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/monitoring_kube-prometheus-stack-alertmanager_9093/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="service-card healthy" 
-                             data-service="kube-prometheus-stack-alertmanager"
-                             data-namespace="monitoring"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kube-prometheus-stack-alertmanager</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>8080 (reloader-web)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>2</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/monitoring_kube-prometheus-stack-alertmanager_8080/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kube-prometheus-stack-grafana"
-                             data-namespace="monitoring"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kube-prometheus-stack-grafana</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>80 (http-web)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/monitoring_kube-prometheus-stack-grafana_80/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kube-prometheus-stack-kube-state-metrics"
-                             data-namespace="monitoring"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kube-prometheus-stack-kube-state-metrics</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>8080 (http)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/monitoring_kube-prometheus-stack-kube-state-metrics_8080/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kube-prometheus-stack-operator"
-                             data-namespace="monitoring"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kube-prometheus-stack-operator</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>443 (https)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/monitoring_kube-prometheus-stack-operator_443/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kube-prometheus-stack-prometheus"
-                             data-namespace="monitoring"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kube-prometheus-stack-prometheus</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9090 (http-web)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>2</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/monitoring_kube-prometheus-stack-prometheus_9090/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="service-card healthy" 
-                             data-service="kube-prometheus-stack-prometheus"
-                             data-namespace="monitoring"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kube-prometheus-stack-prometheus</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>8080 (reloader-web)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>2</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/monitoring_kube-prometheus-stack-prometheus_8080/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="kube-prometheus-stack-prometheus-node-exporter"
-                             data-namespace="monitoring"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">kube-prometheus-stack-prometheus-node-exporter</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>9100 (http-metrics)</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>4</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/monitoring_kube-prometheus-stack-prometheus-node-exporter_9100/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="namespace-section" data-namespace="nginx-router">
-                <div class="namespace-header">
-                    <h2 class="namespace-title">nginx-router</h2>
-                    <span class="namespace-count">1 services</span>
-                </div>
-                <div class="services-list">
-                    
-                        
-                        <div class="service-card healthy" 
-                             data-service="nginx-router"
-                             data-namespace="nginx-router"
-                             data-status="healthy"
-                             data-frontend="false">
-                            <div class="service-header">
-                                <span class="status-icon">✅</span>
-                                <span class="service-name">nginx-router</span>
-                                <span class="frontend-icon"></span>
-                            </div>
-                            <div class="service-details">
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Port:</span>
-                                    <span>8080</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Type:</span>
-                                    <span>ClusterIP</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Endpoints:</span>
-                                    <span>1</span>
-                                </div>
-                                <div class="service-detail">
-                                    <span class="service-detail-label">Protocol:</span>
-                                    <span>TCP</span>
-                                </div>
-                            </div>
-                            <div class="service-actions">
-                                <a href="/nginx-router_nginx-router_8080/" class="service-link" target="_self">
-                                    <span class="service-link-icon">🔗</span>
-                                    <span>Open Service</span>
-                                </a>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="service-grid" class="service-grid" style="display: none;">
+            <!-- Services will be loaded here -->
         </div>
     </main>
 
@@ -1809,87 +477,234 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>Discovery Info</h3>
-                <p>Generated: 2025-07-20 11:42:10</p>
-                <p>Discovery: 2025-07-20 11:42:10</p>
+                <p id="generated-at">Generated: -</p>
+                <p id="discovery-time">Discovery: -</p>
             </div>
             <div class="footer-section">
                 <h3>Namespaces</h3>
-                <p>Scanned: 10</p>
-                <p>Skipped: 3</p>
-            </div>
-            <div class="footer-section">
-                <h3>Auto-Refresh</h3>
-                <p>Every 300 seconds</p>
+                <p id="namespaces-scanned">Scanned: -</p>
+                <p id="namespaces-skipped">Skipped: -</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // Filter functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search');
-            const namespaceFilter = document.getElementById('namespace-filter');
-            const statusFilter = document.getElementById('status-filter');
-            const frontendFilter = document.getElementById('frontend-filter');
-            
-            function filterServices() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const selectedNamespace = namespaceFilter.value;
-                const selectedStatus = statusFilter.value;
-                const selectedFrontend = frontendFilter.value;
-                
-                const serviceCards = document.querySelectorAll('.service-card');
-                const namespaceSections = document.querySelectorAll('.namespace-section');
-                
-                serviceCards.forEach(card => {
-                    const serviceName = card.dataset.service.toLowerCase();
-                    const namespace = card.dataset.namespace;
-                    const status = card.dataset.status;
-                    const isFrontend = card.dataset.frontend;
-                    
-                    let show = true;
-                    
-                    // Search filter
-                    if (searchTerm && !serviceName.includes(searchTerm)) {
-                        show = false;
-                    }
-                    
-                    // Namespace filter
-                    if (selectedNamespace && namespace !== selectedNamespace) {
-                        show = false;
-                    }
-                    
-                    // Status filter
-                    if (selectedStatus && status !== selectedStatus) {
-                        show = false;
-                    }
-                    
-                    // Frontend filter
-                    if (selectedFrontend && isFrontend !== selectedFrontend) {
-                        show = false;
-                    }
-                    
-                    card.style.display = show ? '' : 'none';
-                });
-                
-                // Hide empty namespace sections
-                namespaceSections.forEach(section => {
-                    const visibleCards = section.querySelectorAll('.service-card:not([style*="display: none"])');
-                    section.style.display = visibleCards.length > 0 ? '' : 'none';
-                });
+        let servicesData = null;
+        let filteredServices = [];
+
+        // Utility functions
+        function formatDateTime(dateString) {
+            if (!dateString) return '-';
+            return new Date(dateString).toLocaleString();
+        }
+
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'healthy': return '✅';
+                case 'unhealthy': return '❌';
+                case 'unknown': return '❓';
+                default: return '❓';
             }
+        }
+
+        function getFrontendIcon(isFrontend) {
+            return isFrontend ? '🎯' : '';
+        }
+
+        // Load services data
+        async function loadServicesData() {
+            try {
+                const response = await fetch('services.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                servicesData = await response.json();
+                updateUI();
+                renderServices();
+                setupFilters();
+            } catch (error) {
+                console.error('Failed to load services data:', error);
+                document.getElementById('loading').innerHTML = '<p>Failed to load services data. Please check if services.json exists.</p>';
+            }
+        }
+
+        // Update header stats and footer
+        function updateUI() {
+            if (!servicesData || !servicesData.meta) return;
+
+            const meta = servicesData.meta;
             
-            searchInput.addEventListener('input', filterServices);
-            namespaceFilter.addEventListener('change', filterServices);
-            statusFilter.addEventListener('change', filterServices);
-            frontendFilter.addEventListener('change', filterServices);
+            // Update stats
+            document.getElementById('total-services').textContent = meta.total_services || 0;
+            document.getElementById('healthy-services').textContent = meta.healthy_services || 0;
+            document.getElementById('unhealthy-services').textContent = meta.unhealthy_services || 0;
+            document.getElementById('frontend-services').textContent = meta.frontend_services || 0;
+            document.getElementById('total-namespaces').textContent = meta.namespaces_scanned?.length || 0;
+
+            // Update footer
+            document.getElementById('generated-at').textContent = `Generated: ${formatDateTime(meta.generated_at)}`;
+            document.getElementById('discovery-time').textContent = `Discovery: ${formatDateTime(meta.discovery_time)}`;
+            document.getElementById('namespaces-scanned').textContent = `Scanned: ${meta.namespaces_scanned?.length || 0}`;
+            document.getElementById('namespaces-skipped').textContent = `Skipped: ${meta.namespaces_skipped?.length || 0}`;
+        }
+
+        // Group services by namespace
+        function groupServicesByNamespace(services) {
+            const grouped = {};
+            services.forEach(service => {
+                if (!grouped[service.namespace]) {
+                    grouped[service.namespace] = [];
+                }
+                grouped[service.namespace].push(service);
+            });
+            return grouped;
+        }
+
+        // Render services
+        function renderServices() {
+            if (!servicesData || !servicesData.services) return;
+
+            filteredServices = [...servicesData.services];
+            applyFilters();
             
-            // Auto-refresh functionality
+            const serviceGrid = document.getElementById('service-grid');
+            const grouped = groupServicesByNamespace(filteredServices);
             
-            setTimeout(function() {
-                location.reload();
-            }, 300000);
-            
+            if (Object.keys(grouped).length === 0) {
+                serviceGrid.innerHTML = '<p style="text-align: center; color: #999;">No services found matching the current filters.</p>';
+                serviceGrid.style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+
+            let html = '';
+            Object.keys(grouped).sort().forEach(namespace => {
+                const services = grouped[namespace];
+                html += `
+                    <div class="namespace-section" data-namespace="${namespace}">
+                        <div class="namespace-header">
+                            <h2 class="namespace-title">${namespace}</h2>
+                            <span class="namespace-count">${services.length} services</span>
+                        </div>
+                        <div class="services-list">
+                `;
+                
+                services.sort((a, b) => a.service.localeCompare(b.service)).forEach(service => {
+                    const statusClass = service.endpoint_status || 'unknown';
+                    const statusIcon = getStatusIcon(service.endpoint_status);
+                    const frontendIcon = getFrontendIcon(service.is_frontend);
+                    
+                    html += `
+                        <div class="service-card ${statusClass}" 
+                             data-service="${service.service}"
+                             data-namespace="${namespace}"
+                             data-status="${service.endpoint_status}"
+                             data-frontend="${service.is_frontend}"
+                             onclick="window.open('${service.proxy_url}', '_self')">
+                            <div class="service-header">
+                                <span class="status-icon">${statusIcon}</span>
+                                <span class="service-name">${service.service}</span>
+                                <span class="frontend-icon">${frontendIcon}</span>
+                            </div>
+                            <div class="service-details">
+                                <div class="service-detail">
+                                    <span class="service-detail-label">Port:</span>
+                                    <span>${service.port}${service.port_name ? ` (${service.port_name})` : ''}</span>
+                                </div>
+                                <div class="service-detail">
+                                    <span class="service-detail-label">Type:</span>
+                                    <span>${service.service_type}</span>
+                                </div>
+                                <div class="service-detail">
+                                    <span class="service-detail-label">Endpoints:</span>
+                                    <span>${service.endpoint_count}</span>
+                                </div>
+                                <div class="service-detail">
+                                    <span class="service-detail-label">Protocol:</span>
+                                    <span>${service.protocol}</span>
+                                </div>
+                            </div>
+                            <div class="service-actions">
+                                <a href="${service.proxy_url}" class="service-link" onclick="event.stopPropagation();">
+                                    <span class="service-link-icon">🔗</span>
+                                    <span>Open Service</span>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            serviceGrid.innerHTML = html;
+            serviceGrid.style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Setup filter controls
+        function setupFilters() {
+            if (!servicesData || !servicesData.services) return;
+
+            // Populate namespace filter
+            const namespaces = [...new Set(servicesData.services.map(s => s.namespace))].sort();
+            const namespaceSelect = document.getElementById('namespace-filter');
+            namespaces.forEach(namespace => {
+                const option = document.createElement('option');
+                option.value = namespace;
+                option.textContent = namespace;
+                namespaceSelect.appendChild(option);
+            });
+
+            // Setup filter event listeners
+            document.getElementById('search').addEventListener('input', applyFilters);
+            document.getElementById('namespace-filter').addEventListener('change', applyFilters);
+            document.getElementById('status-filter').addEventListener('change', applyFilters);
+            document.getElementById('frontend-filter').addEventListener('change', applyFilters);
+        }
+
+        // Apply filters
+        function applyFilters() {
+            if (!servicesData || !servicesData.services) return;
+
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            const selectedNamespace = document.getElementById('namespace-filter').value;
+            const selectedStatus = document.getElementById('status-filter').value;
+            const selectedFrontend = document.getElementById('frontend-filter').value;
+
+            filteredServices = servicesData.services.filter(service => {
+                // Search filter
+                if (searchTerm && !service.service.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+
+                // Namespace filter
+                if (selectedNamespace && service.namespace !== selectedNamespace) {
+                    return false;
+                }
+
+                // Status filter
+                if (selectedStatus && service.endpoint_status !== selectedStatus) {
+                    return false;
+                }
+
+                // Frontend filter
+                if (selectedFrontend && service.is_frontend.toString() !== selectedFrontend) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            renderServices();
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadServicesData();
         });
     </script>
 </body>

@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 NAMESPACE="k8s-service-proxy"
-IMAGE="jgoodier/k8s-service-proxy:0.2.4"
+IMAGE="jgoodier/k8s-service-proxy:0.2.8"
 
 echo -e "${BLUE}🚀 Deploying k8s-service-proxy to Kubernetes${NC}"
 echo "========================================"

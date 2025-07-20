@@ -2,7 +2,7 @@
 
 # Configuration
 IMAGE_NAME = jgoodier/k8s-service-proxy
-IMAGE_TAG = 0.2.4
+IMAGE_TAG = 0.2.8
 NAMESPACE = k8s-service-proxy
 
 # Docker image names (dynamically read IMAGE_TAG)
@@ -44,8 +44,8 @@ test: ## Run tests
 	uv run task tests
 
 .PHONY: dev
-dev: ## Run development server
-	uv run task run serve --host 0.0.0.0 --port 6060
+dev: ## Generate portal files for development
+	uv run python -m porthole.porthole generate
 
 ##@ Docker
 .PHONY: build
@@ -109,8 +109,8 @@ push-app-only: ## Push Docker image
 	echo "✅ Done! Multi-arch image pushed to: $(FULL_NAME_MULTI) and $(LATEST_NAME)"
 
 .PHONY: run-docker
-run-docker: ## Run Docker container locally
-	docker run -p 6060:6060 --rm -it $(IMAGE_NAME):$(IMAGE_TAG)
+run-docker: ## Run Docker container locally (note: no web server - generates files only)
+	docker run --rm -it $(IMAGE_NAME):$(IMAGE_TAG)
 
 # ##@ Kubernetes
 # .PHONY: deploy
