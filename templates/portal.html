@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ portal_data.portal_title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+            padding: 2rem 1rem;
+            border-bottom: 3px solid #64b5f6;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #64b5f6;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #b0b0b0;
+            margin-top: 0.25rem;
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .filter-input::placeholder {
+            color: #999;
+        }
+
+        .filter-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        /* Service Grid */
+        .service-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .namespace-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .namespace-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .namespace-title {
+            color: #64b5f6;
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        .namespace-count {
+            background: rgba(100, 181, 246, 0.2);
+            color: #64b5f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .services-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Service Cards */
+        .service-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #64b5f6, #42a5f5);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(100, 181, 246, 0.3);
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-card.healthy {
+            border-left: 4px solid #4caf50;
+        }
+
+        .service-card.unhealthy {
+            border-left: 4px solid #f44336;
+        }
+
+        .service-card.unknown {
+            border-left: 4px solid #ff9800;
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-left: 0.75rem;
+            flex-grow: 1;
+            font-size: 1.1rem;
+        }
+
+        .status-icon {
+            font-size: 1.25rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .frontend-icon {
+            font-size: 1.25rem;
+            margin-left: 0.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .service-details {
+            margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .service-detail {
+            font-size: 0.9rem;
+            color: #b0b0b0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .service-detail-label {
+            font-weight: 500;
+            color: #d0d0d0;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .service-link {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
+            color: #ffffff;
+            padding: 0.75rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(100, 181, 246, 0.3);
+        }
+
+        .service-link:hover {
+            background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 181, 246, 0.4);
+        }
+
+        .service-link-icon {
+            font-size: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+            padding: 2rem 1rem;
+            text-align: center;
+            border-top: 3px solid #64b5f6;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            color: #b0b0b0;
+        }
+
+        .footer-section h3 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                padding: 1.5rem 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .header-stats {
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 0.5rem 1rem;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .namespace-section {
+                padding: 1.5rem;
+            }
+
+            .services-list {
+                grid-template-columns: 1fr;
+            }
+
+            .service-details {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(100, 181, 246, 0.3);
+            border-top: 4px solid #64b5f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hidden class for filtering */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ portal_data.portal_title }}</h1>
+        <div class="header-stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ portal_data.discovery_result.total_services }}</div>
+                <div class="stat-label">Total Services</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ portal_data.discovery_result.healthy_services }}</div>
+                <div class="stat-label">Healthy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ portal_data.discovery_result.unhealthy_services }}</div>
+                <div class="stat-label">Unhealthy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ portal_data.discovery_result.frontend_services }}</div>
+                <div class="stat-label">Frontend</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ portal_data.services_by_namespace|length }}</div>
+                <div class="stat-label">Namespaces</div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="filter-controls">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="search">Search:</label>
+                    <input type="text" id="search" class="filter-input" placeholder="Filter services...">
+                </div>
+                <div class="filter-group">
+                    <label for="namespace-filter">Namespace:</label>
+                    <select id="namespace-filter" class="filter-select">
+                        <option value="">All Namespaces</option>
+                        {% for namespace in portal_data.services_by_namespace.keys() | sort %}
+                        <option value="{{ namespace }}">{{ namespace }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="status-filter">Status:</label>
+                    <select id="status-filter" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="healthy">Healthy</option>
+                        <option value="unhealthy">Unhealthy</option>
+                        <option value="unknown">Unknown</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="frontend-filter">Frontend:</label>
+                    <select id="frontend-filter" class="filter-select">
+                        <option value="">All Services</option>
+                        <option value="true">Frontend Only</option>
+                        <option value="false">Non-Frontend</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="service-grid">
+            {% for namespace, services in portal_data.services_by_namespace.items() %}
+            <div class="namespace-section" data-namespace="{{ namespace }}">
+                <div class="namespace-header">
+                    <h2 class="namespace-title">{{ namespace }}</h2>
+                    <span class="namespace-count">{{ services|length }} services</span>
+                </div>
+                <div class="services-list">
+                    {% for service in services | sort(attribute='name') %}
+                        {% for port in service.ports %}
+                        <div class="service-card {{ service.endpoint_status.value }}" 
+                             data-service="{{ service.name }}"
+                             data-namespace="{{ namespace }}"
+                             data-status="{{ service.endpoint_status.value }}"
+                             data-frontend="{{ service.is_frontend | lower }}">
+                            <div class="service-header">
+                                <span class="status-icon">{{ service.endpoint_status | status_icon }}</span>
+                                <span class="service-name">{{ service.name }}</span>
+                                <span class="frontend-icon">{{ service.is_frontend | frontend_icon }}</span>
+                            </div>
+                            <div class="service-details">
+                                <div class="service-detail">
+                                    <span class="service-detail-label">Port:</span>
+                                    <span>{{ port.port }}{% if port.name %} ({{ port.name }}){% endif %}</span>
+                                </div>
+                                <div class="service-detail">
+                                    <span class="service-detail-label">Type:</span>
+                                    <span>{{ service.service_type.value }}</span>
+                                </div>
+                                <div class="service-detail">
+                                    <span class="service-detail-label">Endpoints:</span>
+                                    <span>{{ service.endpoints|length }}</span>
+                                </div>
+                                <div class="service-detail">
+                                    <span class="service-detail-label">Protocol:</span>
+                                    <span>{{ port.protocol }}</span>
+                                </div>
+                            </div>
+                            <div class="service-actions">
+                                <a href="{{ service | service_url(port) }}/" class="service-link" target="_self">
+                                    <span class="service-link-icon">🔗</span>
+                                    <span>Open Service</span>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Discovery Info</h3>
+                <p>Generated: {{ portal_data.generated_at | datetime_format }}</p>
+                <p>Discovery: {{ portal_data.discovery_result.discovery_time | datetime_format }}</p>
+            </div>
+            <div class="footer-section">
+                <h3>Namespaces</h3>
+                <p>Scanned: {{ portal_data.discovery_result.namespaces_scanned | length }}</p>
+                <p>Skipped: {{ portal_data.discovery_result.namespaces_skipped | length }}</p>
+            </div>
+            <div class="footer-section">
+                <h3>Auto-Refresh</h3>
+                <p>{% if portal_data.refresh_interval > 0 %}Every {{ portal_data.refresh_interval }} seconds{% else %}Disabled{% endif %}</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search');
+            const namespaceFilter = document.getElementById('namespace-filter');
+            const statusFilter = document.getElementById('status-filter');
+            const frontendFilter = document.getElementById('frontend-filter');
+            
+            function filterServices() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedNamespace = namespaceFilter.value;
+                const selectedStatus = statusFilter.value;
+                const selectedFrontend = frontendFilter.value;
+                
+                const serviceCards = document.querySelectorAll('.service-card');
+                const namespaceSections = document.querySelectorAll('.namespace-section');
+                
+                serviceCards.forEach(card => {
+                    const serviceName = card.dataset.service.toLowerCase();
+                    const namespace = card.dataset.namespace;
+                    const status = card.dataset.status;
+                    const isFrontend = card.dataset.frontend;
+                    
+                    let show = true;
+                    
+                    // Search filter
+                    if (searchTerm && !serviceName.includes(searchTerm)) {
+                        show = false;
+                    }
+                    
+                    // Namespace filter
+                    if (selectedNamespace && namespace !== selectedNamespace) {
+                        show = false;
+                    }
+                    
+                    // Status filter
+                    if (selectedStatus && status !== selectedStatus) {
+                        show = false;
+                    }
+                    
+                    // Frontend filter
+                    if (selectedFrontend && isFrontend !== selectedFrontend) {
+                        show = false;
+                    }
+                    
+                    card.style.display = show ? '' : 'none';
+                });
+                
+                // Hide empty namespace sections
+                namespaceSections.forEach(section => {
+                    const visibleCards = section.querySelectorAll('.service-card:not([style*="display: none"])');
+                    section.style.display = visibleCards.length > 0 ? '' : 'none';
+                });
+            }
+            
+            searchInput.addEventListener('input', filterServices);
+            namespaceFilter.addEventListener('change', filterServices);
+            statusFilter.addEventListener('change', filterServices);
+            frontendFilter.addEventListener('change', filterServices);
+            
+            // Auto-refresh functionality
+            {% if portal_data.refresh_interval > 0 %}
+            setTimeout(function() {
+                location.reload();
+            }, {{ portal_data.refresh_interval * 1000 }});
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

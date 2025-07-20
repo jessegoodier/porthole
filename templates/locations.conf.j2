@@ -1,0 +1,35 @@
+# NGINX location blocks for Kubernetes services
+# Generated at: {{ generated_at }}
+# Total locations: {{ locations|length }}
+# Add these inside your server block
+
+{% for location in locations -%}
+        location {{ location.path }} {
+            set $base_path "{{ location.path }}";
+            rewrite ^{{ location.path }}/?(.*)$ /$1 break;
+            proxy_pass http://{{ location.service_dns }};
+
+            # Handle redirects by returning the location header as plain text
+            proxy_hide_header Location;
+            add_header X-Original-Location $upstream_http_location;
+            add_header X-Original-Status $upstream_status;
+            
+            # If it's a 302, return the location as the response body
+            # TODO: This is a hack to handle redirects. We should find a better way to handle this.
+            if ($upstream_status = 302) {
+                return 200 $upstream_http_location;
+            }
+
+            # Standard proxy headers
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            
+            # Timeout settings
+            proxy_connect_timeout 30s;
+            proxy_send_timeout 30s;
+            proxy_read_timeout 30s;
+        }
+
+{% endfor %}

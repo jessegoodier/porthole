@@ -1,83 +1,70 @@
-# Project Specific
-tests/
-docs/
-.github/
-CONTRIBUTING.md
-CODE_OF_CONDUCT.md
-CHANGELOG.md
 
-# Git
-.git
-.gitignore
-.gitattributes
-
-# Byte-compiled / optimized / DLL files
-**/__pycache__/
-**/*.py[cod]
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
+__pycache__
+!scripts/
 .cache
-nosetests.xml
-coverage.xml
-
-# Translations
+.coverage
+.dmypy.json
+.DS_Store
+.env
+.env.local
+.git
+.gitattributes
+.github/
+.gitignore
+.idea
+.idea/
+.installed.cfg
+.mypy_cache
+.nox/
+.pytest_cache
+.Python
+.ropeproject
+.tox/
+.venv/
+.vscode/
+*.egg
+*.egg-info/
+*.log
+*.manifest
 *.mo
 *.pot
-
-# Django stuff:
-*.log
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Virtual environment
-.env
-.venv/
-venv/
-
-# PyCharm
-.idea
-
-# Python mode for VIM
-.ropeproject
+*.pyc
+*.pyd
+*.pyo
+*.so
+*.spec
+*.swo
+*.swp
+**/__pycache__/
 **/.ropeproject
-
-# Vim swap files
+**/*.py[cod]
 **/*.swp
-
-# VS Code
-.vscode/
+build/
+CHANGELOG.md
+CLAUDE.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+coverage.xml
+develop-eggs/
+dist/
+dmypy.json
+docs/
+docs/_build/
+downloads/
+eggs/
+env/
+htmlcov/
+k8s/
+lib/
+lib64/
+nosetests.xml
+output/
+parts/
+pip-delete-this-directory.txt
+pip-log.txt
+sdist/
+target/
+tests/
+Thumbs.db
+var/
+venv/

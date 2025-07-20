@@ -1,0 +1,10 @@
+{
+    "services": [
+        {
+            "namespace": "NAMESPACE",
+            "service": "SERVICE",
+            "port": "PORT",
+            "endpointsAvailable": "ENDPOINTS_AVAILABLE"
+        }
+    ]
+}

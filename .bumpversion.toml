@@ -1,0 +1,34 @@
+[tool.bumpversion]
+current_version = "0.2.2"
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+search = "{current_version}"
+replace = "{new_version}"
+tag = false
+commit = false
+allow_dirty = true
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "Makefile"
+search = "IMAGE_TAG = {current_version}"
+replace = "IMAGE_TAG = {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "k8s/deploy.sh"
+search = "IMAGE=\"jgoodier/k8s-service-proxy:{current_version}\""
+replace = "IMAGE=\"jgoodier/k8s-service-proxy:{new_version}\""
+
+[[tool.bumpversion.files]]
+filename = "k8s/deployment.yaml"
+search = 'app.kubernetes.io/version: "{current_version}"'
+replace = 'app.kubernetes.io/version: "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "k8s/deployment.yaml"
+search = "image: jgoodier/k8s-service-proxy:{current_version}"
+replace = "image: jgoodier/k8s-service-proxy:{new_version}"

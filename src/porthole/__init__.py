@@ -1,1 +1,1 @@
-"""porthole."""
+"""k8s-service-proxy."""
