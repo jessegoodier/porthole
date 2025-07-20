@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ portal_data.portal_title }} - Table View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+            padding: 2rem 1rem;
+            border-bottom: 3px solid #64b5f6;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #64b5f6;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #b0b0b0;
+            margin-top: 0.25rem;
+        }
+
+        /* Controls Section */
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            margin: 2rem 1rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .field-selector {
+            margin-bottom: 1rem;
+        }
+
+        .field-selector h3 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .field-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .field-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .field-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #64b5f6;
+        }
+
+        .field-checkbox label {
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Table Styles */
+        .table-container {
+            margin: 2rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
+            color: #ffffff;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #64b5f6;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(100, 181, 246, 0.1);
+        }
+
+        tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-indicator {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+        .frontend-true {
+            color: #4caf50;
+        }
+
+        .endpoints-false {
+            color: #f44336;
+        }
+
+        .endpoints-true {
+            color: #4caf50;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .header-stats {
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 0.5rem 1rem;
+            }
+
+            .controls {
+                margin: 1rem 0.5rem;
+            }
+
+            .table-container {
+                margin: 1rem 0.5rem;
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            th, td {
+                padding: 0.5rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Hidden columns */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ portal_data.portal_title }} - Table View</h1>
+        <div class="header-stats">
+            <div class="stat-card">
+                <div class="stat-value">{{ portal_data.total_services }}</div>
+                <div class="stat-label">Total Services</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ portal_data.healthy_services }}</div>
+                <div class="stat-label">Healthy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ portal_data.unhealthy_services }}</div>
+                <div class="stat-label">Unhealthy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ portal_data.frontend_services }}</div>
+                <div class="stat-label">Frontend</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ portal_data.namespaces_scanned|length }}</div>
+                <div class="stat-label">Namespaces</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="controls">
+        <div class="field-selector">
+            <h3>Select Fields to Display</h3>
+            <div class="field-checkboxes">
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-namespace" checked>
+                    <label for="field-namespace">Namespace</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-service" checked>
+                    <label for="field-service">Service</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-port_name" checked>
+                    <label for="field-port_name">Port Name</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-port">
+                    <label for="field-port">Port</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-protocol">
+                    <label for="field-protocol">Protocol</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-service_type">
+                    <label for="field-service_type">Service Type</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-cluster_ip">
+                    <label for="field-cluster_ip">Cluster IP</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-endpoint_status">
+                    <label for="field-endpoint_status">Endpoint Status</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-is_frontend">
+                    <label for="field-is_frontend">Is Frontend</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-has_endpoints">
+                    <label for="field-has_endpoints">Has Endpoints</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-endpoint_count">
+                    <label for="field-endpoint_count">Endpoint Count</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-proxy_url">
+                    <label for="field-proxy_url">Proxy URL</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-display_name">
+                    <label for="field-display_name">Display Name</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-created_at">
+                    <label for="field-created_at">Created At</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-status">Status</th>
+                    <th class="col-namespace">Namespace</th>
+                    <th class="col-service">Service</th>
+                    <th class="col-port_name">Port Name</th>
+                    <th class="col-port hidden">Port</th>
+                    <th class="col-protocol hidden">Protocol</th>
+                    <th class="col-service_type hidden">Service Type</th>
+                    <th class="col-cluster_ip hidden">Cluster IP</th>
+                    <th class="col-endpoint_status hidden">Endpoint Status</th>
+                    <th class="col-is_frontend hidden">Is Frontend</th>
+                    <th class="col-has_endpoints hidden">Has Endpoints</th>
+                    <th class="col-endpoint_count hidden">Endpoint Count</th>
+                    <th class="col-proxy_url hidden">Proxy URL</th>
+                    <th class="col-display_name hidden">Display Name</th>
+                    <th class="col-created_at hidden">Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td class="col-status">
+                        {% if service.is_frontend %}
+                            <span class="status-indicator frontend-true">✅</span>
+                        {% elif not service.has_endpoints %}
+                            <span class="status-indicator endpoints-false">❌</span>
+                        {% else %}
+                            <span class="status-indicator endpoints-true">✅</span>
+                        {% endif %}
+                    </td>
+                    <td class="col-namespace">{{ service.namespace }}</td>
+                    <td class="col-service">{{ service.service }}</td>
+                    <td class="col-port_name">{{ service.port_name }}</td>
+                    <td class="col-port hidden">{{ service.port }}</td>
+                    <td class="col-protocol hidden">{{ service.protocol }}</td>
+                    <td class="col-service_type hidden">{{ service.service_type }}</td>
+                    <td class="col-cluster_ip hidden">{{ service.cluster_ip }}</td>
+                    <td class="col-endpoint_status hidden">{{ service.endpoint_status }}</td>
+                    <td class="col-is_frontend hidden">{{ service.is_frontend }}</td>
+                    <td class="col-has_endpoints hidden">{{ service.has_endpoints }}</td>
+                    <td class="col-endpoint_count hidden">{{ service.endpoint_count }}</td>
+                    <td class="col-proxy_url hidden">{{ service.proxy_url }}</td>
+                    <td class="col-display_name hidden">{{ service.display_name }}</td>
+                    <td class="col-created_at hidden">{{ service.created_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Field selector functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.field-checkbox input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const fieldName = this.id.replace('field-', '');
+                    const columns = document.querySelectorAll(`.col-${fieldName}`);
+                    
+                    columns.forEach(column => {
+                        if (this.checked) {
+                            column.classList.remove('hidden');
+                        } else {
+                            column.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

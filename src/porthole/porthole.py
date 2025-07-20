@@ -151,6 +151,11 @@ def generate(
             portal_file = portal_gen.generate_portal(result)
             generated_files.append(portal_file)
             logger.info(f"Generated portal: {portal_file}")
+            
+            # Also generate table view
+            table_file = portal_gen.generate_table(result)
+            generated_files.append(table_file)
+            logger.info(f"Generated table view: {table_file}")
 
         if not no_nginx:
             nginx_gen = NginxGenerator(config)

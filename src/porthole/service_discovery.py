@@ -192,6 +192,7 @@ class ServiceDiscovery:
             annotations=annotations,
             selector=selector,
             created_at=service.metadata.creation_timestamp,
+            is_frontend=None,  # Let validator determine based on name/labels
         )
 
     def _get_service_endpoints(self, service: Any) -> list[ServiceEndpoint]:

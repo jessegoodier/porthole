@@ -25,16 +25,20 @@ echo -e "${BLUE}👀 Starting watch mode with ${REFRESH_INTERVAL}s interval${NC}
 python -m porthole.porthole watch --interval "${REFRESH_INTERVAL}" &
 WATCH_PID=$!
 
+echo -e "${BLUE}🔄 Starting nginx config reloader${NC}"
+python -m porthole.nginx_reloader &
+RELOADER_PID=$!
+
 # Function to cleanup background processes
 cleanup() {
     echo -e "${YELLOW}🛑 Shutting down services...${NC}"
-    kill $SERVER_PID $WATCH_PID 2>/dev/null || true
-    wait $SERVER_PID $WATCH_PID 2>/dev/null || true
+    kill $SERVER_PID $WATCH_PID $RELOADER_PID 2>/dev/null || true
+    wait $SERVER_PID $WATCH_PID $RELOADER_PID 2>/dev/null || true
     echo -e "${GREEN}✅ Shutdown complete${NC}"
 }
 
 # Set up signal handlers
 trap cleanup SIGTERM SIGINT
 
-# Wait for either process to exit
-wait $SERVER_PID $WATCH_PID
+# Wait for any process to exit
+wait $SERVER_PID $WATCH_PID $RELOADER_PID

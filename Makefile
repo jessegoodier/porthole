@@ -2,7 +2,7 @@
 
 # Configuration
 IMAGE_NAME = jgoodier/k8s-service-proxy
-IMAGE_TAG = 0.2.2
+IMAGE_TAG = 0.2.4
 NAMESPACE = k8s-service-proxy
 
 # Docker image names (dynamically read IMAGE_TAG)

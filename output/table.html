@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Services Portal - Table View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+            padding: 2rem 1rem;
+            border-bottom: 3px solid #64b5f6;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #64b5f6;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #b0b0b0;
+            margin-top: 0.25rem;
+        }
+
+        /* Controls Section */
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            margin: 2rem 1rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .field-selector {
+            margin-bottom: 1rem;
+        }
+
+        .field-selector h3 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .field-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .field-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .field-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #64b5f6;
+        }
+
+        .field-checkbox label {
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Table Styles */
+        .table-container {
+            margin: 2rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%);
+            color: #ffffff;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #64b5f6;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(100, 181, 246, 0.1);
+        }
+
+        tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-indicator {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+        .frontend-true {
+            color: #4caf50;
+        }
+
+        .endpoints-false {
+            color: #f44336;
+        }
+
+        .endpoints-true {
+            color: #4caf50;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .header-stats {
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 0.5rem 1rem;
+            }
+
+            .controls {
+                margin: 1rem 0.5rem;
+            }
+
+            .table-container {
+                margin: 1rem 0.5rem;
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            th, td {
+                padding: 0.5rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Hidden columns */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kubernetes Services Portal - Table View</h1>
+        <div class="header-stats">
+            <div class="stat-card">
+                <div class="stat-value"></div>
+                <div class="stat-label">Total Services</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"></div>
+                <div class="stat-label">Healthy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"></div>
+                <div class="stat-label">Unhealthy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"></div>
+                <div class="stat-label">Frontend</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Namespaces</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="controls">
+        <div class="field-selector">
+            <h3>Select Fields to Display</h3>
+            <div class="field-checkboxes">
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-namespace" checked>
+                    <label for="field-namespace">Namespace</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-service" checked>
+                    <label for="field-service">Service</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-port_name" checked>
+                    <label for="field-port_name">Port Name</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-port">
+                    <label for="field-port">Port</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-protocol">
+                    <label for="field-protocol">Protocol</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-service_type">
+                    <label for="field-service_type">Service Type</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-cluster_ip">
+                    <label for="field-cluster_ip">Cluster IP</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-endpoint_status">
+                    <label for="field-endpoint_status">Endpoint Status</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-is_frontend">
+                    <label for="field-is_frontend">Is Frontend</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-has_endpoints">
+                    <label for="field-has_endpoints">Has Endpoints</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-endpoint_count">
+                    <label for="field-endpoint_count">Endpoint Count</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-proxy_url">
+                    <label for="field-proxy_url">Proxy URL</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-display_name">
+                    <label for="field-display_name">Display Name</label>
+                </div>
+                <div class="field-checkbox">
+                    <input type="checkbox" id="field-created_at">
+                    <label for="field-created_at">Created At</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-status">Status</th>
+                    <th class="col-namespace">Namespace</th>
+                    <th class="col-service">Service</th>
+                    <th class="col-port_name">Port Name</th>
+                    <th class="col-port hidden">Port</th>
+                    <th class="col-protocol hidden">Protocol</th>
+                    <th class="col-service_type hidden">Service Type</th>
+                    <th class="col-cluster_ip hidden">Cluster IP</th>
+                    <th class="col-endpoint_status hidden">Endpoint Status</th>
+                    <th class="col-is_frontend hidden">Is Frontend</th>
+                    <th class="col-has_endpoints hidden">Has Endpoints</th>
+                    <th class="col-endpoint_count hidden">Endpoint Count</th>
+                    <th class="col-proxy_url hidden">Proxy URL</th>
+                    <th class="col-display_name hidden">Display Name</th>
+                    <th class="col-created_at hidden">Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">cert-manager</td>
+                    <td class="col-service">cert-manager</td>
+                    <td class="col-port_name">tcp-prometheus-servicemonitor</td>
+                    <td class="col-port hidden">9402</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.187.117</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/cert-manager_cert-manager_9402</td>
+                    <td class="col-display_name hidden">cert-manager/cert-manager</td>
+                    <td class="col-created_at hidden">2025-07-17 17:26:04</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">cert-manager</td>
+                    <td class="col-service">cert-manager-cainjector</td>
+                    <td class="col-port_name">http-metrics</td>
+                    <td class="col-port hidden">9402</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.245.8</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/cert-manager_cert-manager-cainjector_9402</td>
+                    <td class="col-display_name hidden">cert-manager/cert-manager-cainjector</td>
+                    <td class="col-created_at hidden">2025-07-17 17:26:04</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">cert-manager</td>
+                    <td class="col-service">cert-manager-webhook</td>
+                    <td class="col-port_name">https</td>
+                    <td class="col-port hidden">443</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.31.223</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">2</td>
+                    <td class="col-proxy_url hidden">/cert-manager_cert-manager-webhook_443</td>
+                    <td class="col-display_name hidden">cert-manager/cert-manager-webhook</td>
+                    <td class="col-created_at hidden">2025-07-17 17:26:04</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">cert-manager</td>
+                    <td class="col-service">cert-manager-webhook</td>
+                    <td class="col-port_name">metrics</td>
+                    <td class="col-port hidden">9402</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.31.223</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">2</td>
+                    <td class="col-proxy_url hidden">/cert-manager_cert-manager-webhook_9402</td>
+                    <td class="col-display_name hidden">cert-manager/cert-manager-webhook</td>
+                    <td class="col-created_at hidden">2025-07-17 17:26:04</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">default</td>
+                    <td class="col-service">kubernetes</td>
+                    <td class="col-port_name">https</td>
+                    <td class="col-port hidden">443</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.0.1</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">2</td>
+                    <td class="col-proxy_url hidden">/default_kubernetes_443</td>
+                    <td class="col-display_name hidden">default/kubernetes</td>
+                    <td class="col-created_at hidden">2025-07-16 19:30:55</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">ingress-nginx</td>
+                    <td class="col-service">ingress-nginx-controller</td>
+                    <td class="col-port_name">http</td>
+                    <td class="col-port hidden">80</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">LoadBalancer</td>
+                    <td class="col-cluster_ip hidden">10.100.76.231</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">2</td>
+                    <td class="col-proxy_url hidden">/ingress-nginx_ingress-nginx-controller_80</td>
+                    <td class="col-display_name hidden">ingress-nginx/ingress-nginx-controller</td>
+                    <td class="col-created_at hidden">2025-07-17 17:29:05</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">ingress-nginx</td>
+                    <td class="col-service">ingress-nginx-controller</td>
+                    <td class="col-port_name">https</td>
+                    <td class="col-port hidden">443</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">LoadBalancer</td>
+                    <td class="col-cluster_ip hidden">10.100.76.231</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">2</td>
+                    <td class="col-proxy_url hidden">/ingress-nginx_ingress-nginx-controller_443</td>
+                    <td class="col-display_name hidden">ingress-nginx/ingress-nginx-controller</td>
+                    <td class="col-created_at hidden">2025-07-17 17:29:05</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">ingress-nginx</td>
+                    <td class="col-service">ingress-nginx-controller-admission</td>
+                    <td class="col-port_name">https-webhook</td>
+                    <td class="col-port hidden">443</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.54.121</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/ingress-nginx_ingress-nginx-controller-admission_443</td>
+                    <td class="col-display_name hidden">ingress-nginx/ingress-nginx-controller-admission</td>
+                    <td class="col-created_at hidden">2025-07-17 17:29:05</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">ingress-nginx</td>
+                    <td class="col-service">ingress-nginx-controller-metrics</td>
+                    <td class="col-port_name">metrics</td>
+                    <td class="col-port hidden">10254</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.192.244</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/ingress-nginx_ingress-nginx-controller-metrics_10254</td>
+                    <td class="col-display_name hidden">ingress-nginx/ingress-nginx-controller-metrics</td>
+                    <td class="col-created_at hidden">2025-07-17 17:29:05</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">k8s-service-proxy</td>
+                    <td class="col-service">k8s-service-proxy</td>
+                    <td class="col-port_name">http</td>
+                    <td class="col-port hidden">7070</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.240.180</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/k8s-service-proxy_k8s-service-proxy_7070</td>
+                    <td class="col-display_name hidden">k8s-service-proxy/k8s-service-proxy</td>
+                    <td class="col-created_at hidden">2025-07-19 13:42:08</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-false">❌</span>
+                        
+                    </td>
+                    <td class="col-namespace">k8s-service-proxy</td>
+                    <td class="col-service">oauth-proxy-k8s-service-proxy-oauth2-proxy</td>
+                    <td class="col-port_name">http</td>
+                    <td class="col-port hidden">80</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.62.244</td>
+                    <td class="col-endpoint_status hidden">unhealthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">False</td>
+                    <td class="col-endpoint_count hidden">0</td>
+                    <td class="col-proxy_url hidden">/k8s-service-proxy_oauth-proxy-k8s-service-proxy-oauth2-proxy_80</td>
+                    <td class="col-display_name hidden">k8s-service-proxy/oauth-proxy-k8s-service-proxy-oauth2-proxy</td>
+                    <td class="col-created_at hidden">2025-07-19 13:44:14</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-false">❌</span>
+                        
+                    </td>
+                    <td class="col-namespace">k8s-service-proxy</td>
+                    <td class="col-service">oauth-proxy-k8s-service-proxy-oauth2-proxy</td>
+                    <td class="col-port_name">metrics</td>
+                    <td class="col-port hidden">44180</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.62.244</td>
+                    <td class="col-endpoint_status hidden">unhealthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">False</td>
+                    <td class="col-endpoint_count hidden">0</td>
+                    <td class="col-proxy_url hidden">/k8s-service-proxy_oauth-proxy-k8s-service-proxy-oauth2-proxy_44180</td>
+                    <td class="col-display_name hidden">k8s-service-proxy/oauth-proxy-k8s-service-proxy-oauth2-proxy</td>
+                    <td class="col-created_at hidden">2025-07-19 13:44:14</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc28</td>
+                    <td class="col-service">kc28-aggregator</td>
+                    <td class="col-port_name">tcp-api</td>
+                    <td class="col-port hidden">9004</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.213.38</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kc28_kc28-aggregator_9004</td>
+                    <td class="col-display_name hidden">kc28/kc28-aggregator</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:55</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc28</td>
+                    <td class="col-service">kc28-cloud-cost</td>
+                    <td class="col-port_name">tcp-api</td>
+                    <td class="col-port hidden">9005</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.78.109</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kc28_kc28-cloud-cost_9005</td>
+                    <td class="col-display_name hidden">kc28/kc28-cloud-cost</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:55</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc28</td>
+                    <td class="col-service">kc28-cost-analyzer</td>
+                    <td class="col-port_name">tcp-model</td>
+                    <td class="col-port hidden">9003</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.231.60</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kc28_kc28-cost-analyzer_9003</td>
+                    <td class="col-display_name hidden">kc28/kc28-cost-analyzer</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:55</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator frontend-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc28</td>
+                    <td class="col-service">kc28-frontend</td>
+                    <td class="col-port_name">tcp-frontend</td>
+                    <td class="col-port hidden">9090</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.6.52</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">True</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kc28_kc28-frontend_9090</td>
+                    <td class="col-display_name hidden">kc28/kc28-frontend</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:55</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc28ch</td>
+                    <td class="col-service">kc28ch-aggregator</td>
+                    <td class="col-port_name">tcp-api</td>
+                    <td class="col-port hidden">9004</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.146.240</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kc28ch_kc28ch-aggregator_9004</td>
+                    <td class="col-display_name hidden">kc28ch/kc28ch-aggregator</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:59</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-false">❌</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc28ch</td>
+                    <td class="col-service">kc28ch-cloud-cost</td>
+                    <td class="col-port_name">tcp-api</td>
+                    <td class="col-port hidden">9005</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.226.34</td>
+                    <td class="col-endpoint_status hidden">unhealthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">False</td>
+                    <td class="col-endpoint_count hidden">0</td>
+                    <td class="col-proxy_url hidden">/kc28ch_kc28ch-cloud-cost_9005</td>
+                    <td class="col-display_name hidden">kc28ch/kc28ch-cloud-cost</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:59</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc28ch</td>
+                    <td class="col-service">kc28ch-cost-analyzer</td>
+                    <td class="col-port_name">tcp-model</td>
+                    <td class="col-port hidden">9003</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.9.187</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kc28ch_kc28ch-cost-analyzer_9003</td>
+                    <td class="col-display_name hidden">kc28ch/kc28ch-cost-analyzer</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:59</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator frontend-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc28ch</td>
+                    <td class="col-service">kc28ch-frontend</td>
+                    <td class="col-port_name">tcp-frontend</td>
+                    <td class="col-port hidden">9090</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.23.159</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">True</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kc28ch_kc28ch-frontend_9090</td>
+                    <td class="col-display_name hidden">kc28ch/kc28ch-frontend</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:59</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc30</td>
+                    <td class="col-service">kc30-aggregator</td>
+                    <td class="col-port_name">tcp-api</td>
+                    <td class="col-port hidden">9004</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.247.8</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kc30_kc30-aggregator_9004</td>
+                    <td class="col-display_name hidden">kc30/kc30-aggregator</td>
+                    <td class="col-created_at hidden">2025-07-17 15:43:03</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-false">❌</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc30</td>
+                    <td class="col-service">kc30-cloud-cost</td>
+                    <td class="col-port_name">tcp-api</td>
+                    <td class="col-port hidden">9005</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.229.192</td>
+                    <td class="col-endpoint_status hidden">unhealthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">False</td>
+                    <td class="col-endpoint_count hidden">0</td>
+                    <td class="col-proxy_url hidden">/kc30_kc30-cloud-cost_9005</td>
+                    <td class="col-display_name hidden">kc30/kc30-cloud-cost</td>
+                    <td class="col-created_at hidden">2025-07-17 15:43:03</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator frontend-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kc30</td>
+                    <td class="col-service">kc30-frontend</td>
+                    <td class="col-port_name">tcp-frontend</td>
+                    <td class="col-port hidden">9090</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.34.131</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">True</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kc30_kc30-frontend_9090</td>
+                    <td class="col-display_name hidden">kc30/kc30-frontend</td>
+                    <td class="col-created_at hidden">2025-07-17 15:43:03</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">kubetail-system</td>
+                    <td class="col-service">kubetail-cluster-api</td>
+                    <td class="col-port_name">http</td>
+                    <td class="col-port hidden">8080</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.151.10</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/kubetail-system_kubetail-cluster-api_8080</td>
+                    <td class="col-display_name hidden">kubetail-system/kubetail-cluster-api</td>
+                    <td class="col-created_at hidden">2025-07-19 19:09:36</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">monitoring</td>
+                    <td class="col-service">kube-prometheus-stack-alertmanager</td>
+                    <td class="col-port_name">http-web</td>
+                    <td class="col-port hidden">9093</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.15.62</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">2</td>
+                    <td class="col-proxy_url hidden">/monitoring_kube-prometheus-stack-alertmanager_9093</td>
+                    <td class="col-display_name hidden">monitoring/kube-prometheus-stack-alertmanager</td>
+                    <td class="col-created_at hidden">2025-07-17 17:26:52</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">monitoring</td>
+                    <td class="col-service">kube-prometheus-stack-alertmanager</td>
+                    <td class="col-port_name">reloader-web</td>
+                    <td class="col-port hidden">8080</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.15.62</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">2</td>
+                    <td class="col-proxy_url hidden">/monitoring_kube-prometheus-stack-alertmanager_8080</td>
+                    <td class="col-display_name hidden">monitoring/kube-prometheus-stack-alertmanager</td>
+                    <td class="col-created_at hidden">2025-07-17 17:26:52</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">monitoring</td>
+                    <td class="col-service">kube-prometheus-stack-grafana</td>
+                    <td class="col-port_name">http-web</td>
+                    <td class="col-port hidden">80</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.48.178</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/monitoring_kube-prometheus-stack-grafana_80</td>
+                    <td class="col-display_name hidden">monitoring/kube-prometheus-stack-grafana</td>
+                    <td class="col-created_at hidden">2025-07-17 17:26:51</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">monitoring</td>
+                    <td class="col-service">kube-prometheus-stack-kube-state-metrics</td>
+                    <td class="col-port_name">http</td>
+                    <td class="col-port hidden">8080</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.25.47</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/monitoring_kube-prometheus-stack-kube-state-metrics_8080</td>
+                    <td class="col-display_name hidden">monitoring/kube-prometheus-stack-kube-state-metrics</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:43</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">monitoring</td>
+                    <td class="col-service">kube-prometheus-stack-operator</td>
+                    <td class="col-port_name">https</td>
+                    <td class="col-port hidden">443</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.238.124</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/monitoring_kube-prometheus-stack-operator_443</td>
+                    <td class="col-display_name hidden">monitoring/kube-prometheus-stack-operator</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:43</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">monitoring</td>
+                    <td class="col-service">kube-prometheus-stack-prometheus</td>
+                    <td class="col-port_name">http-web</td>
+                    <td class="col-port hidden">9090</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.239.13</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">2</td>
+                    <td class="col-proxy_url hidden">/monitoring_kube-prometheus-stack-prometheus_9090</td>
+                    <td class="col-display_name hidden">monitoring/kube-prometheus-stack-prometheus</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:43</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">monitoring</td>
+                    <td class="col-service">kube-prometheus-stack-prometheus</td>
+                    <td class="col-port_name">reloader-web</td>
+                    <td class="col-port hidden">8080</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.239.13</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">2</td>
+                    <td class="col-proxy_url hidden">/monitoring_kube-prometheus-stack-prometheus_8080</td>
+                    <td class="col-display_name hidden">monitoring/kube-prometheus-stack-prometheus</td>
+                    <td class="col-created_at hidden">2025-07-17 15:42:43</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">monitoring</td>
+                    <td class="col-service">kube-prometheus-stack-prometheus-node-exporter</td>
+                    <td class="col-port_name">http-metrics</td>
+                    <td class="col-port hidden">9100</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.5.115</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">4</td>
+                    <td class="col-proxy_url hidden">/monitoring_kube-prometheus-stack-prometheus-node-exporter_9100</td>
+                    <td class="col-display_name hidden">monitoring/kube-prometheus-stack-prometheus-node-exporter</td>
+                    <td class="col-created_at hidden">2025-07-17 17:26:52</td>
+                </tr>
+                
+                <tr>
+                    <td class="col-status">
+                        
+                            <span class="status-indicator endpoints-true">✅</span>
+                        
+                    </td>
+                    <td class="col-namespace">nginx-router</td>
+                    <td class="col-service">nginx-router</td>
+                    <td class="col-port_name">N/A</td>
+                    <td class="col-port hidden">8080</td>
+                    <td class="col-protocol hidden">TCP</td>
+                    <td class="col-service_type hidden">ClusterIP</td>
+                    <td class="col-cluster_ip hidden">10.100.66.240</td>
+                    <td class="col-endpoint_status hidden">healthy</td>
+                    <td class="col-is_frontend hidden">False</td>
+                    <td class="col-has_endpoints hidden">True</td>
+                    <td class="col-endpoint_count hidden">1</td>
+                    <td class="col-proxy_url hidden">/nginx-router_nginx-router_8080</td>
+                    <td class="col-display_name hidden">nginx-router/nginx-router</td>
+                    <td class="col-created_at hidden">2025-07-17 17:34:27</td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Field selector functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.field-checkbox input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const fieldName = this.id.replace('field-', '');
+                    const columns = document.querySelectorAll(`.col-${fieldName}`);
+                    
+                    columns.forEach(column => {
+                        if (this.checked) {
+                            column.classList.remove('hidden');
+                        } else {
+                            column.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

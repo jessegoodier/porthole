@@ -77,6 +77,65 @@ class PortalGenerator:
         logger.info(f"Generated HTML portal: {html_file}")
         return str(html_file)
 
+    def generate_table(self, discovery_result: ServiceDiscoveryResult) -> str:
+        """Generate HTML table view from service discovery result.
+
+        Args:
+            discovery_result: Service discovery result
+
+        Returns:
+            Path to generated HTML table file
+        """
+        logger.info("Generating HTML table view")
+
+        # Create portal data
+        portal_data = PortalData(
+            discovery_result=discovery_result,
+            portal_title=self.config.portal_title,
+            refresh_interval=self.config.refresh_interval,
+        )
+
+        # Create services list for table template
+        services_list = []
+        for service in discovery_result.get_sorted_services():
+            for port in service.ports:
+                services_list.append({
+                    "namespace": service.namespace,
+                    "service": service.name,
+                    "port": port.port,
+                    "port_name": port.name if port.name else "N/A",
+                    "protocol": port.protocol,
+                    "service_type": service.service_type.value,
+                    "cluster_ip": service.cluster_ip or "N/A",
+                    "endpoint_status": service.endpoint_status.value,
+                    "is_frontend": service.is_frontend,
+                    "has_endpoints": service.has_valid_endpoints,
+                    "endpoint_count": len(service.endpoints),
+                    "proxy_url": service.get_proxy_url(port),
+                    "display_name": service.display_name,
+                    "created_at": service.created_at.strftime('%Y-%m-%d %H:%M:%S') if service.created_at else "N/A",
+                })
+
+        # Generate HTML
+        try:
+            template = self.jinja_env.get_template("table.html")
+            html_content = template.render(
+                portal_data=portal_data,
+                services=services_list,
+                config=self.config,
+                now=datetime.now(),
+            )
+        except Exception as e:
+            logger.error(f"Failed to render table template: {e}")
+            raise
+
+        # Write HTML file
+        table_file = self.output_dir / "table.html"
+        table_file.write_text(html_content, encoding="utf-8")
+
+        logger.info(f"Generated HTML table: {table_file}")
+        return str(table_file)
+
     def generate_json_data(self, discovery_result: ServiceDiscoveryResult) -> str:
         """Generate JSON data file for services.
 
