@@ -446,6 +446,56 @@
             }
         }
 
+        /* Medium screens - single line layout */
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .header-nav {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .namespace-dropdown {
+                margin-right: 0;
+                margin-bottom: 0;
+            }
+
+            .namespace-button {
+                width: auto;
+                justify-content: space-between;
+            }
+
+            .stat-card {
+                flex: 1;
+                max-width: 150px;
+            }
+        }
+
+        /* Large screens - optimized single line layout */
+        @media (min-width: 1201px) {
+            .header-nav {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1.5rem;
+            }
+
+            .namespace-dropdown {
+                margin-right: 0;
+                margin-bottom: 0;
+            }
+
+            .namespace-button {
+                width: auto;
+                justify-content: space-between;
+                min-width: 180px;
+            }
+
+            .stat-card {
+                flex: 1;
+                max-width: 180px;
+            }
+        }
+
         /* Hidden columns */
         .hidden {
             display: none;
@@ -596,6 +646,37 @@
     <script>
         let servicesData = null;
         let currentFilter = 'all';
+        let currentNamespace = 'all';
+
+        // URL parameter utilities
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function setUrlParameter(name, value) {
+            const url = new URL(window.location);
+            if (value && value !== 'all') {
+                url.searchParams.set(name, value);
+            } else {
+                url.searchParams.delete(name);
+            }
+            window.history.replaceState({}, '', url);
+        }
+
+        function updateUrlParameters() {
+            if (currentFilter !== 'all') {
+                setUrlParameter('filter', currentFilter);
+            } else {
+                setUrlParameter('filter', null);
+            }
+            
+            if (currentNamespace !== 'all') {
+                setUrlParameter('namespace', currentNamespace);
+            } else {
+                setUrlParameter('namespace', null);
+            }
+        }
 
         // Utility functions
         function formatDateTime(dateString) {
@@ -615,6 +696,9 @@
                 renderTable();
                 setupFieldSelector();
                 setupNamespaceSelector();
+                
+                // Apply URL parameters after setup
+                applyUrlParameters();
             } catch (error) {
                 console.error('Failed to load services data:', error);
                 document.getElementById('loading').innerHTML = '<p>Failed to load services data. Please check if services.json exists.</p>';
@@ -720,6 +804,64 @@
             fieldSelector.classList.toggle('show');
         }
 
+        // Apply URL parameters on page load
+        function applyUrlParameters() {
+            const urlFilter = getUrlParameter('filter');
+            const urlNamespace = getUrlParameter('namespace');
+            
+            // Apply filter if specified
+            if (urlFilter && ['all', 'healthy', 'unhealthy', 'frontend'].includes(urlFilter)) {
+                applyFilterFromUrl(urlFilter);
+            }
+            
+            // Apply namespace if specified
+            if (urlNamespace) {
+                applyNamespaceFromUrl(urlNamespace);
+            }
+        }
+
+        // Apply filter from URL parameter
+        function applyFilterFromUrl(filterType) {
+            currentFilter = filterType;
+            
+            // Update active state
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            const targetCard = document.querySelector(`[data-filter="${filterType}"]`);
+            if (targetCard) {
+                targetCard.classList.add('active');
+            }
+            
+            // Apply the filter
+            applyCurrentFilters();
+        }
+
+        // Apply namespace from URL parameter
+        function applyNamespaceFromUrl(namespace) {
+            currentNamespace = namespace;
+            
+            // Update namespace dropdown
+            const currentNamespaceSpan = document.getElementById('current-namespace');
+            const namespaceOptions = document.getElementById('namespace-options');
+            
+            // Find and select the namespace option
+            const namespaceOption = namespaceOptions.querySelector(`input[value="${namespace}"]`);
+            if (namespaceOption) {
+                namespaceOptions.querySelectorAll('.namespace-option').forEach(opt => opt.classList.remove('selected'));
+                namespaceOption.closest('.namespace-option').classList.add('selected');
+                currentNamespaceSpan.textContent = namespaceOption.closest('.namespace-option').querySelector('label').textContent;
+            } else {
+                // If namespace not found, default to "All"
+                currentNamespaceSpan.textContent = 'All';
+                namespaceOptions.querySelector('.namespace-option input[value="all"]').closest('.namespace-option').classList.add('selected');
+            }
+            
+            // Apply the filter
+            applyCurrentFilters();
+        }
+
         // Setup namespace selector
         function setupNamespaceSelector() {
             if (!servicesData || !servicesData.meta || !servicesData.meta.namespaces_scanned) return;
@@ -781,59 +923,19 @@
             });
         }
 
-        // Filter by namespace
-        function filterByNamespace(namespace) {
-            // Reset stat card selections
-            document.querySelectorAll('.stat-card').forEach(card => {
-                card.classList.remove('active');
-            });
-
+        // Apply current filters (combines both filter and namespace)
+        function applyCurrentFilters() {
             const rows = document.querySelectorAll('tbody tr');
-            currentFilter = 'namespaces'; // Override currentFilter for namespace filtering
-
-            rows.forEach(row => {
-                const serviceNamespace = row.dataset.namespace;
-                let show = true;
-
-                if (namespace === 'all') {
-                    show = true;
-                } else {
-                    show = serviceNamespace === namespace;
-                }
-
-                if (show) {
-                    row.classList.remove('filtered-out');
-                } else {
-                    row.classList.add('filtered-out');
-                }
-            });
-        }
-
-        // Filter by stat card
-        function filterByStat(filterType) {
-            // Update active state
-            document.querySelectorAll('.stat-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            event.target.closest('.stat-card').classList.add('active');
-
-            // Reset namespace filter
-            const currentNamespaceSpan = document.getElementById('current-namespace');
-            currentNamespaceSpan.textContent = 'All';
-            document.querySelectorAll('.namespace-option').forEach(opt => opt.classList.remove('selected'));
-            document.querySelector('.namespace-option input[value="all"]').closest('.namespace-option').classList.add('selected');
-
-            // Filter table rows
-            const rows = document.querySelectorAll('tbody tr');
-            currentFilter = filterType;
-
+            
             rows.forEach(row => {
                 const endpointStatus = row.dataset.endpointStatus;
                 const isFrontend = row.dataset.isFrontend === 'true';
-
+                const serviceNamespace = row.dataset.namespace;
+                
                 let show = true;
-
-                switch (filterType) {
+                
+                // Apply filter
+                switch (currentFilter) {
                     case 'all':
                         show = true;
                         break;
@@ -850,13 +952,54 @@
                         show = true; // Namespace filtering handles this
                         break;
                 }
-
+                
+                // Apply namespace filter
+                if (show && currentNamespace !== 'all') {
+                    show = serviceNamespace === currentNamespace;
+                }
+                
                 if (show) {
                     row.classList.remove('filtered-out');
                 } else {
                     row.classList.add('filtered-out');
                 }
             });
+            
+            // Update URL parameters
+            updateUrlParameters();
+        }
+
+        // Filter by namespace
+        function filterByNamespace(namespace) {
+            // Reset stat card selections
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            currentNamespace = namespace;
+            currentFilter = 'namespaces'; // Override currentFilter for namespace filtering
+            
+            applyCurrentFilters();
+        }
+
+        // Filter by stat card
+        function filterByStat(filterType) {
+            // Update active state
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.stat-card').classList.add('active');
+
+            // Reset namespace filter
+            const currentNamespaceSpan = document.getElementById('current-namespace');
+            currentNamespaceSpan.textContent = 'All';
+            document.querySelectorAll('.namespace-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector('.namespace-option input[value="all"]').closest('.namespace-option').classList.add('selected');
+
+            currentFilter = filterType;
+            currentNamespace = 'all';
+            
+            applyCurrentFilters();
         }
 
         // Service opening functionality
