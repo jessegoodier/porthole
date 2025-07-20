@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "Portal to your k8s services"
+title: "porthole"
+abstract: "Portal to your k8s services"
+authors:
+  - name: "Jesse Goodier"
+version: 0.1.0
+license: "MIT"
+repository-code: "https://github.com/jessegoodier/porthole"
+keywords:
+  - "python"
