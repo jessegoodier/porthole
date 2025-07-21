@@ -7,22 +7,23 @@ from watchdog.observers import Observer
 
 
 class ConfigHandler(FileSystemEventHandler):
-    def on_modified(self, event):
-        if event.is_directory or not event.src_path.endswith('.conf'):
+    def on_modified(self, event) -> None:
+        if event.is_directory or not event.src_path.endswith(".conf"):
             return
-        
+
         print(f"Config change detected: {event.src_path}")
         # Test config first
-        result = subprocess.run(['nginx', '-t'], capture_output=True)
+        result = subprocess.run(["nginx", "-t"], check=False, capture_output=True)
         if result.returncode == 0:
-            subprocess.run(['nginx', '-s', 'reload'])
+            subprocess.run(["nginx", "-s", "reload"], check=False)
             print("Configuration reloaded successfully")
         else:
             print("Configuration test failed, not reloading")
 
+
 # Monitor /app/output directory
 observer = Observer()
-observer.schedule(ConfigHandler(), '/app/output', recursive=True)
+observer.schedule(ConfigHandler(), "/app/output", recursive=True)
 observer.start()
 
 try:

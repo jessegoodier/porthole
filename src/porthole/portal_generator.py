@@ -2,7 +2,7 @@
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 
 from .config import Config
@@ -74,7 +74,7 @@ class PortalGenerator:
                 "discovery_time": discovery_result.discovery_time.isoformat()
                 if discovery_result.discovery_time
                 else None,
-                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "generated_at": datetime.now(UTC).isoformat(),
             },
         }
 
@@ -106,4 +106,3 @@ class PortalGenerator:
 
         logger.info("Generated JSON data file: %s", json_file)
         return str(json_file)
-

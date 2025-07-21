@@ -2,7 +2,7 @@
 
 # Configuration
 IMAGE_NAME = jgoodier/k8s-service-proxy
-IMAGE_TAG = 0.2.9
+IMAGE_TAG = 0.2.13
 NAMESPACE = k8s-service-proxy
 
 # Docker image names (dynamically read IMAGE_TAG)
@@ -111,33 +111,6 @@ push-app-only: ## Push Docker image
 .PHONY: run-docker
 run-docker: ## Run Docker container locally (note: no web server - generates files only)
 	docker run --rm -it $(IMAGE_NAME):$(IMAGE_TAG)
-
-# ##@ Kubernetes
-# .PHONY: deploy
-# deploy: ## Deploy to Kubernetes
-# 	cd k8s && ./deploy.sh
-
-# .PHONY: apply
-# apply: ## Apply Kubernetes manifests
-# 	kubectl apply -f k8s/rbac.yaml
-# 	kubectl apply -f k8s/deployment.yaml
-
-# .PHONY: delete
-# delete: ## Delete Kubernetes resources
-# 	kubectl delete -f k8s/deployment.yaml || true
-# 	kubectl delete -f k8s/rbac.yaml || true
-
-# .PHONY: status
-# status: ## Show deployment status
-# 	kubectl -n $(NAMESPACE) get pods,svc,ingress
-
-# .PHONY: logs
-# logs: ## Show pod logs
-# 	kubectl -n $(NAMESPACE) logs deployment/k8s-service-proxy -f
-
-# .PHONY: port-forward
-# port-forward: ## Port forward to local machine
-# 	kubectl -n $(NAMESPACE) port-forward svc/k8s-service-proxy 6060:80
 
 .PHONY: debug
 debug: ## Enable debug mode

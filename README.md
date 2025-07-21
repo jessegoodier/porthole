@@ -118,105 +118,6 @@ Display cluster and configuration information:
 uv run task run info
 ```
 
-## Kubernetes Deployment
-
-Deploy as a service in your Kubernetes cluster:
-
-```bash
-# Quick deployment
-cd k8s/
-./deploy.sh
-
-# Or manually
-kubectl apply -f k8s/rbac.yaml
-kubectl apply -f k8s/deployment.yaml
-
-# Access the portal
-kubectl -n k8s-service-proxy port-forward svc/k8s-service-proxy 6060:80
-# Visit http://localhost:6060
-```
-
-The deployment includes:
-
-- **RBAC**: Minimal permissions for service discovery
-- **Deployment**: Single replica with health checks and resource limits
-- **Service**: ClusterIP service for internal access
-- **Ingress**: Optional external access (configure your domain)
-- **Security**: Non-root user, read-only filesystem, dropped capabilities
-
-For detailed deployment instructions, see [`k8s/README.md`](k8s/README.md).
-
-## Configuration
-
-Configure via environment variables:
-
-```bash
-# Kubernetes configuration
-export KUBECONFIG=/path/to/kubeconfig  # Optional, auto-detects
-
-# Output settings
-export OUTPUT_DIR=./output             # Default: ./output
-export SERVICE_JSON_FILE=services.json # Default: services.json
-export PORTAL_HTML_FILE=portal.html   # Default: portal.html
-export NGINX_CONFIG_FILE=services.conf # Default: services.conf
-
-# Namespace filtering
-export SKIP_NAMESPACES="kube-system,kube-public,cert-manager"
-
-# Portal settings
-export PORTAL_TITLE="My K8s Services"
-export REFRESH_INTERVAL=300           # Auto-refresh interval (seconds)
-
-# Debug mode
-export DEBUG=true
-```
-
-## Output Files
-
-The system generates several output files in the configured output directory:
-
-- **`portal.html`** - Beautiful web interface with service dashboard
-- **`services.json`** - Machine-readable service metadata
-- **`services.conf`** - NGINX configuration with upstreams and locations
-- **`docker-compose.override.yml`** - Docker Compose configuration (when generated)
-
-## Portal Features
-
-The generated web portal includes:
-
-- **Service Grid**: Organized by namespace with service cards
-- **Health Indicators**: ✅ healthy endpoints, ❌ unhealthy endpoints
-- **Frontend Detection**: Additional ✅ for services containing "frontend"
-- **Search & Filtering**: Filter by name, namespace, status, or frontend services
-- **Statistics Dashboard**: Overview of total, healthy, unhealthy, and frontend services
-- **Responsive Design**: Works on desktop and mobile devices
-- **Auto-refresh**: Automatically updates when refresh interval is configured
-
-## NGINX Integration
-
-The system generates nginx configuration including:
-
-- **Upstream blocks** for each healthy service
-- **Location blocks** with proper path rewriting
-- **Health-based routing** (only includes services with healthy endpoints)
-- **Docker Compose integration** for containerized deployments
-
-Example generated nginx config:
-
-```nginx
-upstream k8s-service-default-webapp-80 {
-    server 10.244.1.5:80;
-    server 10.244.2.3:80;
-}
-
-location /default_webapp_80 {
-    rewrite ^/default_webapp_80/?(.*)$ /$1 break;
-    proxy_pass http://k8s-service-default-webapp-80;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-}
-```
-
 ## Development
 
 ### Code Quality
@@ -239,17 +140,23 @@ uv run task tests
 
 ```
 src/porthole/
-├── config.py              # Configuration management
+├── __init__.py
+├── config.py              # Configuration management with env var support
+├── constants.py           # Application constants and magic numbers
 ├── k8s_client.py          # Kubernetes client with auto-detection
 ├── models.py              # Pydantic models for type safety
-├── service_discovery.py   # Core discovery logic
+├── service_discovery.py   # Core discovery logic with dual API support
 ├── portal_generator.py    # HTML portal and JSON generation
 ├── nginx_generator.py     # NGINX config generation
-└── porthole.py   # CLI interface
+├── nginx_reloader.py      # NGINX configuration reload monitoring
+├── porthole.py           # CLI interface with multiple commands
+└── static/               # Static files (favicon, index.html)
+    ├── favicon.ico
+    ├── index.html
+    └── porthole.png
 
 templates/
-├── portal.html            # Jinja2 template for web portal
-└── services_template.conf # NGINX location block template
+└── locations.conf.j2      # Jinja2 template for NGINX location blocks
 ```
 
 ## Requirements Met

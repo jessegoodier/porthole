@@ -24,16 +24,18 @@ This is a comprehensive Kubernetes service discovery and proxy portal system tha
 src/porthole/
 ├── __init__.py
 ├── config.py              # Configuration management with env var support
+├── constants.py           # Application constants and magic numbers
 ├── k8s_client.py          # Kubernetes client with auto-detection
 ├── models.py              # Pydantic models for type safety
 ├── service_discovery.py   # Core discovery logic with dual API support
 ├── portal_generator.py    # HTML portal and JSON generation
 ├── nginx_generator.py     # NGINX config generation
-└── porthole.py   # CLI interface with multiple commands
+├── nginx_reloader.py      # NGINX configuration reload monitoring
+├── porthole.py           # CLI interface with multiple commands
+└── static/               # Static files (favicon, index.html, images)
 
 templates/
-├── portal.html            # Jinja2 template for web portal
-└── services_template.conf # NGINX location block template
+└── locations.conf.j2      # Jinja2 template for NGINX location blocks
 ```
 
 ## CLI Commands
@@ -69,23 +71,27 @@ Dev: mypy, pytest, ruff, coverage, taskipy
 
 ## Recent Changes
 
+- **MAJOR REFACTOR**: Removed 7 unused/redundant files for cleaner codebase
+- **CODE QUALITY**: Fixed 60+ ruff linting issues, applied consistent formatting
+- **MAINTAINABILITY**: Added constants.py module to eliminate magic numbers
+- **TYPE SAFETY**: Updated all type annotations, removed deprecated typing imports
+- **LOGGING**: Improved logging practices with proper format strings
 - Fixed all type annotations for strict mypy compliance
 - Added comprehensive CLI interface
 - Implemented dual k8s API support (1.32/1.33)
 - Created responsive dark-mode portal UI
 - Added nginx configuration generation
 - Integrated auto-refresh and filtering capabilities
-- **NEW**: Added Docker containerization with multi-stage builds
-- **NEW**: Created Kubernetes deployment manifests with RBAC
-- **NEW**: Added deployment automation scripts and Makefile
-- **NEW**: Implemented security best practices (non-root, minimal permissions)
+- Added Docker containerization with multi-stage builds
+- Created Kubernetes deployment manifests with RBAC
+- Added deployment automation scripts and Makefile
+- Implemented security best practices (non-root, minimal permissions)
 
 ## Deployment Options
 
 1. **Local Development**: `uv run task run serve` or `make dev`
 2. **Docker**: `make build && make run-docker`
-3. **Kubernetes**: `make deploy` or `cd k8s && ./deploy.sh`
-4. **CI/CD**: `make full-deploy` for complete pipeline
+3. **CI/CD**: `make full-deploy` for complete pipeline
 
 ## Kubernetes Features
 

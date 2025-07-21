@@ -7,15 +7,22 @@ This directory contains the Kubernetes manifests to deploy the k8s-service-proxy
 The static HTML files are deployed as ConfigMaps. Use these commands to create or update them:
 
 ```bash
+# Create namespace
 kubectl create namespace k8s-service-proxy
+
 # Create ConfigMap for static files
 kubectl create configmap portal-static-files \
-  --from-file=portal.html=./src/porthole/static/portal.html \
   --from-file=index.html=./src/porthole/static/index.html \
   --from-file=favicon.ico=./src/porthole/static/favicon.ico \
   --namespace=k8s-service-proxy \
   --dry-run=client -o yaml | kubectl apply -f -
+
+# Apply all manifests
 kubectl apply -f k8s/ -n k8s-service-proxy
+
+# Check deployment status
+kubectl get pods -n k8s-service-proxy
+kubectl logs -n k8s-service-proxy deployment/k8s-service-proxy
 ```
 
 ## Configuration

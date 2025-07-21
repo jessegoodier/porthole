@@ -2,7 +2,6 @@
 
 import os
 from pathlib import Path
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -34,7 +33,10 @@ class Config(BaseModel):
 
     nginx_config_file: str = Field(
         default="services.conf",
-        description="Filename for nginx configuration (legacy, use upstreams_config_file and locations_config_file)",
+        description=(
+            "Filename for nginx configuration "
+            "(legacy, use upstreams_config_file and locations_config_file)"
+        ),
     )
     locations_config_file: str = Field(
         default="locations.conf",
@@ -77,7 +79,6 @@ class Config(BaseModel):
         default="Kubernetes Services Portal",
         description="Title for the portal HTML page",
     )
-
 
     # Refresh configuration
     refresh_interval: int = Field(

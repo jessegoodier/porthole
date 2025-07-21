@@ -1,5 +1,5 @@
 [tool.bumpversion]
-current_version = "0.2.9"
+current_version = "0.2.13"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"
@@ -17,11 +17,6 @@ replace = 'version = "{new_version}"'
 filename = "Makefile"
 search = "IMAGE_TAG = {current_version}"
 replace = "IMAGE_TAG = {new_version}"
-
-[[tool.bumpversion.files]]
-filename = "k8s/deploy.sh"
-search = "IMAGE=\"jgoodier/k8s-service-proxy:{current_version}\""
-replace = "IMAGE=\"jgoodier/k8s-service-proxy:{new_version}\""
 
 [[tool.bumpversion.files]]
 filename = "k8s/deployment.yaml"

@@ -1,12 +1,13 @@
 """Service discovery logic for Kubernetes services."""
 
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Set
+from datetime import UTC, datetime
+from typing import Any
 
 from kubernetes.client.rest import ApiException
 
 from .config import Config
+from .constants import HTTP_NOT_FOUND
 from .k8s_client import KubernetesClient
 from .models import (
     EndpointStatus,
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 class ServiceDiscovery:
     """Handles discovery of Kubernetes services."""
 
-    def __init__(self, k8s_client: KubernetesClient, config: Config):
+    def __init__(self, k8s_client: KubernetesClient, config: Config) -> None:
         """Initialize service discovery.
 
         Args:
@@ -56,7 +57,7 @@ class ServiceDiscovery:
                 all_services.extend(services)
                 scanned_namespaces.append(namespace)
             except Exception as e:
-                logger.error(f"Failed to discover services in namespace {namespace}: {e}")
+                logger.exception(f"Failed to discover services in namespace {namespace}: {e}")
                 continue
 
         # Calculate statistics
@@ -86,7 +87,7 @@ class ServiceDiscovery:
             namespaces = self.k8s_client.core_v1.list_namespace()
             return [ns.metadata.name for ns in namespaces.items]
         except ApiException as e:
-            logger.error(f"Failed to get namespaces: {e}")
+            logger.exception(f"Failed to get namespaces: {e}")
             return []
 
     def _filter_namespaces(self, namespaces: list[str]) -> list[str]:
@@ -137,13 +138,13 @@ class ServiceDiscovery:
                     discovered_services.append(k8s_service)
 
                 except Exception as e:
-                    logger.error(f"Failed to process service {service.metadata.name}: {e}")
+                    logger.exception(f"Failed to process service {service.metadata.name}: {e}")
                     continue
 
             return discovered_services
 
         except ApiException as e:
-            logger.error(f"Failed to list services in namespace {namespace}: {e}")
+            logger.exception(f"Failed to list services in namespace {namespace}: {e}")
             return []
 
     def _convert_service(self, service: Any) -> KubernetesService:
@@ -279,10 +280,10 @@ class ServiceDiscovery:
                                 )
 
         except ApiException as e:
-            if e.status == 404:
+            if e.status == HTTP_NOT_FOUND:
                 logger.debug("EndpointSlice API not available, falling back to Endpoints API")
             else:
-                logger.error(f"Failed to get endpoint slices: {e}")
+                logger.exception(f"Failed to get endpoint slices: {e}")
             raise
 
         return endpoints
@@ -362,10 +363,10 @@ class ServiceDiscovery:
                             )
 
         except ApiException as e:
-            if e.status == 404:
+            if e.status == HTTP_NOT_FOUND:
                 logger.debug(f"No endpoints found for service {service.metadata.name}")
             else:
-                logger.error(f"Failed to get endpoints: {e}")
+                logger.exception(f"Failed to get endpoints: {e}")
             raise
 
         return endpoints
@@ -415,10 +416,10 @@ class ServiceDiscovery:
             return k8s_service
 
         except ApiException as e:
-            if e.status == 404:
+            if e.status == HTTP_NOT_FOUND:
                 logger.debug(f"Service {namespace}/{name} not found")
             else:
-                logger.error(f"Failed to get service {namespace}/{name}: {e}")
+                logger.exception(f"Failed to get service {namespace}/{name}: {e}")
             return None
 
     def refresh_service_status(self, services: list[KubernetesService]) -> list[KubernetesService]:
@@ -442,7 +443,7 @@ class ServiceDiscovery:
                     logger.warning(f"Service {service.display_name} no longer exists")
 
             except Exception as e:
-                logger.error(f"Failed to refresh service {service.display_name}: {e}")
+                logger.exception(f"Failed to refresh service {service.display_name}: {e}")
                 # Keep the original service if refresh fails
                 refreshed_services.append(service)
 

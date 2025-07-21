@@ -9,8 +9,16 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 
 from .config import Config
+from .config import config as default_config
+from .constants import HTTP_NOT_FOUND
 
 logger = logging.getLogger(__name__)
+
+
+def _raise_config_error() -> None:
+    """Raise a configuration error for Kubernetes client initialization."""
+    msg = "Unable to initialize Kubernetes client: no valid configuration found"
+    raise RuntimeError(msg)
 
 
 class KubernetesClient:
@@ -40,8 +48,7 @@ class KubernetesClient:
             elif self._try_kubeconfig():
                 logger.info("Using kubeconfig file for Kubernetes configuration")
             else:
-                msg = "Unable to initialize Kubernetes client: no valid configuration found"
-                raise RuntimeError(msg)
+                _raise_config_error()
 
             # Initialize API clients
             self._core_v1 = client.CoreV1Api()
@@ -54,8 +61,8 @@ class KubernetesClient:
             self._is_initialized = True
             logger.info("Kubernetes client initialized successfully")
 
-        except Exception as e:
-            logger.error(f"Failed to initialize Kubernetes client: {e}")
+        except Exception:
+            logger.exception("Failed to initialize Kubernetes client")
             raise
 
     def _try_in_cluster_config(self) -> bool:
@@ -66,10 +73,11 @@ class KubernetesClient:
         """
         try:
             config.load_incluster_config()
-            return True
         except config.ConfigException:
             logger.debug("In-cluster configuration not available")
             return False
+        else:
+            return True
 
     def _try_kubeconfig(self) -> bool:
         """Try to load kubeconfig file.
@@ -83,9 +91,9 @@ class KubernetesClient:
                 kubeconfig_path = Path(self.config.kubeconfig_path)
                 if kubeconfig_path.exists():
                     config.load_kube_config(config_file=str(kubeconfig_path))
-                    logger.info(f"Loaded kubeconfig from {kubeconfig_path}")
+                    logger.info("Loaded kubeconfig from %s", kubeconfig_path)
                     return True
-                logger.warning(f"Kubeconfig file not found: {kubeconfig_path}")
+                logger.warning("Kubeconfig file not found: %s", kubeconfig_path)
 
             # Try default kubeconfig locations
             default_paths = [
@@ -96,17 +104,18 @@ class KubernetesClient:
             for path in default_paths:
                 if path and path.exists():
                     config.load_kube_config(config_file=str(path))
-                    logger.info(f"Loaded kubeconfig from {path}")
+                    logger.info("Loaded kubeconfig from %s", path)
                     return True
 
             # Try loading default kubeconfig without explicit path
             config.load_kube_config()
             logger.info("Loaded kubeconfig from default location")
-            return True
 
-        except (config.ConfigException, FileNotFoundError) as e:
-            logger.debug(f"Failed to load kubeconfig: {e}")
+        except (config.ConfigException, FileNotFoundError):
+            logger.debug("Failed to load kubeconfig")
             return False
+        else:
+            return True
 
     def _test_connection(self) -> None:
         """Test the Kubernetes connection."""
@@ -117,10 +126,11 @@ class KubernetesClient:
                 raise RuntimeError(msg)
             version = self._core_v1.get_api_resources()
             logger.debug(
-                f"Connected to Kubernetes cluster with {len(version.resources)} core resources",
+                "Connected to Kubernetes cluster with %d core resources",
+                len(version.resources),
             )
-        except ApiException as e:
-            logger.error(f"Failed to connect to Kubernetes cluster: {e}")
+        except ApiException:
+            logger.exception("Failed to connect to Kubernetes cluster")
             raise
 
     @property
@@ -173,7 +183,7 @@ class KubernetesClient:
             }
 
         except ApiException as e:
-            logger.error(f"Failed to get cluster info: {e}")
+            logger.exception("Failed to get cluster info")
             return {
                 "error": str(e),
                 "cluster_ready": False,
@@ -190,9 +200,7 @@ def get_kubernetes_client(config_obj: Config | None = None) -> KubernetesClient:
         Configured KubernetesClient instance
     """
     if config_obj is None:
-        from .config import config
-
-        config_obj = config
+        config_obj = default_config
 
     client_instance = KubernetesClient(config_obj)
     client_instance.initialize()
