@@ -2,9 +2,11 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, validator
+
+from .constants import MAX_PORT, MIN_PORT
 
 
 class ServiceType(str, Enum):
@@ -34,10 +36,11 @@ class ServicePort(BaseModel):
     node_port: int | None = Field(None, description="Node port for NodePort services")
 
     @validator("port")
-    def validate_port(cls, v: int) -> int:
+    def validate_port(self, v: int) -> int:
         """Validate port number."""
-        if not 1 <= v <= 65535:
-            raise ValueError("Port must be between 1 and 65535")
+        if not MIN_PORT <= v <= MAX_PORT:
+            msg = f"Port must be between {MIN_PORT} and {MAX_PORT}"
+            raise ValueError(msg)
         return v
 
 
@@ -50,10 +53,11 @@ class ServiceEndpoint(BaseModel):
     hostname: str | None = Field(None, description="Endpoint hostname")
 
     @validator("port")
-    def validate_port(cls, v: int) -> int:
+    def validate_port(self, v: int) -> int:
         """Validate port number."""
-        if not 1 <= v <= 65535:
-            raise ValueError("Port must be between 1 and 65535")
+        if not MIN_PORT <= v <= MAX_PORT:
+            msg = f"Port must be between {MIN_PORT} and {MAX_PORT}"
+            raise ValueError(msg)
         return v
 
 
@@ -67,14 +71,17 @@ class KubernetesService(BaseModel):
     external_ips: list[str] = Field(default_factory=list, description="External IPs")
     ports: list[ServicePort] = Field(default_factory=list, description="Service ports")
     endpoints: list[ServiceEndpoint] = Field(
-        default_factory=list, description="Service endpoints"
+        default_factory=list,
+        description="Service endpoints",
     )
     labels: dict[str, str] = Field(default_factory=dict, description="Service labels")
     annotations: dict[str, str] = Field(
-        default_factory=dict, description="Service annotations"
+        default_factory=dict,
+        description="Service annotations",
     )
     selector: dict[str, str] = Field(
-        default_factory=dict, description="Service selector"
+        default_factory=dict,
+        description="Service selector",
     )
     created_at: datetime | None = Field(None, description="Service creation timestamp")
     endpoint_status: EndpointStatus = Field(
@@ -87,21 +94,23 @@ class KubernetesService(BaseModel):
     )
 
     @validator("name")
-    def validate_name(cls, v: str) -> str:
+    def validate_name(self, v: str) -> str:
         """Validate service name."""
         if not v:
-            raise ValueError("Service name cannot be empty")
+            msg = "Service name cannot be empty"
+            raise ValueError(msg)
         return v
 
     @validator("namespace")
-    def validate_namespace(cls, v: str) -> str:
+    def validate_namespace(self, v: str) -> str:
         """Validate namespace."""
         if not v:
-            raise ValueError("Namespace cannot be empty")
+            msg = "Namespace cannot be empty"
+            raise ValueError(msg)
         return v
 
     @validator("is_frontend", pre=True, always=True)
-    def detect_frontend(cls, v: Any, values: dict[str, Any]) -> bool:
+    def detect_frontend(self, v: Any, values: dict[str, Any]) -> bool:
         """Detect if service is a frontend service."""
         if v is not None:
             return bool(v)
@@ -173,29 +182,30 @@ class ServiceDiscoveryResult(BaseModel):
     )
     frontend_services: int = Field(default=0, description="Number of frontend services")
     discovery_time: datetime | None = Field(
-        None, description="When discovery was performed"
+        None,
+        description="When discovery was performed",
     )
 
     @validator("total_services", pre=True, always=True)
-    def calculate_total_services(cls, v: Any, values: dict[str, Any]) -> int:
+    def calculate_total_services(self, v: Any, values: dict[str, Any]) -> int:
         """Calculate total services from services list."""
         services = values.get("services", [])
         return len(services)
 
     @validator("healthy_services", pre=True, always=True)
-    def calculate_healthy_services(cls, v: Any, values: dict[str, Any]) -> int:
+    def calculate_healthy_services(self, v: Any, values: dict[str, Any]) -> int:
         """Calculate healthy services from services list."""
         services = values.get("services", [])
         return sum(1 for s in services if s.endpoint_status == EndpointStatus.HEALTHY)
 
     @validator("unhealthy_services", pre=True, always=True)
-    def calculate_unhealthy_services(cls, v: Any, values: dict[str, Any]) -> int:
+    def calculate_unhealthy_services(self, v: Any, values: dict[str, Any]) -> int:
         """Calculate unhealthy services from services list."""
         services = values.get("services", [])
         return sum(1 for s in services if s.endpoint_status == EndpointStatus.UNHEALTHY)
 
     @validator("frontend_services", pre=True, always=True)
-    def calculate_frontend_services(cls, v: Any, values: dict[str, Any]) -> int:
+    def calculate_frontend_services(self, v: Any, values: dict[str, Any]) -> int:
         """Calculate frontend services from services list."""
         services = values.get("services", [])
         return sum(1 for s in services if s.is_frontend)
@@ -218,16 +228,20 @@ class PortalData(BaseModel):
     """Data structure for portal generation."""
 
     discovery_result: ServiceDiscoveryResult = Field(
-        ..., description="Service discovery result"
+        ...,
+        description="Service discovery result",
     )
     portal_title: str = Field(
-        default="Kubernetes Services Portal", description="Portal title"
+        default="Kubernetes Services Portal",
+        description="Portal title",
     )
     generated_at: datetime = Field(
-        default_factory=datetime.now, description="Generation timestamp"
+        default_factory=datetime.now,
+        description="Generation timestamp",
     )
     refresh_interval: int = Field(
-        default=300, description="Refresh interval in seconds"
+        default=300,
+        description="Refresh interval in seconds",
     )
 
     @property
@@ -249,10 +263,11 @@ class NginxLocation(BaseModel):
     rewrite_rule: str | None = Field(None, description="Rewrite rule")
 
     @validator("path")
-    def validate_path(cls, v: str) -> str:
+    def validate_path(self, v: str) -> str:
         """Validate location path."""
         if not v.startswith("/"):
-            raise ValueError("Location path must start with /")
+            msg = "Location path must start with /"
+            raise ValueError(msg)
         return v
 
 
@@ -264,5 +279,6 @@ class NginxConfig(BaseModel):
         description="Location configurations",
     )
     generated_at: datetime = Field(
-        default_factory=datetime.now, description="Generation timestamp"
+        default_factory=datetime.now,
+        description="Generation timestamp",
     )

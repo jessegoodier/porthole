@@ -8,12 +8,7 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader, Template
 
 from .config import Config
-from .models import (
-    KubernetesService,
-    NginxConfig,
-    NginxLocation,
-    ServiceDiscoveryResult,
-)
+from .models import KubernetesService, NginxConfig, NginxLocation, ServiceDiscoveryResult
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +16,7 @@ logger = logging.getLogger(__name__)
 class NginxGenerator:
     """Generates nginx configuration for Kubernetes services."""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config) -> None:
         """Initialize nginx generator.
 
         Args:
@@ -39,7 +34,6 @@ class NginxGenerator:
             loader=FileSystemLoader(self.template_dir),
             autoescape=False,  # Nginx config doesn't need HTML escaping
         )
-
 
     def generate_nginx_config(self, discovery_result: ServiceDiscoveryResult) -> str:
         """Generate nginx configuration from service discovery result.
@@ -86,7 +80,8 @@ class NginxGenerator:
         return str(locations_file)
 
     def _build_nginx_config(
-        self, discovery_result: ServiceDiscoveryResult
+        self,
+        discovery_result: ServiceDiscoveryResult,
     ) -> NginxConfig:
         """Build nginx configuration model from services.
 
@@ -103,7 +98,7 @@ class NginxGenerator:
             # Skip services without healthy endpoints
             if not service.has_valid_endpoints:
                 logger.debug(
-                    f"Skipping service without healthy endpoints: {service.display_name}"
+                    f"Skipping service without healthy endpoints: {service.display_name}",
                 )
                 continue
 
@@ -155,15 +150,11 @@ class NginxGenerator:
 
         # Clean up the path
         clean_path = re.sub(r"[^a-zA-Z0-9\-_/]", "_", path)
-        clean_path = re.sub(r"_+", "_", clean_path)  # Remove multiple underscores
-
-        return clean_path
-
-
-
+        return re.sub(r"_+", "_", clean_path)  # Remove multiple underscores
 
     def generate_docker_compose_override(
-        self, discovery_result: ServiceDiscoveryResult
+        self,
+        discovery_result: ServiceDiscoveryResult,
     ) -> str:
         """Generate docker-compose override for nginx proxy.
 
@@ -183,7 +174,7 @@ class NginxGenerator:
             if not service.has_valid_endpoints:
                 continue
 
-            for port in service.ports:
+            for _port in service.ports:
                 external_port = base_port + i
                 port_mappings.append(f'      - "{external_port}:80"')
 
@@ -200,7 +191,7 @@ services:
     restart: unless-stopped
     depends_on:
       - k8s-service-proxy
-  
+
   k8s-service-proxy:
     build: .
     volumes:
@@ -250,5 +241,5 @@ services:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to validate nginx config: {e}")
+            logger.exception(f"Failed to validate nginx config: {e}")
             return False

@@ -95,7 +95,7 @@ def discover(ctx: click.Context, output_dir: str | None, output_format: str) -> 
         )
 
     except Exception as e:
-        logger.error(f"Service discovery failed: {e}")
+        logger.exception(f"Service discovery failed: {e}")
         if config.debug:
             raise
         sys.exit(1)
@@ -151,7 +151,7 @@ def generate(
             portal_file = portal_gen.generate_portal(result)
             generated_files.append(portal_file)
             logger.info(f"Generated portal: {portal_file}")
-            
+
             # Also generate table view
             table_file = portal_gen.generate_table(result)
             generated_files.append(table_file)
@@ -174,7 +174,7 @@ def generate(
             click.echo(f"  - {file_path}")
 
     except Exception as e:
-        logger.error(f"Generation failed: {e}")
+        logger.exception(f"Generation failed: {e}")
         if config.debug:
             raise
         sys.exit(1)
@@ -248,18 +248,17 @@ def watch(
                 logger.info("Received interrupt signal, stopping watch")
                 break
             except Exception as e:
-                logger.error(f"Watch iteration {iteration} failed: {e}")
+                logger.exception(f"Watch iteration {iteration} failed: {e}")
                 if config.debug:
                     raise
                 # Continue watching despite errors
                 time.sleep(interval)
 
     except Exception as e:
-        logger.error(f"Watch mode failed: {e}")
+        logger.exception(f"Watch mode failed: {e}")
         if config.debug:
             raise
         sys.exit(1)
-
 
 
 @cli.command()
@@ -291,7 +290,7 @@ def info(ctx: click.Context) -> None:
         click.echo(f"  - Debug Mode: {config.debug}")
 
     except Exception as e:
-        logger.error(f"Failed to get cluster info: {e}")
+        logger.exception(f"Failed to get cluster info: {e}")
         if config.debug:
             raise
         sys.exit(1)
