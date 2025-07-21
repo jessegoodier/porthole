@@ -200,7 +200,7 @@ class ServiceDiscoveryResult(BaseModel):
             )
             values["frontend_services"] = sum(
                 1 for s in services if s.is_frontend
-            )  # PORTHOLLE_ISSUE_1: this is not counting port_name matches
+            )
         return values
 
     def get_services_by_namespace(self) -> dict[str, list[KubernetesService]]:

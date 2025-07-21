@@ -196,19 +196,15 @@ class ServiceDiscovery:
         selector = service.spec.selector or {}
 
         # Determine if this is a frontend service using configuration patterns
-        # A service is frontend if the service name matches OR if it has any frontend ports PORTHOLLE_ISSUE_1
-        is_frontend = False
+        # A service is frontend if the service name matches OR if it has any frontend ports
         is_frontend = self.config.is_frontend_service(service.metadata.name)
 
-        # # Also check if any ports are frontend ports
-        # # TODO: this is returns True if any of the ports in the list have frontend the frontend services working
-        # if not is_frontend:
-        #     for port in ports:
-        #         print(f"Port name: {port.name}")
-        #         if port.name and self.config.is_frontend_port(port.name):
-        #             print(f"Port name: {port.name} is frontend")
-        #             is_frontend = True
-        #             break
+        # Also check if any ports are frontend ports
+        if not is_frontend:
+            for port in ports:
+                if port.name and self.config.is_frontend_port(port.name):
+                    is_frontend = True
+                    break
 
         return KubernetesService(
             name=service.metadata.name,

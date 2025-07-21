@@ -83,15 +83,6 @@ class PortalGenerator:
         # Convert each service to JSON format
         for service in discovery_result.get_sorted_services():
             for port in service.ports:
-                # previously we were checking if any of the ports were frontend ports
-                # with "is_frontend": service.is_frontend. there's a better way to do this.
-                if port.name is not None and "frontend" in port.name:
-                    print(f"Port name: {port.name} is frontend XXXXXXXX")
-                    is_frontend_new = True
-                else:
-                    is_frontend_new = False
-                if service.is_frontend:
-                    is_frontend_new = True
                 service_entry = {
                     "namespace": service.namespace,
                     "service": service.name,
@@ -101,7 +92,7 @@ class PortalGenerator:
                     "service_type": service.service_type.value,
                     "cluster_ip": service.cluster_ip,
                     "endpoint_status": service.endpoint_status.value,
-                    "is_frontend": is_frontend_new,
+                    "is_frontend": service.is_frontend,
                     "has_endpoints": service.has_valid_endpoints,
                     "endpoint_count": len(service.endpoints),
                     "proxy_url": service.get_proxy_url(port),
