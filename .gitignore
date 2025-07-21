@@ -210,3 +210,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+generated-output/locations.conf
+generated-output/services.json
