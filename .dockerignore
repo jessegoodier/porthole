@@ -7,7 +7,7 @@ __pycache__
 .DS_Store
 .env
 .env.local
-.git
+.git/
 .gitattributes
 .github/
 .gitignore
@@ -68,3 +68,14 @@ tests/
 Thumbs.db
 var/
 venv/
+.DS_Store
+generated-output/
+k8s/
+CITATION.cff
+*-trivy-results.json
+*-trivy-results.yaml
+examples/
+output/
+noxfile.py
+helm/
+Makefile

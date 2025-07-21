@@ -10,7 +10,7 @@
         "kube-public"
     ],
     "frontend-pattern-matching": [
-        ".*-frontend.*",
-        ".*-portal.*"
+        "frontend",
+        "portal"
     ]
 }

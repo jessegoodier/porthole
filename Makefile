@@ -2,7 +2,7 @@
 
 # Configuration
 IMAGE_NAME = jgoodier/porthole
-IMAGE_TAG = 0.2.18
+IMAGE_TAG = 0.2.21
 NAMESPACE = porthole
 
 # Docker image names (dynamically read IMAGE_TAG)

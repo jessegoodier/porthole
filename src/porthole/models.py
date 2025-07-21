@@ -123,19 +123,7 @@ class KubernetesService(BaseModel):
                 values["is_frontend"] = bool(v)
                 return values
 
-            # Check if 'frontend' is in the name
-            name = values.get("name", "").lower()
-            if "frontend" in name:
-                values["is_frontend"] = True
-                return values
-
-            # Check labels for frontend indicators
-            labels = values.get("labels", {})
-            for key, value in labels.items():
-                if "frontend" in key.lower() or "frontend" in value.lower():
-                    values["is_frontend"] = True
-                    return values
-
+            # Default to False - frontend detection will be handled in service discovery
             values["is_frontend"] = False
         return values
 
@@ -210,7 +198,9 @@ class ServiceDiscoveryResult(BaseModel):
             values["unhealthy_services"] = sum(
                 1 for s in services if s.endpoint_status == EndpointStatus.UNHEALTHY
             )
-            values["frontend_services"] = sum(1 for s in services if s.is_frontend)
+            values["frontend_services"] = sum(
+                1 for s in services if s.is_frontend
+            )  # PORTHOLLE_ISSUE_1: this is not counting port_name matches
         return values
 
     def get_services_by_namespace(self) -> dict[str, list[KubernetesService]]:
