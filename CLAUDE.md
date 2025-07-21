@@ -58,8 +58,8 @@ Environment variables supported:
 
 ## Dependencies
 
-Core: kubernetes, pydantic, jinja2, click, aiohttp, tabulate
-Dev: mypy, pytest, ruff, coverage, taskipy
+Core: kubernetes, pydantic, jinja2, click, tabulate, requests, watchdog
+Dev: mypy, pytest, ruff, coverage, taskipy, isort, pre-commit, types-tabulate
 
 ## Quality Standards
 
@@ -90,8 +90,9 @@ Dev: mypy, pytest, ruff, coverage, taskipy
 ## Deployment Options
 
 1. **Local Development**: `uv run task run serve` or `make dev`
-2. **Docker**: `make build && make run-docker`
-3. **CI/CD**: `make full-deploy` for complete pipeline
+2. **Docker**: `make build && make run-docker` 
+3. **Kubernetes**: `make deploy` or `cd k8s && kubectl apply -f .`
+4. **CI/CD**: `make full-deploy` for complete pipeline
 
 ## Kubernetes Features
 
@@ -108,5 +109,28 @@ Dev: mypy, pytest, ruff, coverage, taskipy
 2. **Production**: Deploy to Kubernetes with `make deploy` for continuous monitoring
 3. **CI/CD**: Use `make full-deploy` for complete build-test-deploy pipeline
 4. **Debugging**: Use `make logs` and `make debug` for troubleshooting
+
+## Testing
+
+The project includes comprehensive test coverage for all core functionality:
+
+- **Unit Tests**: All models, configuration, and utility functions
+- **Integration Tests**: Service discovery, portal generation, and nginx config
+- **CLI Tests**: Command-line interface functionality
+- **Mock Tests**: Kubernetes API interactions with realistic fixtures
+
+Run tests with:
+```bash
+uv run task tests       # Run all tests
+uv run task coverage    # Generate coverage report
+uv run task type        # Type checking
+```
+
+## Code Quality Metrics
+
+- **Test Coverage**: 85%+ target with comprehensive edge case testing
+- **Type Coverage**: 100% with strict mypy compliance
+- **Linting**: Clean ruff checks with minimal exceptions
+- **Documentation**: Comprehensive docstrings and README files
 
 The system is production-ready with container deployment and follows modern Python and Kubernetes best practices.
