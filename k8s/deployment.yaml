@@ -1,64 +1,35 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: openresty-server-config
-  namespace: k8s-service-proxy
-data:
-  default.conf: |2-
-    server {
-        listen 7070;
-        server_name _;
-        location / {
-            root /app/static;
-            index index.html;
-            try_files $uri $uri/ @fallback;
-        }
-        location /services.json {
-            root /app/generated-output;
-            try_files $uri =404;
-        }
-        location @fallback {
-            root /app/generated-output;
-            autoindex on;
-            autoindex_exact_size off;
-            autoindex_localtime on;
-        }
-        include /app/generated-output/locations.conf;
-    }
----
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: k8s-service-proxy
-  namespace: k8s-service-proxy
+  name: porthole
+  namespace: porthole
   labels:
-    app.kubernetes.io/name: k8s-service-proxy
-    app.kubernetes.io/component: service-discovery
-    app.kubernetes.io/version: "0.2.14"
+    app.kubernetes.io/name: porthole
+    app.kubernetes.io/component: kubernetes-service-proxy
+    app.kubernetes.io/version: "0.2.18"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: k8s-service-proxy
-      app.kubernetes.io/component: service-discovery
+      app.kubernetes.io/name: porthole
+      app.kubernetes.io/component: kubernetes-service-proxy
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: k8s-service-proxy
-        app.kubernetes.io/component: service-discovery
-        app.kubernetes.io/version: "0.2.14"
-      annotations:
-        prometheus.io/scrape: "false"
+        app.kubernetes.io/name: porthole
+        app.kubernetes.io/component: kubernetes-service-proxy
+        app.kubernetes.io/version: "0.2.18"
     spec:
-      serviceAccountName: k8s-service-proxy
+      serviceAccountName: porthole
       securityContext:
         runAsNonRoot: true
         runAsUser: 101
         runAsGroup: 101
         fsGroup: 101
       initContainers:
-      - name: config-generator
-        image: jgoodier/k8s-service-proxy:0.2.14
+      - name: init-config-generator
+        image: jgoodier/porthole:0.2.18
         env:
         - name: OUTPUT_DIR
           value: "/app/generated-output"
@@ -95,8 +66,8 @@ spec:
             mountPath: /opt/bitnami/openresty/nginx/conf/server_blocks
           - name: openresty-tmp
             mountPath: /opt/bitnami/openresty/nginx/tmp
-      - name: k8s-service-proxy
-        image: jgoodier/k8s-service-proxy:0.2.14
+      - name: porthole
+        image: jgoodier/porthole:0.2.18
         imagePullPolicy: IfNotPresent
         env:
         - name: OUTPUT_DIR
@@ -131,6 +102,8 @@ spec:
           mountPath: /app/generated-output
         - name: portal-static-files
           mountPath: /app/static
+        - name: porthole-config
+          mountPath: /app/config
       volumes:
       - name: app-generated-output
         emptyDir: {}
@@ -142,17 +115,20 @@ spec:
           name: openresty-server-config
       - name: openresty-tmp
         emptyDir: {}
+      - name: porthole-config
+        configMap:
+          name: porthole-config
       restartPolicy: Always
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 5
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: k8s-service-proxy
-  namespace: k8s-service-proxy
+  name: porthole
+  namespace: porthole
   labels:
-    app.kubernetes.io/name: k8s-service-proxy
-    app.kubernetes.io/component: service-discovery
+    app.kubernetes.io/name: porthole
+    app.kubernetes.io/component: kubernetes-service-proxy
 spec:
   type: ClusterIP
   ports:
@@ -161,5 +137,5 @@ spec:
     targetPort: http
     protocol: TCP
   selector:
-    app.kubernetes.io/name: k8s-service-proxy
-    app.kubernetes.io/component: service-discovery
+    app.kubernetes.io/name: porthole
+    app.kubernetes.io/component: kubernetes-service-proxy

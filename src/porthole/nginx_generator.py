@@ -8,7 +8,12 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader, Template
 
 from .config import Config
-from .models import KubernetesService, NginxConfig, NginxLocation, ServiceDiscoveryResult
+from .models import (
+    KubernetesService,
+    NginxConfig,
+    NginxLocation,
+    ServiceDiscoveryResult,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +28,7 @@ class NginxGenerator:
             config: Configuration object
         """
         self.config = config
-        self.template_dir = Path(__file__).parent.parent.parent / "templates"
+        self.template_dir = Path(__file__).parent / "templates"
         self.output_dir = Path(self.config.output_dir)
 
         # Ensure output directory exists
@@ -117,6 +122,7 @@ class NginxGenerator:
                 location = NginxLocation(
                     path=location_path,
                     service_dns=service_dns,
+                    rewrite_rule=None,
                 )
                 locations.append(location)
 
@@ -152,62 +158,62 @@ class NginxGenerator:
         clean_path = re.sub(r"[^a-zA-Z0-9\-_/]", "_", path)
         return re.sub(r"_+", "_", clean_path)  # Remove multiple underscores
 
-    def generate_docker_compose_override(
-        self,
-        discovery_result: ServiceDiscoveryResult,
-    ) -> str:
-        """Generate docker-compose override for nginx proxy.
+    #     def generate_docker_compose_override(
+    #         self,
+    #         discovery_result: ServiceDiscoveryResult,
+    #     ) -> str:
+    #         """Generate docker-compose override for nginx proxy.
 
-        Args:
-            discovery_result: Service discovery result
+    #         Args:
+    #             discovery_result: Service discovery result
 
-        Returns:
-            Path to generated docker-compose override file
-        """
-        logger.info("Generating docker-compose override for nginx proxy")
+    #         Returns:
+    #             Path to generated docker-compose override file
+    #         """
+    #         logger.info("Generating docker-compose override for nginx proxy")
 
-        # Generate port mappings for all services
-        port_mappings = []
-        base_port = 6060
+    #         # Generate port mappings for all services
+    #         port_mappings = []
+    #         base_port = 6060
 
-        for i, service in enumerate(discovery_result.get_sorted_services()):
-            if not service.has_valid_endpoints:
-                continue
+    #         for i, service in enumerate(discovery_result.get_sorted_services()):
+    #             if not service.has_valid_endpoints:
+    #                 continue
 
-            for _port in service.ports:
-                external_port = base_port + i
-                port_mappings.append(f'      - "{external_port}:80"')
+    #             for _port in service.ports:
+    #                 external_port = base_port + i
+    #                 port_mappings.append(f'      - "{external_port}:80"')
 
-        # Generate docker-compose override content
-        override_content = f"""version: '3.8'
-services:
-  nginx-proxy:
-    image: nginx:alpine
-    ports:
-{chr(10).join(port_mappings)}
-    volumes:
-      - ./output/{self.config.nginx_config_file}:/etc/nginx/conf.d/default.conf:ro
-      - ./output/{self.config.portal_html_file}:/usr/share/nginx/html/index.html:ro
-    restart: unless-stopped
-    depends_on:
-      - k8s-service-proxy
+    #         # Generate docker-compose override content
+    #         override_content = f"""version: '3.8'
+    # services:
+    #   nginx-proxy:
+    #     image: nginx:alpine
+    #     ports:
+    # {chr(10).join(port_mappings)}
+    #     volumes:
+    #       - ./output/{self.config.nginx_config_file}:/etc/nginx/conf.d/default.conf:ro
+    #       - ./output/{self.config.portal_html_file}:/usr/share/nginx/html/index.html:ro
+    #     restart: unless-stopped
+    #     depends_on:
+    #       - porthole
 
-  k8s-service-proxy:
-    build: .
-    volumes:
-      - ./output:/app/output
-      - ~/.kube:/root/.kube:ro
-    environment:
-      - REFRESH_INTERVAL=300
-    restart: unless-stopped
-"""
+    #   porthole:
+    #     build: .
+    #     volumes:
+    #       - ./output:/app/output
+    #       - ~/.kube:/root/.kube:ro
+    #     environment:
+    #       - REFRESH_INTERVAL=300
+    #     restart: unless-stopped
+    # """
 
-        # Write override file
-        override_file = self.output_dir / "docker-compose.override.yml"
-        override_file.write_text(override_content, encoding="utf-8")
+    #         # Write override file
+    #         override_file = self.output_dir / "docker-compose.override.yml"
+    #         override_file.write_text(override_content, encoding="utf-8")
 
-        logger.info(f"Generated docker-compose override: {override_file}")
-        return str(override_file)
+    #         logger.info(f"Generated docker-compose override: {override_file}")
+    #         return str(override_file)
 
     def validate_nginx_config(self, config_file: str) -> bool:
         """Validate nginx configuration syntax.

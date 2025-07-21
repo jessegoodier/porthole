@@ -1,6 +1,6 @@
 # Kubernetes Deployment
 
-This directory contains the Kubernetes manifests to deploy the k8s-service-proxy as a service in your cluster.
+This directory contains the Kubernetes manifests to deploy the porthole as a service in your cluster.
 
 ## Quick Deployment
 
@@ -8,21 +8,27 @@ The static HTML files are deployed as ConfigMaps. Use these commands to create o
 
 ```bash
 # Create namespace
-kubectl create namespace k8s-service-proxy
+kubectl create namespace porthole
 
 # Create ConfigMap for static files
 kubectl create configmap portal-static-files \
   --from-file=index.html=./src/porthole/static/index.html \
   --from-file=favicon.ico=./src/porthole/static/favicon.ico \
-  --namespace=k8s-service-proxy \
+  --namespace=porthole \
   --dry-run=client -o yaml | kubectl apply -f -
 
 # Apply all manifests
-kubectl apply -f k8s/ -n k8s-service-proxy
+kubectl apply -f k8s/ -n porthole
 
-# Check deployment status
-kubectl get pods -n k8s-service-proxy
-kubectl logs -n k8s-service-proxy deployment/k8s-service-proxy
+# If making changes to the configmap, restart the pod
+kubectl rollout restart deployment -n porthole porthole
+```
+
+Check deployment status
+
+```bash
+kubectl get pods -n porthole
+kubectl logs -n porthole deployment/porthole
 ```
 
 ## Configuration
@@ -46,5 +52,5 @@ The deployment can be customized using environment variables in `deployment.yaml
 ```bash
 # Remove everything
 kubectl delete -f k8s/
-kubectl delete namespace k8s-service-proxy
+kubectl delete namespace porthole
 ```

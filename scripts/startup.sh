@@ -8,7 +8,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 Starting k8s-service-proxy${NC}"
+echo -e "${BLUE}🚀 Starting porthole${NC}"
 echo "=================================="
 
 # Ensure output directory exists

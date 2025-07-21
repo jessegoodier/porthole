@@ -9,14 +9,8 @@ from kubernetes.client.rest import ApiException
 from .config import Config
 from .constants import HTTP_NOT_FOUND
 from .k8s_client import KubernetesClient
-from .models import (
-    EndpointStatus,
-    KubernetesService,
-    ServiceDiscoveryResult,
-    ServiceEndpoint,
-    ServicePort,
-    ServiceType,
-)
+from .models import (EndpointStatus, KubernetesService, ServiceDiscoveryResult,
+                     ServiceEndpoint, ServicePort, ServiceType)
 
 logger = logging.getLogger(__name__)
 
@@ -193,7 +187,7 @@ class ServiceDiscovery:
             annotations=annotations,
             selector=selector,
             created_at=service.metadata.creation_timestamp,
-            is_frontend=None,  # Let validator determine based on name/labels
+            # is_frontend is omitted; model validator will determine it
         )
 
     def _get_service_endpoints(self, service: Any) -> list[ServiceEndpoint]:

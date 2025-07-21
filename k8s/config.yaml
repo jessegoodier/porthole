@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openresty-server-config
+  namespace: porthole
+data:
+  nginx-porthole.conf: |-
+    server {
+        listen 7070;
+        server_name _;
+        location / {
+            root /app/static;
+            index index.html;
+            try_files $uri $uri/ @fallback;
+        }
+        location /services.json {
+            root /app/generated-output;
+            try_files $uri =404;
+        }
+        location @fallback {
+            root /app/generated-output;
+            autoindex on;
+            autoindex_exact_size off;
+            autoindex_localtime on;
+        }
+        include /app/generated-output/locations.conf;
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: porthole-config
+    namespace: porthole
+data:
+    porthole-config.json: |-
+        {
+            "namespaces-to-skip": [
+                "kube-system",
+                "kube-public",
+                "kube-node-lease",
+                "kube-flannel",
+                "kube-public",
+                "kube-node-lease",
+                "kube-flannel",
+                "kube-public"
+            ]
+            "frontend-pattern-matching": [
+                ".*-frontend.*",
+                ".*-portal.*"
+            ]
+        }

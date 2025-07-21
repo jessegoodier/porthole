@@ -1,6 +1,8 @@
 """Configuration management for k8s service proxy."""
 
+import json
 import os
+import re
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -88,6 +90,12 @@ class Config(BaseModel):
 
     # Debug configuration
     debug: bool = Field(default=False, description="Enable debug logging")
+
+    # Frontend pattern matching
+    frontend_patterns: list[str] = Field(
+        default_factory=list,
+        description="Regex patterns to match frontend services",
+    )
 
     @classmethod
     def from_env(cls) -> "Config":

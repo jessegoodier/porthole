@@ -1,9 +1,9 @@
 # Kubernetes Service Proxy - Makefile
 
 # Configuration
-IMAGE_NAME = jgoodier/k8s-service-proxy
-IMAGE_TAG = 0.2.14
-NAMESPACE = k8s-service-proxy
+IMAGE_NAME = jgoodier/porthole
+IMAGE_TAG = 0.2.18
+NAMESPACE = porthole
 
 # Docker image names (dynamically read IMAGE_TAG)
 REGISTRY = docker.io
@@ -114,7 +114,7 @@ run-docker: ## Run Docker container locally (note: no web server - generates fil
 
 .PHONY: debug
 debug: ## Enable debug mode
-	kubectl -n $(NAMESPACE) set env deployment/k8s-service-proxy DEBUG=true
+	kubectl -n $(NAMESPACE) set env deployment/porthole DEBUG=true
 
 ##@ Utilities
 .PHONY: clean

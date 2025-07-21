@@ -8,7 +8,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 k8s-service-proxy entrypoint${NC}"
+echo -e "${BLUE}🚀 porthole entrypoint${NC}"
 echo "=============================="
 
 # Get startup mode from environment variable (default to "generate")

@@ -28,7 +28,7 @@ def setup_logging(debug: bool = False) -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(sys.stdout),
-            logging.FileHandler("k8s-service-proxy.log"),
+            logging.FileHandler("porthole.log"),
         ],
     )
 

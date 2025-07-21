@@ -8,14 +8,9 @@ import pytest
 from click.testing import CliRunner
 
 from porthole.config import Config
-from porthole.models import (
-    EndpointStatus,
-    KubernetesService,
-    ServiceDiscoveryResult,
-    ServiceEndpoint,
-    ServicePort,
-    ServiceType,
-)
+from porthole.models import (EndpointStatus, KubernetesService,
+                             ServiceDiscoveryResult, ServiceEndpoint,
+                             ServicePort, ServiceType)
 from porthole.porthole import _display_discovery_result, cli
 
 

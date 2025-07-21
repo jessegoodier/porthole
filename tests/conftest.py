@@ -6,14 +6,9 @@ from pathlib import Path
 import pytest
 
 from porthole.config import Config
-from porthole.models import (
-    EndpointStatus,
-    KubernetesService,
-    ServiceDiscoveryResult,
-    ServiceEndpoint,
-    ServicePort,
-    ServiceType,
-)
+from porthole.models import (EndpointStatus, KubernetesService,
+                             ServiceDiscoveryResult, ServiceEndpoint,
+                             ServicePort, ServiceType)
 
 
 @pytest.fixture

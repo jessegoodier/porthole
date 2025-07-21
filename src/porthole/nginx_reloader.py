@@ -2,16 +2,17 @@ import os
 import subprocess
 import time
 
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 
 class ConfigHandler(FileSystemEventHandler):
-    def on_modified(self, event) -> None:
-        if event.is_directory or not event.src_path.endswith(".conf"):
+    def on_modified(self, event: FileSystemEvent) -> None:
+        src_path = str(event.src_path)
+        if event.is_directory or not src_path.endswith(".conf"):
             return
 
-        print(f"Config change detected: {event.src_path}")
+        print(f"Config change detected: {src_path}")
         # Test config first
         result = subprocess.run(["nginx", "-t"], check=False, capture_output=True)
         if result.returncode == 0:

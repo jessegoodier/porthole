@@ -5,16 +5,9 @@ from datetime import datetime, timezone
 import pytest
 from pydantic import ValidationError
 
-from porthole.models import (
-    EndpointStatus,
-    KubernetesService,
-    NginxConfig,
-    NginxLocation,
-    ServiceDiscoveryResult,
-    ServiceEndpoint,
-    ServicePort,
-    ServiceType,
-)
+from porthole.models import (EndpointStatus, KubernetesService, NginxConfig,
+                             NginxLocation, ServiceDiscoveryResult,
+                             ServiceEndpoint, ServicePort, ServiceType)
 
 
 class TestServicePort:

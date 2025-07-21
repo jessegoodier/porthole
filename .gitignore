@@ -1,5 +1,11 @@
+helm/
 temp/
 output/
+.kubeconfig
+temp-kubeconfig
+*-trivy-results.json
+*-trivy-results.yaml
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

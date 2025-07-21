@@ -1,0 +1,29 @@
+config:
+  clientID: CLIENT_ID
+  clientSecret: CLIENT_SECRET
+  configFile: |-
+    provider = "oidc"
+    oidc_issuer_url = "https://YOUR_ISSUER_URL"
+    redirect_url = "https://YOUR_DOMAIN/oauth2/callback"
+    email_domains = ["*"]
+    cookie_refresh = "12h"
+    cookie_expire = "13h"
+    scope = "openid email profile"
+    upstreams = [ "http://porthole:7070" ]
+extraArgs:
+  upstream-timeout: 60s
+extraEnv:
+- name: OAUTH2_PROXY_SKIP_PROVIDER_BUTTON
+  value: "true"
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-http
+  className: nginx
+  enabled: true
+  hosts:
+  - YOUR_DOMAIN
+  tls:
+  - hosts:
+    - YOUR_DOMAIN
+    secretName: letsencrypt-oauth2-proxy-tls
+upstream-timeout: 60s

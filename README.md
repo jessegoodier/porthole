@@ -1,17 +1,24 @@
-# Kubernetes Service Proxy Portal
+# Porthole - Kubernetes Service Proxy Portal
+
+![Porthole](https://raw.githubusercontent.com/jessegoodier/porthole/main/src/porthole/static/porthole-logo-with-text.png)
 
 A comprehensive Kubernetes service discovery and proxy portal system that automatically discovers services in your cluster and generates a beautiful web interface with nginx proxy configuration.
+
+## Security Consideration
+
+This will expose all services in a cluster. Care must be taken to insure that the service is secured.
+
+Consider using SSO authentication with tools like:
+
+- <https://github.com/oauth2-proxy> See [examples/README.md](examples/README.md)
 
 ## Features
 
 - 🔍 **Service Discovery**: Automatically discovers all services across namespaces
-- 🌐 **Web Portal**: Beautiful dark-mode responsive interface with filtering and search
-- ✅ **Health Monitoring**: Real-time endpoint health checking with visual indicators
-- 🎯 **Frontend Detection**: Automatically identifies and highlights frontend services
-- 🔧 **NGINX Integration**: Generates proxy configuration for healthy services
-- 🛠️ **CLI Tools**: Complete command-line interface for all operations
+- 🌐 **Web Portal**: Responsive interface with filtering and search
+- ✅ **Frontend Detection**: Automatically identifies and highlights configurable "frontend services"
+- 🔧 **NGINX Integration**: Uses NGINX/[OpenResty](https://openresty.org/) for industry standard proxy configuration
 - 🔄 **Auto-refresh**: Continuous monitoring with configurable intervals
-- 🏗️ **Multi-API Support**: Works with both k8s 1.32 (Endpoints) and 1.33+ (EndpointSlices)
 
 ## Quick Start
 
@@ -19,11 +26,25 @@ A comprehensive Kubernetes service discovery and proxy portal system that automa
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd k8s-service-proxy
+git clone https://github.com/jessegoodier/porthole.git
+cd porthole
+```
+
+[Kubernetes Deployment](k8s/README.md)
+
+## Using UV for development
+
+```bash
+# Create a virtual environment
+uv venv
+
+# Activate the virtual environment
+source .venv/bin/activate
 
 # Install dependencies
 uv sync
+
+# Run the application
 ```
 
 ### Basic Usage
@@ -37,9 +58,6 @@ uv run python -m porthole.porthole generate
 
 # Start continuous monitoring
 uv run python -m porthole.porthole watch --interval 300
-
-# Serve portal via HTTP
-uv run python -m porthole.porthole serve --port 6060
 ```
 
 ### Using Task Commands
@@ -51,9 +69,6 @@ uv run task lint
 
 # Run type checking
 uv run task type
-
-# Run the application
-uv run task run discover --format table
 ```
 
 ## CLI Commands
@@ -98,29 +113,17 @@ uv run task run watch
 uv run task run watch --interval 60 --max-iterations 10
 ```
 
-### `serve`
-
-Built-in HTTP server for the portal:
-
-```bash
-# Start server on default port 6060
-uv run task run serve
-
-# Custom host and port
-uv run task run serve --host 0.0.0.0 --port 3000
-```
-
-### `info`
-
-Display cluster and configuration information:
-
-```bash
-uv run task run info
-```
-
 ## Development
 
 ### Code Quality
+
+Tests should pass:
+
+```bash
+uv run task test
+```
+
+Below are WIP, needs some cleanup.
 
 ```bash
 # Format code
@@ -131,45 +134,57 @@ uv run task lint
 
 # Type checking
 uv run task type
-
-# Run tests
-uv run task tests
 ```
 
 ### Project Structure
 
 ```
-src/porthole/
-├── __init__.py
-├── config.py              # Configuration management with env var support
-├── constants.py           # Application constants and magic numbers
-├── k8s_client.py          # Kubernetes client with auto-detection
-├── models.py              # Pydantic models for type safety
-├── service_discovery.py   # Core discovery logic with dual API support
-├── portal_generator.py    # HTML portal and JSON generation
-├── nginx_generator.py     # NGINX config generation
-├── nginx_reloader.py      # NGINX configuration reload monitoring
-├── porthole.py           # CLI interface with multiple commands
-└── static/               # Static files (favicon, index.html)
-    ├── favicon.ico
-    ├── index.html
-    └── porthole.png
-
-templates/
-└── locations.conf.j2      # Jinja2 template for NGINX location blocks
+. (project root)
+├── .bumpversion.toml                # bump-my-version config
+├── .dockerignore                    # ignore files for docker build
+├── Dockerfile                       # Dockerfile for the container
+├── Makefile                         # Makefile for the project
+├── k8s/                             # Kubernetes manifests
+│   ├── config.yaml
+│   ├── deployment.yaml
+│   ├── rbac.yaml
+│   └── README.md
+├── pyproject.toml
+├── scripts/                         # Scripts for the container
+│   ├── entrypoint.sh
+│   ├── startup-watch.sh
+│   └── startup.sh
+├── src/                             # Source code
+│   └── porthole/
+│       ├── __init__.py
+│       ├── config.py
+│       ├── constants.py
+│       ├── k8s_client.py
+│       ├── models.py
+│       ├── nginx_generator.py
+│       ├── nginx_reloader.py
+│       ├── portal_generator.py
+│       ├── porthole.py
+│       ├── service_discovery.py
+│       ├── py.typed
+│       ├── static/                    # Static files for the portal
+│       │   ├── favicon.ico
+│       │   ├── index.html
+│       │   └── porthole.png
+│       └── templates/                 # Templates for the nginx configuration
+│           └── locations.conf.j2
+├── tests/                             # Tests
+│   ├── conftest.py
+│   ├── podman-kind-cluster-testing.sh
+│   ├── test_config.py
+│   ├── test_constants.py
+│   ├── test_k8s_client.py
+│   ├── test_models.py
+│   ├── test_porthole.py
+│   └── trivy.sh                        # Trivy scan for vulnerabilities
 ```
 
-## Requirements Met
+## Special Thanks
 
-✅ JSON file generation with service metadata  
-✅ Web portal template with dark mode theme  
-✅ Alphabetical listing by namespace/service:port  
-✅ Health indicators using both k8s 1.32 and 1.33 APIs  
-✅ NGINX proxy configuration generation  
-✅ Frontend service detection and highlighting  
-✅ Modern Kubernetes library (kubernetes>=29.0.0)  
-✅ Auto-detection of in-cluster vs kubeconfig  
-✅ System namespace filtering  
-✅ Best practices project structure  
-✅ Quality tooling (ruff, mypy, pytest)  
-✅ Type checking and linting compliance
+- [Claude AI](https://www.anthropic.com/)
+- [Cursor AI](https://www.cursor.com/)

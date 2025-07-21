@@ -6,7 +6,8 @@ import pytest
 from kubernetes.client.rest import ApiException
 
 from porthole.config import Config
-from porthole.k8s_client import KubernetesClient, _raise_config_error, get_kubernetes_client
+from porthole.k8s_client import (KubernetesClient, _raise_config_error,
+                                 get_kubernetes_client)
 
 
 class TestKubernetesClient:

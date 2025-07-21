@@ -1,0 +1,16 @@
+{
+    "namespaces-to-skip": [
+        "kube-system",
+        "kube-public",
+        "kube-node-lease",
+        "kube-flannel",
+        "kube-public",
+        "kube-node-lease",
+        "kube-flannel",
+        "kube-public"
+    ],
+    "frontend-pattern-matching": [
+        ".*-frontend.*",
+        ".*-portal.*"
+    ]
+}
