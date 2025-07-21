@@ -147,15 +147,7 @@ def generate(
             logger.info(f"Generated JSON data: {json_file}")
 
         if not no_portal:
-            portal_gen = PortalGenerator(config)
-            portal_file = portal_gen.generate_portal(result)
-            generated_files.append(portal_file)
-            logger.info(f"Generated portal: {portal_file}")
-
-            # Also generate table view
-            table_file = portal_gen.generate_table(result)
-            generated_files.append(table_file)
-            logger.info(f"Generated table view: {table_file}")
+            logger.info("Portal HTML served via ConfigMap - no file generation needed")
 
         if not no_nginx:
             nginx_gen = NginxGenerator(config)
@@ -229,7 +221,6 @@ def watch(
 
                 # Generate all outputs
                 portal_gen.generate_json_data(result)
-                portal_gen.generate_portal(result)
                 nginx_gen.generate_nginx_config(result)
 
                 logger.info(
@@ -309,26 +300,8 @@ def _display_discovery_result(
     if output_format == "json":
         import json
 
-        data = {
-            "total_services": result.total_services,
-            "healthy_services": result.healthy_services,
-            "unhealthy_services": result.unhealthy_services,
-            "frontend_services": result.frontend_services,
-            "namespaces_scanned": result.namespaces_scanned,
-            "namespaces_skipped": result.namespaces_skipped,
-            "services": [
-                {
-                    "namespace": service.namespace,
-                    "name": service.name,
-                    "type": service.service_type.value,
-                    "ports": [port.port for port in service.ports],
-                    "endpoint_status": service.endpoint_status.value,
-                    "is_frontend": service.is_frontend,
-                    "endpoint_count": len(service.endpoints),
-                }
-                for service in result.get_sorted_services()
-            ],
-        }
+        # Use centralized to_dict method with CLI format
+        data = result.to_dict(format_type="cli")
         click.echo(json.dumps(data, indent=2))
 
     elif output_format == "table":

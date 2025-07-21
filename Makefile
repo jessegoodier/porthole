@@ -2,8 +2,9 @@
 
 # Configuration
 IMAGE_NAME = jgoodier/porthole
-IMAGE_TAG = 0.2.21
+IMAGE_TAG = 0.2.27
 NAMESPACE = porthole
+DOCKER_FILE = Dockerfile-app-changes-only
 
 # Docker image names (dynamically read IMAGE_TAG)
 REGISTRY = docker.io
@@ -50,8 +51,8 @@ dev: ## Generate portal files for development
 ##@ Docker
 .PHONY: build
 build: ## Build Docker image
-	podman build --arch amd64 -f Dockerfile -t "$(FULL_NAME_AMD64)" .
-	podman build --arch arm64 -f Dockerfile -t "$(FULL_NAME_ARM64)" .
+	podman build --arch amd64 -f $(DOCKER_FILE) -t "$(FULL_NAME_AMD64)" .
+	podman build --arch arm64 -f $(DOCKER_FILE) -t "$(FULL_NAME_ARM64)" .
 
 .PHONY: push
 push: ## Push Docker image

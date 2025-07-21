@@ -1,12 +1,15 @@
 """Pydantic models for service data structures."""
 
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
-from typing import Any
+from typing import Any, Literal, TYPE_CHECKING
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from .constants import MAX_PORT, MIN_PORT
+
+if TYPE_CHECKING:
+    from .config import Config
 
 
 class ServiceType(str, Enum):
@@ -215,6 +218,123 @@ class ServiceDiscoveryResult(BaseModel):
     def get_sorted_services(self) -> list[KubernetesService]:
         """Get services sorted alphabetically by namespace/service:port."""
         return sorted(self.services, key=lambda s: (s.namespace, s.name))
+
+    def to_dict(self, format_type: Literal["portal", "cli"] = "portal", config: "Config | None" = None) -> dict[str, Any]:
+        """Convert service discovery result to dictionary format.
+        
+        Args:
+            format_type: Type of format to generate:
+                - 'portal': Comprehensive data for web portal (includes proxy_url, display_name, etc.)
+                - 'cli': Simplified data for CLI display
+            config: Configuration object for port-level frontend detection (optional)
+                
+        Returns:
+            Dictionary with services data and metadata
+        """
+        if format_type == "portal":
+            return self._to_portal_dict(config)
+        elif format_type == "cli":
+            return self._to_cli_dict()
+        else:
+            msg = f"Unsupported format_type: {format_type}"
+            raise ValueError(msg)
+            
+    def _to_portal_dict(self, config: "Config | None" = None) -> dict[str, Any]:
+        """Generate comprehensive dictionary for web portal consumption."""
+        services_data = {
+            "services": [],
+            "meta": {
+                "total_services": self.total_services,
+                "healthy_services": self.healthy_services,
+                "unhealthy_services": self.unhealthy_services,
+                "frontend_services": self.frontend_services,
+                "namespaces_scanned": self.namespaces_scanned,
+                "namespaces_skipped": self.namespaces_skipped,
+                "discovery_time": (
+                    self.discovery_time.isoformat()
+                    if self.discovery_time
+                    else None
+                ),
+                "generated_at": datetime.now(UTC).isoformat(),
+            },
+        }
+        
+        # Convert each service to JSON format matching template
+        for service in self.get_sorted_services():
+            for port in service.ports:
+                # Determine port-level frontend status
+                port_is_frontend = self._is_port_frontend(service, port, config)
+                
+                service_entry = {
+                    "namespace": service.namespace,
+                    "service": service.name,
+                    "port": port.port,
+                    "port_name": port.name,
+                    "protocol": port.protocol,
+                    "service_type": service.service_type.value,
+                    "cluster_ip": service.cluster_ip,
+                    "endpoint_status": service.endpoint_status.value,
+                    "is_frontend": port_is_frontend,
+                    "has_endpoints": service.has_valid_endpoints,
+                    "endpoint_count": len(service.endpoints),
+                    "proxy_url": service.get_proxy_url(port),
+                    "display_name": f"{service.display_name}:{port.port}",
+                    "created_at": (
+                        service.created_at.isoformat() if service.created_at else None
+                    ),
+                }
+                services_data["services"].append(service_entry)  # type: ignore[attr-defined]
+                
+        return services_data
+
+    def _is_port_frontend(self, service: "KubernetesService", port: "ServicePort", config: "Config | None" = None) -> bool:
+        """Determine if a specific port is a frontend port.
+        
+        Args:
+            service: The Kubernetes service
+            port: The specific port to check
+            config: Configuration object with frontend patterns (optional)
+            
+        Returns:
+            True if this specific port is a frontend port
+        """
+        if not config:
+            # Fallback to service-level frontend detection if no config provided
+            return service.is_frontend
+            
+        # Check if service name itself matches frontend patterns
+        if config.is_frontend_service(service.name):
+            return True
+            
+        # Check if this specific port name matches frontend patterns
+        if port.name and config.is_frontend_port(port.name):
+            return True
+            
+        return False
+        
+    def _to_cli_dict(self) -> dict[str, Any]:
+        """Generate simplified dictionary for CLI display."""
+        data = {
+            "total_services": self.total_services,
+            "healthy_services": self.healthy_services,
+            "unhealthy_services": self.unhealthy_services,
+            "frontend_services": self.frontend_services,
+            "namespaces_scanned": self.namespaces_scanned,
+            "namespaces_skipped": self.namespaces_skipped,
+            "services": [
+                {
+                    "namespace": service.namespace,
+                    "name": service.name,
+                    "type": service.service_type.value,
+                    "ports": [port.port for port in service.ports],
+                    "endpoint_status": service.endpoint_status.value,
+                    "is_frontend": service.is_frontend,
+                    "endpoint_count": len(service.endpoints),
+                }
+                for service in self.get_sorted_services()
+            ],
+        }
+        return data
 
 
 class PortalData(BaseModel):

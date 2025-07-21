@@ -57,7 +57,7 @@
       "service_type": "ClusterIP",
       "cluster_ip": "10.96.161.123",
       "endpoint_status": "healthy",
-      "is_frontend": true,
+      "is_frontend": false,
       "has_endpoints": true,
       "endpoint_count": 2,
       "proxy_url": "/kubecost_kubecost-cost-analyzer_9003/",
@@ -177,7 +177,7 @@
       "kube-public",
       "kube-system"
     ],
-    "discovery_time": "2025-07-21T13:02:30.440521",
-    "generated_at": "2025-07-21T17:02:30.440783+00:00"
+    "discovery_time": "2025-07-21T13:36:10.387147",
+    "generated_at": "2025-07-21T17:36:10.387367+00:00"
   }
 }
