@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from .constants import MAX_PORT, MIN_PORT
 
@@ -35,8 +35,9 @@ class ServicePort(BaseModel):
     protocol: str = Field(default="TCP", description="Protocol (TCP/UDP)")
     node_port: int | None = Field(None, description="Node port for NodePort services")
 
-    @validator("port")
-    def validate_port(self, v: int) -> int:
+    @field_validator("port")
+    @classmethod
+    def validate_port(cls, v: int) -> int:
         """Validate port number."""
         if not MIN_PORT <= v <= MAX_PORT:
             msg = f"Port must be between {MIN_PORT} and {MAX_PORT}"
@@ -52,8 +53,9 @@ class ServiceEndpoint(BaseModel):
     ready: bool = Field(default=True, description="Whether endpoint is ready")
     hostname: str | None = Field(None, description="Endpoint hostname")
 
-    @validator("port")
-    def validate_port(self, v: int) -> int:
+    @field_validator("port")
+    @classmethod
+    def validate_port(cls, v: int) -> int:
         """Validate port number."""
         if not MIN_PORT <= v <= MAX_PORT:
             msg = f"Port must be between {MIN_PORT} and {MAX_PORT}"
@@ -93,40 +95,49 @@ class KubernetesService(BaseModel):
         description="Whether service is identified as frontend",
     )
 
-    @validator("name")
-    def validate_name(self, v: str) -> str:
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
         """Validate service name."""
         if not v:
             msg = "Service name cannot be empty"
             raise ValueError(msg)
         return v
 
-    @validator("namespace")
-    def validate_namespace(self, v: str) -> str:
+    @field_validator("namespace")
+    @classmethod
+    def validate_namespace(cls, v: str) -> str:
         """Validate namespace."""
         if not v:
             msg = "Namespace cannot be empty"
             raise ValueError(msg)
         return v
 
-    @validator("is_frontend", pre=True, always=True)
-    def detect_frontend(self, v: Any, values: dict[str, Any]) -> bool:
+    @model_validator(mode="before")
+    @classmethod
+    def detect_frontend(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Detect if service is a frontend service."""
-        if v is not None:
-            return bool(v)
+        if isinstance(values, dict):
+            v = values.get("is_frontend")
+            if v is not None:
+                values["is_frontend"] = bool(v)
+                return values
 
-        # Check if 'frontend' is in the name
-        name = values.get("name", "").lower()
-        if "frontend" in name:
-            return True
+            # Check if 'frontend' is in the name
+            name = values.get("name", "").lower()
+            if "frontend" in name:
+                values["is_frontend"] = True
+                return values
 
-        # Check labels for frontend indicators
-        labels = values.get("labels", {})
-        for key, value in labels.items():
-            if "frontend" in key.lower() or "frontend" in value.lower():
-                return True
+            # Check labels for frontend indicators
+            labels = values.get("labels", {})
+            for key, value in labels.items():
+                if "frontend" in key.lower() or "frontend" in value.lower():
+                    values["is_frontend"] = True
+                    return values
 
-        return False
+            values["is_frontend"] = False
+        return values
 
     @property
     def display_name(self) -> str:
@@ -151,7 +162,7 @@ class KubernetesService(BaseModel):
 
     def get_proxy_url(self, port: ServicePort, base_url: str = "") -> str:
         """Get proxy URL for a service port."""
-        port_suffix = f"_{port.port}" if port.name else f"_{port.port}"
+        port_suffix = f"_{port.port}"
         service_path = f"{self.namespace}_{self.name}{port_suffix}"
         return f"{base_url}/{service_path}/"
 
@@ -186,29 +197,21 @@ class ServiceDiscoveryResult(BaseModel):
         description="When discovery was performed",
     )
 
-    @validator("total_services", pre=True, always=True)
-    def calculate_total_services(self, v: Any, values: dict[str, Any]) -> int:
-        """Calculate total services from services list."""
-        services = values.get("services", [])
-        return len(services)
-
-    @validator("healthy_services", pre=True, always=True)
-    def calculate_healthy_services(self, v: Any, values: dict[str, Any]) -> int:
-        """Calculate healthy services from services list."""
-        services = values.get("services", [])
-        return sum(1 for s in services if s.endpoint_status == EndpointStatus.HEALTHY)
-
-    @validator("unhealthy_services", pre=True, always=True)
-    def calculate_unhealthy_services(self, v: Any, values: dict[str, Any]) -> int:
-        """Calculate unhealthy services from services list."""
-        services = values.get("services", [])
-        return sum(1 for s in services if s.endpoint_status == EndpointStatus.UNHEALTHY)
-
-    @validator("frontend_services", pre=True, always=True)
-    def calculate_frontend_services(self, v: Any, values: dict[str, Any]) -> int:
-        """Calculate frontend services from services list."""
-        services = values.get("services", [])
-        return sum(1 for s in services if s.is_frontend)
+    @model_validator(mode="before")
+    @classmethod
+    def calculate_services(cls, values: dict[str, Any]) -> dict[str, Any]:
+        """Calculate service counts from services list."""
+        if isinstance(values, dict):
+            services = values.get("services", [])
+            values["total_services"] = len(services)
+            values["healthy_services"] = sum(
+                1 for s in services if s.endpoint_status == EndpointStatus.HEALTHY
+            )
+            values["unhealthy_services"] = sum(
+                1 for s in services if s.endpoint_status == EndpointStatus.UNHEALTHY
+            )
+            values["frontend_services"] = sum(1 for s in services if s.is_frontend)
+        return values
 
     def get_services_by_namespace(self) -> dict[str, list[KubernetesService]]:
         """Group services by namespace."""
@@ -262,8 +265,9 @@ class NginxLocation(BaseModel):
     service_dns: str = Field(..., description="Service DNS name with port")
     rewrite_rule: str | None = Field(None, description="Rewrite rule")
 
-    @validator("path")
-    def validate_path(self, v: str) -> str:
+    @field_validator("path")
+    @classmethod
+    def validate_path(cls, v: str) -> str:
         """Validate location path."""
         if not v.startswith("/"):
             msg = "Location path must start with /"

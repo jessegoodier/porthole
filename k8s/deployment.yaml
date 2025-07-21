@@ -34,7 +34,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8s-service-proxy
     app.kubernetes.io/component: service-discovery
-    app.kubernetes.io/version: "0.2.12"
+    app.kubernetes.io/version: "0.2.13"
 spec:
   replicas: 1
   selector:
@@ -46,7 +46,7 @@ spec:
       labels:
         app.kubernetes.io/name: k8s-service-proxy
         app.kubernetes.io/component: service-discovery
-        app.kubernetes.io/version: "0.2.12"
+        app.kubernetes.io/version: "0.2.13"
       annotations:
         prometheus.io/scrape: "false"
     spec:
@@ -58,7 +58,7 @@ spec:
         fsGroup: 101
       initContainers:
       - name: config-generator
-        image: jgoodier/k8s-service-proxy:0.2.12
+        image: jgoodier/k8s-service-proxy:0.2.13
         env:
         - name: OUTPUT_DIR
           value: "/app/generated-output"
@@ -96,7 +96,7 @@ spec:
           - name: openresty-tmp
             mountPath: /opt/bitnami/openresty/nginx/tmp
       - name: k8s-service-proxy
-        image: jgoodier/k8s-service-proxy:0.2.12
+        image: jgoodier/k8s-service-proxy:0.2.13
         imagePullPolicy: IfNotPresent
         env:
         - name: OUTPUT_DIR
@@ -109,7 +109,7 @@ spec:
           value: "false"
         - name: SKIP_NAMESPACES
           value: "kube-system,kube-public,kube-node-lease"
-        command: ["/app/scripts/startup-watch-serve.sh"]
+        command: ["/app/scripts/startup-watch.sh"]
         resources:
           limits:
             memory: "512Mi"
