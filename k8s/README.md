@@ -7,12 +7,11 @@ This directory contains the Kubernetes manifests to deploy the porthole as a ser
 The static HTML files are deployed as ConfigMaps. Use these commands to create or update them:
 
 ```bash
-# Create namespace
-kubectl create namespace porthole
-# Apply all manifests
-kubectl apply -f k8s/ -n porthole
-# If making changes to the configmap, restart the pod
-kubectl rollout restart deployment -n porthole porthole
+kubectl create ns porthole
+kubectl apply -n porthole -f https://raw.githubusercontent.com/jessegoodier/porthole/main/k8s/rbac.yaml
+kubectl apply -n porthole -f https://raw.githubusercontent.com/jessegoodier/porthole/main/k8s/config.yaml
+kubectl apply -n porthole -f https://raw.githubusercontent.com/jessegoodier/porthole/main/k8s/deployment.yaml
+kubectl apply -n porthole -f https://raw.githubusercontent.com/jessegoodier/porthole/main/k8s/service.yaml
 ```
 
 Check deployment status
@@ -23,6 +22,16 @@ kubectl get pods -n porthole
 
 ```bash
 kubectl logs -n porthole -l app.kubernetes.io/name=porthole --all-containers 
+```
+
+Delete everything:
+
+```bash
+kubectl delete -n porthole -f https://raw.githubusercontent.com/jessegoodier/porthole/main/k8s/rbac.yaml
+kubectl delete -n porthole -f https://raw.githubusercontent.com/jessegoodier/porthole/main/k8s/config.yaml
+kubectl delete -n porthole -f https://raw.githubusercontent.com/jessegoodier/porthole/main/k8s/deployment.yaml
+kubectl delete -n porthole -f https://raw.githubusercontent.com/jessegoodier/porthole/main/k8s/service.yaml
+kubectl delete ns porthole
 ```
 
 ## Configuration
