@@ -8,6 +8,18 @@ from typing import Any, Optional
 
 import click
 
+# Add TRACE log level (below DEBUG)
+TRACE_LEVEL_NUM = 5
+if not hasattr(logging, "TRACE"):
+    logging.addLevelName(TRACE_LEVEL_NUM, "TRACE")
+
+    def trace(self, message, *args, **kws):
+        if self.isEnabledFor(TRACE_LEVEL_NUM):
+            self._log(TRACE_LEVEL_NUM, message, args, **kws)
+
+    logging.Logger.trace = trace
+    logging.TRACE = TRACE_LEVEL_NUM
+
 from .config import Config
 from .k8s_client import get_kubernetes_client
 from .models import ServiceDiscoveryResult
@@ -16,15 +28,22 @@ from .portal_generator import PortalGenerator
 from .service_discovery import ServiceDiscovery
 
 
-def setup_logging(debug: bool = False) -> None:
+def setup_logging(log_level: str = "INFO") -> None:
     """Setup logging configuration.
 
     Args:
-        debug: Enable debug logging
+        log_level: Log level (TRACE,DEBUG, INFO, WARNING, ERROR)
     """
-    level = logging.DEBUG if debug else logging.INFO
+    # Convert string to logging level
+    numeric_level = getattr(logging, log_level.upper(), None)
+    if numeric_level is None:
+        if log_level.upper() == "TRACE":
+            numeric_level = TRACE_LEVEL_NUM
+        else:
+            numeric_level = logging.INFO
+
     logging.basicConfig(
-        level=level,
+        level=numeric_level,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(sys.stdout),
@@ -34,21 +53,45 @@ def setup_logging(debug: bool = False) -> None:
 
 
 @click.group()
-@click.option("--debug", is_flag=True, help="Enable debug logging")
+@click.option(
+    "--log-level",
+    type=click.Choice(
+        ["TRACE", "DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False
+    ),
+    help="Set logging level",
+)
 @click.option("--config-file", type=click.Path(), help="Path to configuration file")
 @click.pass_context
-def cli(ctx: click.Context, debug: bool, config_file: str | None) -> None:
+def cli(ctx: click.Context, log_level: str | None, config_file: str | None) -> None:
     """Kubernetes Service Proxy - Discover services and generate proxy configurations."""
-    setup_logging(debug)
-
-    # Load configuration
+    # First, do a quick config parse to get the base log level
     if config_file:
         # TODO: Implement config file loading
-        config = Config.from_env()
+        config = Config.parse_config()
     else:
-        config = Config.from_env()
+        config = Config.parse_config()
 
-    config.debug = debug
+    # Override log level if provided via CLI
+    if log_level:
+        config.log_level = log_level.upper()
+    
+    # Setup logging with the resolved log level
+    setup_logging(config.log_level)
+    
+    # Now re-parse config with debug logging enabled (if debug level)
+    debug_logging = config.log_level in ["DEBUG", "TRACE"]
+    if debug_logging:
+        logger = logging.getLogger(__name__)
+        logger.debug("Re-parsing configuration with debug logging enabled")
+        if config_file:
+            # TODO: Implement config file loading
+            config = Config.parse_config(debug_logging=True)
+        else:
+            config = Config.parse_config(debug_logging=True)
+        
+        # Override log level again if provided via CLI
+        if log_level:
+            config.log_level = log_level.upper()
 
     # Store config in context
     ctx.ensure_object(dict)
@@ -96,7 +139,7 @@ def discover(ctx: click.Context, output_dir: str | None, output_format: str) -> 
 
     except Exception as e:
         logger.exception(f"Service discovery failed: {e}")
-        if config.debug:
+        if config.log_level == "DEBUG":
             raise
         sys.exit(1)
 
@@ -135,7 +178,7 @@ def generate(
         discovery = ServiceDiscovery(k8s_client, config)
         result = discovery.discover_services()
 
-        logger.info(f"Discovered {result.total_services} services")
+        logger.debug(f"Discovered {result.total_services} services")
 
         # Generate outputs
         generated_files = []
@@ -144,22 +187,19 @@ def generate(
             portal_gen = PortalGenerator(config)
             json_file = portal_gen.generate_json_data(result)
             generated_files.append(json_file)
-            logger.info(f"Generated JSON data: {json_file}")
-
-        if not no_portal:
-            logger.info("Portal HTML served via ConfigMap - no file generation needed")
+            logger.debug(f"Generated JSON data: {json_file}")
 
         if not no_nginx:
             nginx_gen = NginxGenerator(config)
             nginx_file = nginx_gen.generate_nginx_config(result)
             generated_files.append(nginx_file)
-            logger.info(f"Generated nginx config: {nginx_file}")
+            logger.debug(f"Generated nginx config: {nginx_file}")
 
             # Validate nginx config
             if nginx_gen.validate_nginx_config(nginx_file):
-                logger.info("Nginx configuration is valid")
+                logger.debug("NGINX configiguration is valid")
             else:
-                logger.warning("Nginx configuration validation failed")
+                logger.warning("NGINX configiguration validation failed")
 
         click.echo(f"Generated {len(generated_files)} files:")
         for file_path in generated_files:
@@ -167,7 +207,7 @@ def generate(
 
     except Exception as e:
         logger.exception(f"Generation failed: {e}")
-        if config.debug:
+        if config.log_level == "DEBUG":
             raise
         sys.exit(1)
 
@@ -223,7 +263,7 @@ def watch(
                 portal_gen.generate_json_data(result)
                 nginx_gen.generate_nginx_config(result)
 
-                logger.info(
+                logger.debug(
                     f"Generated configurations for {result.total_services} services",
                 )
 
@@ -247,7 +287,7 @@ def watch(
 
     except Exception as e:
         logger.exception(f"Watch mode failed: {e}")
-        if config.debug:
+        if config.log_level == "DEBUG":
             raise
         sys.exit(1)
 
@@ -278,11 +318,11 @@ def info(ctx: click.Context) -> None:
         click.echo(f"  - Skip Namespaces: {len(config.skip_namespaces)} namespaces")
         click.echo(f"  - Include Headless: {config.include_headless_services}")
         click.echo(f"  - Refresh Interval: {config.refresh_interval}s")
-        click.echo(f"  - Debug Mode: {config.debug}")
+        click.echo(f"  - Log Level: {config.log_level}")
 
     except Exception as e:
         logger.exception(f"Failed to get cluster info: {e}")
-        if config.debug:
+        if config.log_level == "DEBUG":
             raise
         sys.exit(1)
 
@@ -320,8 +360,8 @@ def _display_discovery_result(
 
         for service in result.get_sorted_services():
             ports_str = ",".join(str(port.port) for port in service.ports)
-            status_icon = "" if service.endpoint_status.value == "healthy" else "L"
-            frontend_icon = "" if service.is_frontend else ""
+            status_icon = "  " if service.endpoint_status.value == "healthy" else "L"
+            frontend_icon = "  " if service.is_frontend else ""
 
             rows.append(
                 [

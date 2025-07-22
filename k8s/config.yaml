@@ -9,7 +9,7 @@ data:
         listen 7070;
         server_name _;
         location / {
-            root /app/static;
+            root /app/shared-configs/;
             index index.html;
             try_files $uri $uri/ @fallback;
         }
@@ -35,17 +35,10 @@ data:
     porthole-config.json: |-
         {
             "namespaces-to-skip": [
-                "kube-system",
-                "kube-public",
-                "kube-node-lease",
-                "kube-flannel",
-                "kube-public",
-                "kube-node-lease",
-                "kube-flannel",
-                "kube-public"
-            ]
+            ],
             "frontend-pattern-matching": [
-                ".*-frontend.*",
-                ".*-portal.*"
-            ]
+                "frontend"
+            ],
+            "refresh-interval": 30,
+            "portal-title": "porthole1"
         }

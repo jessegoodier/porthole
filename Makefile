@@ -2,7 +2,7 @@
 
 # Configuration
 IMAGE_NAME = jgoodier/porthole
-IMAGE_TAG = 0.2.27
+IMAGE_TAG = 0.2.39
 NAMESPACE = porthole
 DOCKER_FILE = Dockerfile-app-changes-only
 

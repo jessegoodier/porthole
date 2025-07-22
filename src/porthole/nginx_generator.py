@@ -1,4 +1,4 @@
-"""Nginx configuration generation for Kubernetes services."""
+"""NGINX configiguration generation for Kubernetes services."""
 
 import logging
 import re
@@ -37,7 +37,7 @@ class NginxGenerator:
         # Initialize Jinja2 environment
         self.jinja_env = Environment(
             loader=FileSystemLoader(self.template_dir),
-            autoescape=False,  # Nginx config doesn't need HTML escaping
+            autoescape=False,  # NGINX configig doesn't need HTML escaping
         )
 
     def generate_nginx_config(self, discovery_result: ServiceDiscoveryResult) -> str:
@@ -229,7 +229,7 @@ class NginxGenerator:
         try:
             config_path = Path(config_file)
             if not config_path.exists():
-                logger.error(f"Nginx config file not found: {config_file}")
+                logger.error(f"NGINX configig file not found: {config_file}")
                 return False
 
             content = config_path.read_text(encoding="utf-8")
@@ -243,7 +243,7 @@ class NginxGenerator:
             if "location" not in content:
                 logger.warning("No location blocks found in nginx config")
 
-            logger.info("Nginx configuration appears valid")
+            logger.info("NGINX configiguration appears valid")
             return True
 
         except Exception as e:

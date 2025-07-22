@@ -13,6 +13,10 @@ from .config import config as default_config
 from .constants import HTTP_NOT_FOUND
 
 logger = logging.getLogger(__name__)
+if logger.level == logging.TRACE:
+    logging.getLogger("kubernetes.client.rest").setLevel(logging.DEBUG)
+else:
+    logging.getLogger("kubernetes.client.rest").setLevel(logging.ERROR)
 
 
 def _raise_config_error() -> None:

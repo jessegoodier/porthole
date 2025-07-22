@@ -3,14 +3,12 @@
         "kube-system",
         "kube-public",
         "kube-node-lease",
-        "kube-flannel",
-        "kube-public",
-        "kube-node-lease",
-        "kube-flannel",
-        "kube-public"
+        "kube-flannel"
     ],
     "frontend-pattern-matching": [
-        "frontend",
-        "portal"
-    ]
+        "frontend"
+    ],
+    "portal-title": "porthole1",
+    "refresh-interval": 60,
+    "log-level": "DEBUG"
 }

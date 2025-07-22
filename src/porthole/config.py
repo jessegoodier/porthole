@@ -1,11 +1,14 @@
 """Configuration management for k8s service proxy."""
 
 import json
+import logging
 import os
 import re
 from pathlib import Path
 
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 
 class Config(BaseModel):
@@ -84,12 +87,14 @@ class Config(BaseModel):
 
     # Refresh configuration
     refresh_interval: int = Field(
-        default=300,
+        default=60,
         description="Refresh interval in seconds (0 to disable)",
     )
 
-    # Debug configuration
-    debug: bool = Field(default=False, description="Enable debug logging")
+    # Logging configuration
+    log_level: str = Field(
+        default="INFO", description="Log level (DEBUG, INFO, WARNING, ERROR)"
+    )
 
     # Frontend pattern matching
     frontend_patterns: list[str] = Field(
@@ -105,7 +110,7 @@ class Config(BaseModel):
         # Check service name against patterns
         for pattern in self.frontend_patterns:
             if re.search(pattern, service_name, re.IGNORECASE):
-                print(f"--------------Service {service_name} matches pattern {pattern}")
+                logger.debug(f"Service {service_name} matches pattern {pattern}")
                 return True
 
         return False
@@ -117,9 +122,9 @@ class Config(BaseModel):
 
         for pattern in self.frontend_patterns:
             if re.search(pattern, port_name, re.IGNORECASE):
-                print(f"--------------Port {port_name} matches pattern {pattern}")
+                logger.debug(f"Port {port_name} matches pattern {pattern}")
                 return True
-        
+
         return False
 
     @classmethod
@@ -128,32 +133,60 @@ class Config(BaseModel):
         config_path = Path(__file__).parent / "config" / "porthole-config.json"
 
         if not config_path.exists():
-            print(f"Warning: {config_path} does not exist")
+            logger.warning(f"Config file {config_path} does not exist")
             return {}
-
+        logger.info(f"Loading config from {config_path}")
         try:
             with open(config_path, "r") as f:
                 return json.load(f)
-        except (json.JSONDecodeError, IOError):
+        except (json.JSONDecodeError, IOError) as e:
+            logger.error(f"Error loading config from {config_path}")
+            logger.error(f"Error: {e}")
+            exit(1)
             return {}
 
     @classmethod
     def from_env(cls) -> "Config":
+        """Create configuration from environment variables and JSON config file."""
+        return cls.parse_config(debug_logging=False)
+
+    @classmethod
+    def parse_config(cls, debug_logging: bool = False) -> "Config":
         """Create configuration from environment variables and JSON config file."""
         # Load JSON config first
         json_config = cls._load_json_config()
 
         # Get skip_namespaces - prioritize env var, then JSON, then default
         skip_namespaces = None
-        if os.getenv("SKIP_NAMESPACES"):
-            skip_namespaces = os.getenv("SKIP_NAMESPACES", "").split(",")
-        elif "namespaces-to-skip" in json_config:
+        # if os.getenv("SKIP_NAMESPACES"):
+        #     skip_namespaces = os.getenv("SKIP_NAMESPACES", "").split(",")
+        if "namespaces-to-skip" in json_config:
             skip_namespaces = json_config["namespaces-to-skip"]
         else:
             skip_namespaces = []
 
+        if debug_logging:
+            logger.debug(f"Skip namespaces: {skip_namespaces}")
+
         # Get frontend patterns from JSON config
         frontend_patterns = json_config.get("frontend-pattern-matching", [])
+        if debug_logging:
+            logger.debug(f"Frontend patterns: {frontend_patterns}")
+
+        # Get portal title from JSON config with fallback to default
+        portal_title = json_config.get("portal-title", "Kubernetes Services Portal")
+        if debug_logging:
+            logger.debug(f"Portal title: {portal_title}")
+
+        # Get refresh interval from JSON config with fallback to default
+        refresh_interval = json_config.get("refresh-interval", 60)
+        if debug_logging:
+            logger.debug(f"Refresh interval: {refresh_interval}")
+
+        # Get log level from JSON config with fallback to default
+        log_level = json_config.get("log-level", "INFO")
+        if debug_logging:
+            logger.debug(f"Log level from JSON: {log_level}")
 
         return cls(
             kubeconfig_path=os.getenv("KUBECONFIG"),
@@ -167,12 +200,12 @@ class Config(BaseModel):
                 "INCLUDE_HEADLESS_SERVICES", "false"
             ).lower()
             == "true",
-            portal_title=os.getenv("PORTAL_TITLE", "Kubernetes Services Portal"),
-            refresh_interval=int(os.getenv("REFRESH_INTERVAL", "300")),
-            debug=os.getenv("DEBUG", "false").lower() == "true",
+            portal_title=portal_title,
+            refresh_interval=refresh_interval,
+            log_level=os.getenv("LOG_LEVEL", log_level).upper(),
             frontend_patterns=frontend_patterns,
         )
 
 
-# Global configuration instance
+# Global configuration instance (fallback)
 config = Config.from_env()

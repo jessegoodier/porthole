@@ -1,9 +1,12 @@
+import logging
 import os
 import subprocess
 import time
 
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigHandler(FileSystemEventHandler):
@@ -12,14 +15,14 @@ class ConfigHandler(FileSystemEventHandler):
         if event.is_directory or not src_path.endswith(".conf"):
             return
 
-        print(f"Config change detected: {src_path}")
+        logger.info(f"Config change detected: {src_path}")
         # Test config first
         result = subprocess.run(["nginx", "-t"], check=False, capture_output=True)
         if result.returncode == 0:
             subprocess.run(["nginx", "-s", "reload"], check=False)
-            print("Configuration reloaded successfully")
+            logger.info("Configuration reloaded successfully")
         else:
-            print("Configuration test failed, not reloading")
+            logger.error("Configuration test failed, not reloading")
 
 
 # Monitor /app/output directory

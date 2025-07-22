@@ -19,6 +19,10 @@ from .models import (
 )
 
 logger = logging.getLogger(__name__)
+if logger.level == logging.TRACE:
+    logging.getLogger("kubernetes.client.rest").setLevel(logging.DEBUG)
+else:
+    logging.getLogger("kubernetes.client.rest").setLevel(logging.ERROR)
 
 
 class ServiceDiscovery:
@@ -235,7 +239,7 @@ class ServiceDiscovery:
         try:
             endpoints.extend(self._get_endpoint_slices(service))
         except Exception as e:
-            logger.debug(
+            logger.error(
                 f"Failed to get endpoint slices for {service.metadata.name}: {e}"
             )
 
@@ -244,7 +248,7 @@ class ServiceDiscovery:
             try:
                 endpoints.extend(self._get_endpoints_legacy(service))
             except Exception as e:
-                logger.debug(
+                logger.error(
                     f"Failed to get endpoints for {service.metadata.name}: {e}"
                 )
 
@@ -311,7 +315,7 @@ class ServiceDiscovery:
 
         except ApiException as e:
             if e.status == HTTP_NOT_FOUND:
-                logger.debug(
+                logger.error(
                     "EndpointSlice API not available, falling back to Endpoints API"
                 )
             else:

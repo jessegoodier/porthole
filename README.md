@@ -1,8 +1,6 @@
-# Porthole - Kubernetes Service Proxy Portal
+# ![Porthole](https://raw.githubusercontent.com/jessegoodier/porthole/main/src/porthole/static/porthole-logo-with-text.png)
 
-![Porthole](https://raw.githubusercontent.com/jessegoodier/porthole/main/src/porthole/static/porthole-logo-with-text.png)
-
-A comprehensive Kubernetes service discovery and proxy portal system that automatically discovers services in your cluster and generates a beautiful web interface with nginx proxy configuration.
+A web-based Kubernetes service discovery and proxy portal system that automatically discovers services in your cluster and proxies them with nginx proxy configuration.
 
 ## Security Consideration
 

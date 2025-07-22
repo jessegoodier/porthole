@@ -21,10 +21,7 @@ python -m porthole.porthole generate || {
     exit 1
 }
 
-echo -e "${GREEN}✅ Configuration complete - files served by nginx${NC}"
+# Copy the configmap to the output directory
+cp -r /app/src/porthole/static/* /app/shared-configs/
 
-# Keep container running (nginx handles web serving)
-echo -e "${BLUE}💤 Keeping container alive - nginx serves content${NC}"
-while true; do
-    sleep 3600
-done
+echo -e "${GREEN}✅ Configuration init complete ${NC}"
