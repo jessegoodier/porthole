@@ -62,7 +62,7 @@ class ServiceDiscovery:
                 scanned_namespaces.append(namespace)
             except Exception as e:
                 logger.exception(
-                    f"Failed to discover services in namespace {namespace}: {e}"
+                    f"Failed to discover services in namespace {namespace}: {e}",
                 )
                 continue
 
@@ -115,7 +115,7 @@ class ServiceDiscovery:
         return filtered
 
     def _discover_services_in_namespace(
-        self, namespace: str
+        self, namespace: str,
     ) -> list[KubernetesService]:
         """Discover services in a specific namespace.
 
@@ -139,7 +139,7 @@ class ServiceDiscovery:
                         and not self.config.include_headless_services
                     ):
                         logger.debug(
-                            f"Skipping headless service: {k8s_service.display_name}"
+                            f"Skipping headless service: {k8s_service.display_name}",
                         )
                         continue
 
@@ -147,14 +147,14 @@ class ServiceDiscovery:
                     endpoints = self._get_service_endpoints(service)
                     k8s_service.endpoints = endpoints
                     k8s_service.endpoint_status = self._determine_endpoint_status(
-                        endpoints
+                        endpoints,
                     )
 
                     discovered_services.append(k8s_service)
 
                 except Exception as e:
                     logger.exception(
-                        f"Failed to process service {service.metadata.name}: {e}"
+                        f"Failed to process service {service.metadata.name}: {e}",
                     )
                     continue
 
@@ -240,7 +240,7 @@ class ServiceDiscovery:
             endpoints.extend(self._get_endpoint_slices(service))
         except Exception as e:
             logger.error(
-                f"Failed to get endpoint slices for {service.metadata.name}: {e}"
+                f"Failed to get endpoint slices for {service.metadata.name}: {e}",
             )
 
         # Fallback to Endpoints API (k8s 1.32 and earlier)
@@ -249,7 +249,7 @@ class ServiceDiscovery:
                 endpoints.extend(self._get_endpoints_legacy(service))
             except Exception as e:
                 logger.error(
-                    f"Failed to get endpoints for {service.metadata.name}: {e}"
+                    f"Failed to get endpoints for {service.metadata.name}: {e}",
                 )
 
         return endpoints
@@ -316,7 +316,7 @@ class ServiceDiscovery:
         except ApiException as e:
             if e.status == HTTP_NOT_FOUND:
                 logger.error(
-                    "EndpointSlice API not available, falling back to Endpoints API"
+                    "EndpointSlice API not available, falling back to Endpoints API",
                 )
             else:
                 logger.exception(f"Failed to get endpoint slices: {e}")
@@ -408,7 +408,7 @@ class ServiceDiscovery:
         return endpoints
 
     def _determine_endpoint_status(
-        self, endpoints: list[ServiceEndpoint]
+        self, endpoints: list[ServiceEndpoint],
     ) -> EndpointStatus:
         """Determine the overall endpoint status for a service.
 
@@ -431,7 +431,7 @@ class ServiceDiscovery:
         return EndpointStatus.HEALTHY  # Consider it healthy if at least one is ready
 
     def get_service_by_name(
-        self, namespace: str, name: str
+        self, namespace: str, name: str,
     ) -> KubernetesService | None:
         """Get a specific service by name.
 
@@ -463,7 +463,7 @@ class ServiceDiscovery:
             return None
 
     def refresh_service_status(
-        self, services: list[KubernetesService]
+        self, services: list[KubernetesService],
     ) -> list[KubernetesService]:
         """Refresh the status of existing services.
 
@@ -479,7 +479,7 @@ class ServiceDiscovery:
             try:
                 # Get fresh service data
                 fresh_service = self.get_service_by_name(
-                    service.namespace, service.name
+                    service.namespace, service.name,
                 )
                 if fresh_service:
                     refreshed_services.append(fresh_service)
@@ -488,7 +488,7 @@ class ServiceDiscovery:
 
             except Exception as e:
                 logger.exception(
-                    f"Failed to refresh service {service.display_name}: {e}"
+                    f"Failed to refresh service {service.display_name}: {e}",
                 )
                 # Keep the original service if refresh fails
                 refreshed_services.append(service)

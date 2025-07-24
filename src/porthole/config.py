@@ -93,7 +93,7 @@ class Config(BaseModel):
 
     # Logging configuration
     log_level: str = Field(
-        default="INFO", description="Log level (DEBUG, INFO, WARNING, ERROR)"
+        default="INFO", description="Log level (DEBUG, INFO, WARNING, ERROR)",
     )
 
     # Frontend pattern matching
@@ -137,9 +137,9 @@ class Config(BaseModel):
             return {}
         logger.info(f"Loading config from {config_path}")
         try:
-            with open(config_path, "r") as f:
+            with open(config_path) as f:
                 return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
+        except (OSError, json.JSONDecodeError) as e:
             logger.error(f"Error loading config from {config_path}")
             logger.error(f"Error: {e}")
             exit(1)
@@ -197,7 +197,7 @@ class Config(BaseModel):
             locations_config_file=os.getenv("LOCATIONS_CONFIG_FILE", "locations.conf"),
             skip_namespaces=skip_namespaces,
             include_headless_services=os.getenv(
-                "INCLUDE_HEADLESS_SERVICES", "false"
+                "INCLUDE_HEADLESS_SERVICES", "false",
             ).lower()
             == "true",
             portal_title=portal_title,

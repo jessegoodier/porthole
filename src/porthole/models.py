@@ -1,8 +1,8 @@
 """Pydantic models for service data structures."""
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -233,12 +233,11 @@ class ServiceDiscoveryResult(BaseModel):
         """
         if format_type == "portal":
             return self._to_portal_dict(config)
-        elif format_type == "cli":
+        if format_type == "cli":
             return self._to_cli_dict()
-        else:
-            msg = f"Unsupported format_type: {format_type}"
-            raise ValueError(msg)
-            
+        msg = f"Unsupported format_type: {format_type}"
+        raise ValueError(msg)
+
     def _to_portal_dict(self, config: "Config | None" = None) -> dict[str, Any]:
         """Generate comprehensive dictionary for web portal consumption."""
         services_data = {
@@ -258,13 +257,13 @@ class ServiceDiscoveryResult(BaseModel):
                 "generated_at": datetime.now(UTC).isoformat(),
             },
         }
-        
+
         # Convert each service to JSON format matching template
         for service in self.get_sorted_services():
             for port in service.ports:
                 # Determine port-level frontend status
                 port_is_frontend = self._is_port_frontend(service, port, config)
-                
+
                 service_entry = {
                     "namespace": service.namespace,
                     "service": service.name,
@@ -284,7 +283,7 @@ class ServiceDiscoveryResult(BaseModel):
                     ),
                 }
                 services_data["services"].append(service_entry)  # type: ignore[attr-defined]
-                
+
         return services_data
 
     def _is_port_frontend(self, service: "KubernetesService", port: "ServicePort", config: "Config | None" = None) -> bool:
@@ -301,17 +300,17 @@ class ServiceDiscoveryResult(BaseModel):
         if not config:
             # Fallback to service-level frontend detection if no config provided
             return service.is_frontend
-            
+
         # Check if service name itself matches frontend patterns
         if config.is_frontend_service(service.name):
             return True
-            
+
         # Check if this specific port name matches frontend patterns
         if port.name and config.is_frontend_port(port.name):
             return True
-            
+
         return False
-        
+
     def _to_cli_dict(self) -> dict[str, Any]:
         """Generate simplified dictionary for CLI display."""
         data = {

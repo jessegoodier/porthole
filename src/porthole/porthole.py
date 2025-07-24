@@ -56,7 +56,7 @@ def setup_logging(log_level: str = "INFO") -> None:
 @click.option(
     "--log-level",
     type=click.Choice(
-        ["TRACE", "DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False
+        ["TRACE", "DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False,
     ),
     help="Set logging level",
 )
@@ -74,10 +74,10 @@ def cli(ctx: click.Context, log_level: str | None, config_file: str | None) -> N
     # Override log level if provided via CLI
     if log_level:
         config.log_level = log_level.upper()
-    
+
     # Setup logging with the resolved log level
     setup_logging(config.log_level)
-    
+
     # Now re-parse config with debug logging enabled (if debug level)
     debug_logging = config.log_level in ["DEBUG", "TRACE"]
     if debug_logging:
@@ -88,7 +88,7 @@ def cli(ctx: click.Context, log_level: str | None, config_file: str | None) -> N
             config = Config.parse_config(debug_logging=True)
         else:
             config = Config.parse_config(debug_logging=True)
-        
+
         # Override log level again if provided via CLI
         if log_level:
             config.log_level = log_level.upper()
@@ -125,6 +125,9 @@ def discover(ctx: click.Context, output_dir: str | None, output_format: str) -> 
     try:
         # Initialize Kubernetes client
         k8s_client = get_kubernetes_client(config)
+        
+        # Test API connectivity and permissions at startup
+        k8s_client.test_api_connectivity()
 
         # Perform service discovery
         discovery = ServiceDiscovery(k8s_client, config)
@@ -173,6 +176,9 @@ def generate(
     try:
         # Initialize Kubernetes client
         k8s_client = get_kubernetes_client(config)
+        
+        # Test API connectivity and permissions at startup
+        k8s_client.test_api_connectivity()
 
         # Perform service discovery
         discovery = ServiceDiscovery(k8s_client, config)
@@ -245,6 +251,10 @@ def watch(
     try:
         # Initialize clients
         k8s_client = get_kubernetes_client(config)
+        
+        # Test API connectivity and permissions at startup
+        k8s_client.test_api_connectivity()
+        
         discovery = ServiceDiscovery(k8s_client, config)
         portal_gen = PortalGenerator(config)
         nginx_gen = NginxGenerator(config)
@@ -293,6 +303,34 @@ def watch(
 
 
 @cli.command()
+@click.pass_context  
+def test_api(ctx: click.Context) -> None:
+    """Test Kubernetes API connectivity and permissions."""
+    config = ctx.obj["config"]
+    
+    logger = logging.getLogger(__name__)
+    
+    try:
+        # Initialize Kubernetes client
+        k8s_client = get_kubernetes_client(config)
+        
+        # Run comprehensive API tests
+        k8s_client.test_api_connectivity()
+        
+        click.echo("✓ All Kubernetes API tests passed successfully")
+        
+    except SystemExit as e:
+        # SystemExit with code 1 means test failed
+        if e.code == 1:
+            click.echo("✗ Kubernetes API tests failed", err=True)
+        raise
+    except Exception as e:
+        logger.exception(f"API test failed unexpectedly: {e}")
+        click.echo("✗ Kubernetes API tests failed with unexpected error", err=True)
+        sys.exit(1)
+
+
+@cli.command()
 @click.pass_context
 def info(ctx: click.Context) -> None:
     """Display cluster and configuration information."""
@@ -303,6 +341,9 @@ def info(ctx: click.Context) -> None:
     try:
         # Initialize Kubernetes client
         k8s_client = get_kubernetes_client(config)
+        
+        # Test API connectivity and permissions at startup
+        k8s_client.test_api_connectivity()
 
         # Get cluster info
         cluster_info = k8s_client.get_cluster_info()

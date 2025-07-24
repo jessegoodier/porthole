@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: porthole
     app.kubernetes.io/component: kubernetes-service-proxy
-    app.kubernetes.io/version: "0.2.39"
+    app.kubernetes.io/version: "0.2.46"
 spec:
   replicas: 1
   selector:
@@ -19,7 +19,7 @@ spec:
       labels:
         app.kubernetes.io/name: porthole
         app.kubernetes.io/component: kubernetes-service-proxy
-        app.kubernetes.io/version: "0.2.39"
+        app.kubernetes.io/version: "0.2.46"
     spec:
       serviceAccountName: porthole
       securityContext:
@@ -29,7 +29,7 @@ spec:
         fsGroup: 101
       initContainers:
       - name: init-config-generator
-        image: jgoodier/porthole:0.2.39
+        image: jgoodier/porthole:0.2.46
         env:
         - name: OUTPUT_DIR
           value: "/app/generated-output"
@@ -55,7 +55,7 @@ spec:
           mountPath: /app/src/porthole/config
       containers:
       - name: porthole
-        image: jgoodier/porthole:0.2.39
+        image: jgoodier/porthole:0.2.46
         imagePullPolicy: IfNotPresent
         env:
         - name: OUTPUT_DIR
