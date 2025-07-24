@@ -44,6 +44,248 @@
             align-items: center;
         }
 
+        /* Advanced Filter */
+        .advanced-filter {
+            position: relative;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+
+        .filter-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 280px; /* ~35 characters at 1rem font size */
+            justify-content: space-between;
+        }
+
+        .filter-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .filter-button.active {
+            background: rgba(100, 181, 246, 0.3);
+            border-color: #64b5f6;
+        }
+
+        .filter-button::after {
+            content: '🔍';
+            font-size: 0.8rem;
+        }
+
+        .filter-active-count {
+            background: #64b5f6;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            margin-left: 0.5rem;
+        }
+
+        .filter-panel {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(45, 45, 45, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            min-width: 400px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .filter-panel.show {
+            display: block;
+        }
+
+        .filter-panel h3 {
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .filter-rule {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-rule select,
+        .filter-rule input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .filter-rule select:focus,
+        .filter-rule input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #64b5f6;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(100, 181, 246, 0.3);
+        }
+
+        .filter-rule select {
+            min-width: 140px;
+            font-weight: 500;
+        }
+
+        .filter-rule input {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .filter-rule input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-rule-remove {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 4px;
+            color: #f44336;
+            cursor: pointer;
+            padding: 0.2rem 0.4rem;
+            font-size: 0.7rem;
+            transition: all 0.2s ease;
+        }
+
+        .filter-rule-remove:hover {
+            background: rgba(244, 67, 54, 0.3);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .filter-add-rule,
+        .filter-clear-all {
+            background: rgba(100, 181, 246, 0.2);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 6px;
+            color: #64b5f6;
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .filter-add-rule:hover,
+        .filter-clear-all:hover {
+            background: rgba(100, 181, 246, 0.3);
+        }
+
+        .filter-clear-all {
+            background: rgba(255, 152, 0, 0.2);
+            border-color: rgba(255, 152, 0, 0.3);
+            color: #ff9800;
+        }
+
+        .filter-clear-all:hover {
+            background: rgba(255, 152, 0, 0.3);
+        }
+
+        .filter-logic {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #b0b0b0;
+            margin: 0.5rem 0;
+        }
+
+        .filter-logic select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 0.2rem 0.4rem;
+            color: #ffffff;
+            font-size: 0.8rem;
+        }
+
+        /* Autocomplete Styles */
+        .autocomplete-container {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(45, 45, 45, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1001;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .autocomplete-suggestions.show {
+            display: block;
+        }
+
+        .autocomplete-suggestion {
+            padding: 0.75rem 1rem;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .autocomplete-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-suggestion:hover,
+        .autocomplete-suggestion.highlighted {
+            background: rgba(100, 181, 246, 0.2);
+            color: #ffffff;
+        }
+
+        .autocomplete-suggestion.highlighted {
+            background: rgba(100, 181, 246, 0.3);
+        }
+
+        .autocomplete-no-results {
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
         /* Namespace Dropdown */
         .namespace-dropdown {
             position: relative;
@@ -55,15 +297,16 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.25rem;
             color: #ffffff;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1rem;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            min-width: 150px;
+            width: 280px; /* ~35 characters at 1rem font size */
+            justify-content: space-between;
         }
 
         .namespace-button:hover {
@@ -402,6 +645,37 @@
                 align-items: stretch;
             }
 
+            .advanced-filter {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+
+            .filter-button {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .filter-panel {
+                min-width: 100%;
+                left: 0;
+            }
+
+            .filter-rule {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .filter-rule select,
+            .filter-rule input {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .autocomplete-container {
+                min-width: auto;
+            }
+
             .namespace-dropdown {
                 margin-right: 0;
                 margin-bottom: 0.5rem;
@@ -454,6 +728,15 @@
                 justify-content: space-between;
             }
 
+            .advanced-filter {
+                margin-right: 0.5rem;
+                margin-bottom: 0;
+            }
+
+            .filter-panel {
+                min-width: 500px;
+            }
+
             .namespace-dropdown {
                 margin-right: 0;
                 margin-bottom: 0;
@@ -477,6 +760,15 @@
                 align-items: center;
                 justify-content: space-between;
                 gap: 1.5rem;
+            }
+
+            .advanced-filter {
+                margin-right: 1rem;
+                margin-bottom: 0;
+            }
+
+            .filter-panel {
+                min-width: 600px;
             }
 
             .namespace-dropdown {
@@ -510,6 +802,19 @@
 <body>
     <header>
         <div class="header-nav">
+            <div class="advanced-filter">
+                <button class="filter-button" onclick="toggleAdvancedFilter()">
+                    Advanced Filter<span id="filter-active-count" class="filter-active-count" style="display: none;">0</span>
+                </button>
+                <div class="filter-panel" id="advanced-filter-panel">
+                    <h3>Advanced Filter</h3>
+                    <div id="filter-rules"></div>
+                    <div class="filter-actions">
+                        <button class="filter-add-rule" onclick="addFilterRule()">+ Add Rule</button>
+                        <button class="filter-clear-all" onclick="clearAllFilters()">Clear All</button>
+                    </div>
+                </div>
+            </div>
             <div class="namespace-dropdown">
                 <button class="namespace-button" onclick="toggleNamespaceSelector()">
                     Namespace: <span id="current-namespace">All</span>
@@ -529,6 +834,10 @@
                 <div class="stat-value" id="total-services">-</div>
                 <div class="stat-label">Total Services</div>
             </div>
+            <div class="stat-card" data-filter="frontend" onclick="filterByStat('frontend')">
+                <div class="stat-value" id="frontend-services">-</div>
+                <div class="stat-label">Frontends</div>
+            </div>
             <div class="stat-card" data-filter="healthy" onclick="filterByStat('healthy')">
                 <div class="stat-value" id="healthy-services">-</div>
                 <div class="stat-label">Healthy</div>
@@ -536,10 +845,6 @@
             <div class="stat-card" data-filter="unhealthy" onclick="filterByStat('unhealthy')">
                 <div class="stat-value" id="unhealthy-services">-</div>
                 <div class="stat-label">Unhealthy</div>
-            </div>
-            <div class="stat-card" data-filter="frontend" onclick="filterByStat('frontend')">
-                <div class="stat-value" id="frontend-services">-</div>
-                <div class="stat-label">Frontend</div>
             </div>
         </div>
     </header>
@@ -647,6 +952,8 @@
         let servicesData = null;
         let currentFilter = 'all';
         let currentNamespace = 'all';
+        let advancedFilters = [];
+        let filterRuleCounter = 0;
 
         // URL parameter utilities
         function getUrlParameter(name) {
@@ -696,9 +1003,11 @@
                 renderTable();
                 setupFieldSelector();
                 setupNamespaceSelector();
+                setupAdvancedFilter();
                 
                 // Apply URL parameters after setup
                 applyUrlParameters();
+                loadAdvancedFiltersFromUrl();
             } catch (error) {
                 console.error('Failed to load services data:', error);
                 document.getElementById('loading').innerHTML = '<p>Failed to load services data. Please check if services.json exists.</p>';
@@ -925,6 +1234,13 @@
 
         // Apply current filters (combines both filter and namespace)
         function applyCurrentFilters() {
+            // If advanced filters are active, use the advanced filter system
+            const activeAdvancedFilters = advancedFilters.filter(rule => rule.value.trim() !== '');
+            if (activeAdvancedFilters.length > 0) {
+                applyAdvancedFilters();
+                return;
+            }
+            
             const rows = document.querySelectorAll('tbody tr');
             
             rows.forEach(row => {
@@ -971,6 +1287,9 @@
 
         // Filter by namespace
         function filterByNamespace(namespace) {
+            // Clear advanced filters when namespace is used
+            clearAllFilters();
+            
             // Reset stat card selections
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
@@ -984,6 +1303,9 @@
 
         // Filter by stat card
         function filterByStat(filterType) {
+            // Clear advanced filters when stat cards are used
+            clearAllFilters();
+            
             // Update active state
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
@@ -1000,6 +1322,556 @@
             currentNamespace = 'all';
             
             applyCurrentFilters();
+        }
+
+        // Advanced Filter Functions
+        function toggleAdvancedFilter() {
+            const filterPanel = document.getElementById('advanced-filter-panel');
+            const filterButton = document.querySelector('.filter-button');
+            
+            filterPanel.classList.toggle('show');
+            filterButton.classList.toggle('active');
+        }
+
+        function addFilterRule(column = 'namespace', operator = 'contains', value = '', logic = 'and') {
+            filterRuleCounter++;
+            const ruleId = `filter-rule-${filterRuleCounter}`;
+            
+            const rule = {
+                id: ruleId,
+                column: column,
+                operator: operator,
+                value: value,
+                logic: logic
+            };
+            
+            advancedFilters.push(rule);
+            renderFilterRules();
+            updateFilterActiveCount();
+            
+            // Show autocomplete for the new rule's column if it's empty
+            if (!value) {
+                setTimeout(() => {
+                    showAutocompleteForColumn(ruleId, column);
+                }, 100); // Small delay to ensure DOM is updated
+            }
+        }
+
+        function removeFilterRule(ruleId) {
+            advancedFilters = advancedFilters.filter(rule => rule.id !== ruleId);
+            renderFilterRules();
+            updateFilterActiveCount();
+            applyAdvancedFilters();
+        }
+
+        function renderFilterRules() {
+            const filterRulesContainer = document.getElementById('filter-rules');
+            let html = '';
+            
+            const availableColumns = [
+                { value: 'namespace', label: 'Namespace' },
+                { value: 'service', label: 'Service' },
+                { value: 'port_name', label: 'Port Name' },
+                { value: 'port', label: 'Port' },
+                { value: 'protocol', label: 'Protocol' },
+                { value: 'service_type', label: 'Service Type' },
+                { value: 'cluster_ip', label: 'Cluster IP' },
+                { value: 'endpoint_status', label: 'Endpoint Status' },
+                { value: 'display_name', label: 'Display Name' }
+            ];
+            
+            const operators = [
+                { value: 'contains', label: 'Contains' },
+                { value: 'begins_with', label: 'Begins With' },
+                { value: 'ends_with', label: 'Ends With' },
+                { value: 'equals', label: 'Equals' }
+            ];
+            
+            advancedFilters.forEach((rule, index) => {
+                const showLogic = index > 0;
+                
+                html += `
+                    <div class="filter-rule" data-rule-id="${rule.id}">
+                        ${showLogic ? `
+                            <div class="filter-logic">
+                                <select onchange="updateFilterRule('${rule.id}', 'logic', this.value)">
+                                    <option value="and" ${rule.logic === 'and' ? 'selected' : ''}>AND</option>
+                                    <option value="or" ${rule.logic === 'or' ? 'selected' : ''}>OR</option>
+                                </select>
+                            </div>
+                        ` : ''}
+                        <select onchange="updateFilterRuleColumn('${rule.id}', this.value)">
+                            ${availableColumns.map(col => 
+                                `<option value="${col.value}" ${rule.column === col.value ? 'selected' : ''}>${col.label}</option>`
+                            ).join('')}
+                        </select>
+                        <select onchange="updateFilterRule('${rule.id}', 'operator', this.value)">
+                            ${operators.map(op => 
+                                `<option value="${op.value}" ${rule.operator === op.value ? 'selected' : ''}>${op.label}</option>`
+                            ).join('')}
+                        </select>
+                        <div class="autocomplete-container">
+                            <input type="text" placeholder="Filter value..." value="${rule.value}" 
+                                   oninput="updateFilterRule('${rule.id}', 'value', this.value)"
+                                   onfocus="showAutocomplete('${rule.id}', '${rule.column}')"
+                                   onkeydown="handleAutocompleteKeydown(event, '${rule.id}')"
+                                   autocomplete="off">
+                            <div class="autocomplete-suggestions" id="autocomplete-${rule.id}"></div>
+                        </div>
+                        <button class="filter-rule-remove" onclick="removeFilterRule('${rule.id}')">×</button>
+                    </div>
+                `;
+            });
+            
+            filterRulesContainer.innerHTML = html;
+        }
+
+        function updateFilterRule(ruleId, property, value) {
+            const rule = advancedFilters.find(r => r.id === ruleId);
+            if (rule) {
+                rule[property] = value;
+                
+                if (property === 'value') {
+                    // Show autocomplete while typing
+                    showAutocomplete(ruleId, rule.column);
+                }
+                
+                applyAdvancedFilters();
+            }
+        }
+
+        function updateFilterRuleColumn(ruleId, newColumn) {
+            const rule = advancedFilters.find(r => r.id === ruleId);
+            if (rule) {
+                rule.column = newColumn;
+                
+                // Clear the input value when column changes
+                const input = document.querySelector(`[data-rule-id="${ruleId}"] input`);
+                if (input) {
+                    input.value = '';
+                    rule.value = '';
+                }
+                
+                // Immediately show autocomplete for the new column (empty search)
+                showAutocompleteForColumn(ruleId, newColumn);
+                
+                applyAdvancedFilters();
+            }
+        }
+
+        function updateFilterActiveCount() {
+            const activeCount = advancedFilters.filter(rule => rule.value.trim() !== '').length;
+            const countElement = document.getElementById('filter-active-count');
+            
+            if (activeCount > 0) {
+                countElement.textContent = activeCount;
+                countElement.style.display = 'inline';
+                document.querySelector('.filter-button').classList.add('active');
+            } else {
+                countElement.style.display = 'none';
+                document.querySelector('.filter-button').classList.remove('active');
+            }
+        }
+
+        function clearAllFilters() {
+            advancedFilters = [];
+            renderFilterRules();
+            updateFilterActiveCount();
+            updateAdvancedFilterUrl();
+            
+            // Only apply filters if we're not in the middle of another filter operation
+            if (typeof event === 'undefined' || !event.target?.closest('.stat-card, .namespace-option')) {
+                applyAdvancedFilters();
+            }
+        }
+
+        function applyAdvancedFilters() {
+            if (!servicesData || !servicesData.services) return;
+            
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                let show = true;
+                
+                // Apply advanced filters first
+                if (advancedFilters.length > 0) {
+                    show = evaluateAdvancedFilters(row);
+                }
+                
+                // Then apply namespace filter if no advanced filters are active
+                if (show && advancedFilters.filter(rule => rule.value.trim() !== '').length === 0) {
+                    // Apply existing filters (stat cards and namespace)
+                    const endpointStatus = row.dataset.endpointStatus;
+                    const isFrontend = row.dataset.isFrontend === 'true';
+                    const serviceNamespace = row.dataset.namespace;
+                    
+                    // Apply filter
+                    switch (currentFilter) {
+                        case 'all':
+                            show = true;
+                            break;
+                        case 'healthy':
+                            show = endpointStatus === 'healthy';
+                            break;
+                        case 'unhealthy':
+                            show = endpointStatus === 'unhealthy';
+                            break;
+                        case 'frontend':
+                            show = isFrontend;
+                            break;
+                        case 'namespaces':
+                            show = true; // Namespace filtering handles this
+                            break;
+                    }
+                    
+                    // Apply namespace filter
+                    if (show && currentNamespace !== 'all') {
+                        show = serviceNamespace === currentNamespace;
+                    }
+                }
+                
+                if (show) {
+                    row.classList.remove('filtered-out');
+                } else {
+                    row.classList.add('filtered-out');
+                }
+            });
+            
+            updateAdvancedFilterUrl();
+        }
+
+        function evaluateAdvancedFilters(row) {
+            if (advancedFilters.length === 0) return true;
+            
+            const activeFilters = advancedFilters.filter(rule => rule.value.trim() !== '');
+            if (activeFilters.length === 0) return true;
+            
+            let result = evaluateFilterRule(activeFilters[0], row);
+            
+            for (let i = 1; i < activeFilters.length; i++) {
+                const rule = activeFilters[i];
+                const ruleResult = evaluateFilterRule(rule, row);
+                
+                if (rule.logic === 'and') {
+                    result = result && ruleResult;
+                } else {
+                    result = result || ruleResult;
+                }
+            }
+            
+            return result;
+        }
+
+        function evaluateFilterRule(rule, row) {
+            let cellValue = '';
+            
+            // Get the cell value based on column
+            const cells = row.querySelectorAll('td');
+            switch (rule.column) {
+                case 'namespace':
+                    cellValue = row.dataset.namespace || '';
+                    break;
+                case 'service':
+                    cellValue = cells[2]?.textContent || '';
+                    break;
+                case 'port_name':
+                    cellValue = cells[3]?.textContent || '';
+                    break;
+                case 'port':
+                    cellValue = cells[4]?.textContent || '';
+                    break;
+                case 'protocol':
+                    cellValue = cells[5]?.textContent || '';
+                    break;
+                case 'service_type':
+                    cellValue = cells[6]?.textContent || '';
+                    break;
+                case 'cluster_ip':
+                    cellValue = cells[7]?.textContent || '';
+                    break;
+                case 'endpoint_status':
+                    cellValue = row.dataset.endpointStatus || '';
+                    break;
+                case 'display_name':
+                    cellValue = cells[13]?.textContent || '';
+                    break;
+                default:
+                    cellValue = '';
+            }
+            
+            const filterValue = rule.value.toLowerCase();
+            const targetValue = cellValue.toLowerCase();
+            
+            switch (rule.operator) {
+                case 'contains':
+                    return targetValue.includes(filterValue);
+                case 'begins_with':
+                    return targetValue.startsWith(filterValue);
+                case 'ends_with':
+                    return targetValue.endsWith(filterValue);
+                case 'equals':
+                    return targetValue === filterValue;
+                default:
+                    return true;
+            }
+        }
+
+        function updateAdvancedFilterUrl() {
+            const url = new URL(window.location);
+            
+            // Clear existing advanced filter parameters
+            const paramsToRemove = [];
+            for (const [key] of url.searchParams) {
+                if (key.startsWith('af_') || key.startsWith('filter_rule')) {
+                    paramsToRemove.push(key);
+                }
+            }
+            paramsToRemove.forEach(param => url.searchParams.delete(param));
+            
+            // Add current advanced filter parameters
+            const activeFilters = advancedFilters.filter(rule => rule.value.trim() !== '');
+            activeFilters.forEach((rule, index) => {
+                const prefix = `af_${index}`;
+                url.searchParams.set(`${prefix}_column`, rule.column);
+                url.searchParams.set(`${prefix}_operator`, rule.operator);
+                url.searchParams.set(`${prefix}_value`, rule.value);
+                if (index > 0) {
+                    url.searchParams.set(`${prefix}_logic`, rule.logic);
+                }
+            });
+            
+            window.history.replaceState({}, '', url);
+        }
+
+        function loadAdvancedFiltersFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const filters = [];
+            
+            // Look for advanced filter parameters
+            let index = 0;
+            while (true) {
+                const prefix = `af_${index}`;
+                const column = urlParams.get(`${prefix}_column`);
+                const operator = urlParams.get(`${prefix}_operator`);
+                const value = urlParams.get(`${prefix}_value`);
+                
+                if (!column || !operator || !value) break;
+                
+                const logic = index > 0 ? urlParams.get(`${prefix}_logic`) || 'and' : 'and';
+                
+                filters.push({
+                    column: column,
+                    operator: operator,
+                    value: value,
+                    logic: logic
+                });
+                
+                index++;
+            }
+            
+            // Load filters if found
+            if (filters.length > 0) {
+                advancedFilters = [];
+                filters.forEach(filter => {
+                    addFilterRule(filter.column, filter.operator, filter.value, filter.logic);
+                });
+                applyAdvancedFilters();
+            }
+        }
+
+        // Autocomplete functionality
+        let currentAutocompleteIndex = -1;
+        let currentAutocompleteSuggestions = [];
+
+        function getColumnValues(column) {
+            if (!servicesData || !servicesData.services) return [];
+            
+            const values = new Set();
+            
+            servicesData.services.forEach(service => {
+                let value = '';
+                switch (column) {
+                    case 'namespace':
+                        value = service.namespace;
+                        break;
+                    case 'service':
+                        value = service.service;
+                        break;
+                    case 'port_name':
+                        value = service.port_name || '';
+                        break;
+                    case 'port':
+                        value = service.port?.toString() || '';
+                        break;
+                    case 'protocol':
+                        value = service.protocol;
+                        break;
+                    case 'service_type':
+                        value = service.service_type;
+                        break;
+                    case 'cluster_ip':
+                        value = service.cluster_ip || '';
+                        break;
+                    case 'endpoint_status':
+                        value = service.endpoint_status;
+                        break;
+                    case 'display_name':
+                        value = service.display_name;
+                        break;
+                }
+                if (value) values.add(value);
+            });
+            
+            return Array.from(values).sort();
+        }
+
+        function showAutocomplete(ruleId, column) {
+            const input = document.querySelector(`[data-rule-id="${ruleId}"] input`);
+            const suggestionsContainer = document.getElementById(`autocomplete-${ruleId}`);
+            
+            if (!input || !suggestionsContainer) return;
+            
+            const inputValue = input.value.toLowerCase();
+            const allValues = getColumnValues(column);
+            
+            // Filter values based on current input
+            const filteredValues = allValues.filter(value => 
+                value.toLowerCase().includes(inputValue)
+            ).slice(0, 10); // Limit to 10 suggestions
+            
+            currentAutocompleteSuggestions = filteredValues;
+            currentAutocompleteIndex = -1;
+            
+            if (filteredValues.length === 0) {
+                suggestionsContainer.innerHTML = '<div class="autocomplete-no-results">No matches found</div>';
+                suggestionsContainer.classList.add('show');
+                return;
+            }
+            
+            const suggestionsHtml = filteredValues.map((value, index) => 
+                `<div class="autocomplete-suggestion" onclick="selectAutocompleteSuggestion('${ruleId}', '${value.replace(/'/g, "\\'")}')" 
+                     data-index="${index}">${value}</div>`
+            ).join('');
+            
+            suggestionsContainer.innerHTML = suggestionsHtml;
+            suggestionsContainer.classList.add('show');
+        }
+
+        function showAutocompleteForColumn(ruleId, column) {
+            const suggestionsContainer = document.getElementById(`autocomplete-${ruleId}`);
+            
+            if (!suggestionsContainer) return;
+            
+            const allValues = getColumnValues(column);
+            
+            // Show all values for the new column (limit to 10 for performance)
+            const displayValues = allValues.slice(0, 10);
+            
+            currentAutocompleteSuggestions = displayValues;
+            currentAutocompleteIndex = -1;
+            
+            if (displayValues.length === 0) {
+                suggestionsContainer.innerHTML = '<div class="autocomplete-no-results">No values available</div>';
+                suggestionsContainer.classList.add('show');
+                return;
+            }
+            
+            const suggestionsHtml = displayValues.map((value, index) => 
+                `<div class="autocomplete-suggestion" onclick="selectAutocompleteSuggestion('${ruleId}', '${value.replace(/'/g, "\\'")}')" 
+                     data-index="${index}">${value}</div>`
+            ).join('');
+            
+            suggestionsContainer.innerHTML = suggestionsHtml;
+            suggestionsContainer.classList.add('show');
+        }
+
+        function selectAutocompleteSuggestion(ruleId, value) {
+            const input = document.querySelector(`[data-rule-id="${ruleId}"] input`);
+            const suggestionsContainer = document.getElementById(`autocomplete-${ruleId}`);
+            
+            if (input) {
+                input.value = value;
+                updateFilterRule(ruleId, 'value', value);
+            }
+            
+            if (suggestionsContainer) {
+                suggestionsContainer.classList.remove('show');
+            }
+            
+            currentAutocompleteIndex = -1;
+            currentAutocompleteSuggestions = [];
+        }
+
+        function handleAutocompleteKeydown(event, ruleId) {
+            const suggestionsContainer = document.getElementById(`autocomplete-${ruleId}`);
+            
+            if (!suggestionsContainer || !suggestionsContainer.classList.contains('show')) return;
+            
+            const suggestions = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
+            
+            switch (event.key) {
+                case 'ArrowDown':
+                    event.preventDefault();
+                    currentAutocompleteIndex = Math.min(currentAutocompleteIndex + 1, suggestions.length - 1);
+                    updateAutocompleteHighlight(suggestions);
+                    break;
+                    
+                case 'ArrowUp':
+                    event.preventDefault();
+                    currentAutocompleteIndex = Math.max(currentAutocompleteIndex - 1, -1);
+                    updateAutocompleteHighlight(suggestions);
+                    break;
+                    
+                case 'Enter':
+                    event.preventDefault();
+                    if (currentAutocompleteIndex >= 0 && suggestions[currentAutocompleteIndex]) {
+                        const selectedValue = currentAutocompleteSuggestions[currentAutocompleteIndex];
+                        selectAutocompleteSuggestion(ruleId, selectedValue);
+                    }
+                    break;
+                    
+                case 'Escape':
+                    event.preventDefault();
+                    suggestionsContainer.classList.remove('show');
+                    currentAutocompleteIndex = -1;
+                    break;
+            }
+        }
+
+        function updateAutocompleteHighlight(suggestions) {
+            suggestions.forEach((suggestion, index) => {
+                if (index === currentAutocompleteIndex) {
+                    suggestion.classList.add('highlighted');
+                } else {
+                    suggestion.classList.remove('highlighted');
+                }
+            });
+        }
+
+        function hideAllAutocomplete() {
+            document.querySelectorAll('.autocomplete-suggestions').forEach(container => {
+                container.classList.remove('show');
+            });
+            currentAutocompleteIndex = -1;
+            currentAutocompleteSuggestions = [];
+        }
+
+        function setupAdvancedFilter() {
+            // Close filter panel when clicking outside
+            document.addEventListener('click', function(event) {
+                const filterPanel = document.getElementById('advanced-filter-panel');
+                const filterButton = document.querySelector('.filter-button');
+                
+                if (!filterPanel.contains(event.target) && !filterButton.contains(event.target)) {
+                    filterPanel.classList.remove('show');
+                    filterButton.classList.remove('active');
+                }
+                
+                // Hide autocomplete when clicking outside
+                if (!event.target.closest('.autocomplete-container')) {
+                    hideAllAutocomplete();
+                }
+            });
         }
 
         // Service opening functionality
