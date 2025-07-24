@@ -1,0 +1,2 @@
+FROM jgoodier/porthole:latest
+COPY . /app
