@@ -125,7 +125,7 @@ def discover(ctx: click.Context, output_dir: str | None, output_format: str) -> 
     try:
         # Initialize Kubernetes client
         k8s_client = get_kubernetes_client(config)
-        
+
         # Test API connectivity and permissions at startup
         k8s_client.test_api_connectivity()
 
@@ -176,7 +176,7 @@ def generate(
     try:
         # Initialize Kubernetes client
         k8s_client = get_kubernetes_client(config)
-        
+
         # Test API connectivity and permissions at startup
         k8s_client.test_api_connectivity()
 
@@ -251,10 +251,10 @@ def watch(
     try:
         # Initialize clients
         k8s_client = get_kubernetes_client(config)
-        
+
         # Test API connectivity and permissions at startup
         k8s_client.test_api_connectivity()
-        
+
         discovery = ServiceDiscovery(k8s_client, config)
         portal_gen = PortalGenerator(config)
         nginx_gen = NginxGenerator(config)
@@ -303,22 +303,22 @@ def watch(
 
 
 @cli.command()
-@click.pass_context  
+@click.pass_context
 def test_api(ctx: click.Context) -> None:
     """Test Kubernetes API connectivity and permissions."""
     config = ctx.obj["config"]
-    
+
     logger = logging.getLogger(__name__)
-    
+
     try:
         # Initialize Kubernetes client
         k8s_client = get_kubernetes_client(config)
-        
+
         # Run comprehensive API tests
         k8s_client.test_api_connectivity()
-        
+
         click.echo("✓ All Kubernetes API tests passed successfully")
-        
+
     except SystemExit as e:
         # SystemExit with code 1 means test failed
         if e.code == 1:
@@ -341,7 +341,7 @@ def info(ctx: click.Context) -> None:
     try:
         # Initialize Kubernetes client
         k8s_client = get_kubernetes_client(config)
-        
+
         # Test API connectivity and permissions at startup
         k8s_client.test_api_connectivity()
 

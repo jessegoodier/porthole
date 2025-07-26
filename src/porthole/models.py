@@ -97,6 +97,14 @@ class KubernetesService(BaseModel):
         default=False,
         description="Whether service is identified as frontend",
     )
+    http_response_code: int | None = Field(
+        default=None,
+        description="HTTP response code from calling the service root path",
+    )
+    redirect_url: str = Field(
+        default="",
+        description="Redirect URL or error information from HTTP request",
+    )
 
     @field_validator("name")
     @classmethod
@@ -113,6 +121,15 @@ class KubernetesService(BaseModel):
         """Validate namespace."""
         if not v:
             msg = "Namespace cannot be empty"
+            raise ValueError(msg)
+        return v
+
+    @field_validator("http_response_code")
+    @classmethod
+    def validate_http_response_code(cls, v: int | None) -> int | None:
+        """Validate HTTP response code."""
+        if v is not None and not 100 <= v <= 599:
+            msg = "HTTP response code must be between 100 and 599"
             raise ValueError(msg)
         return v
 
@@ -281,6 +298,8 @@ class ServiceDiscoveryResult(BaseModel):
                     "created_at": (
                         service.created_at.isoformat() if service.created_at else None
                     ),
+                    "http_response_code": service.http_response_code,
+                    "redirect_url": service.redirect_url,
                 }
                 services_data["services"].append(service_entry)  # type: ignore[attr-defined]
 

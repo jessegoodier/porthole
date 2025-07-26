@@ -611,6 +611,27 @@
             color: #4caf50;
         }
 
+        /* HTTP Response Code Styles */
+        .http-code-2xx {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .http-code-3xx {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .http-code-4xx, .http-code-5xx {
+            color: #f44336;
+            font-weight: 600;
+        }
+
+        .http-code-none {
+            color: #9e9e9e;
+            font-style: italic;
+        }
+
         /* Loading */
         .loading {
             display: flex;
@@ -911,6 +932,14 @@
                         <input type="checkbox" id="field-created_at">
                         <label for="field-created_at">Created At</label>
                     </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-http_response_code">
+                        <label for="field-http_response_code">HTTP Response Code</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-redirect_url">
+                        <label for="field-redirect_url">Redirect Info</label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -939,6 +968,8 @@
                     <th class="col-proxy_url hidden">Proxy URL</th>
                     <th class="col-display_name hidden">Display Name</th>
                     <th class="col-created_at hidden">Created At</th>
+                    <th class="col-http_response_code hidden">HTTP Code</th>
+                    <th class="col-redirect_url hidden">Redirect Info</th>
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -988,6 +1019,25 @@
         function formatDateTime(dateString) {
             if (!dateString) return '-';
             return new Date(dateString).toLocaleString();
+        }
+
+        function formatHttpResponseCode(code) {
+            if (code === null || code === undefined) {
+                return '<span class="http-code-none">No Response</span>';
+            }
+            
+            let className = 'http-code-none';
+            if (code >= 200 && code < 300) {
+                className = 'http-code-2xx';
+            } else if (code >= 300 && code < 400) {
+                className = 'http-code-3xx';
+            } else if (code >= 400 && code < 500) {
+                className = 'http-code-4xx';
+            } else if (code >= 500) {
+                className = 'http-code-5xx';
+            }
+            
+            return `<span class="${className}">${code}</span>`;
         }
 
         // Load services data
@@ -1056,6 +1106,8 @@
                         <td class="col-proxy_url hidden">${service.proxy_url}</td>
                         <td class="col-display_name hidden">${service.display_name}</td>
                         <td class="col-created_at hidden">${formatDateTime(service.created_at)}</td>
+                        <td class="col-http_response_code hidden">${formatHttpResponseCode(service.http_response_code)}</td>
+                        <td class="col-redirect_url hidden">${service.redirect_url || '-'}</td>
                     </tr>
                 `;
             });
@@ -1376,7 +1428,9 @@
                 { value: 'service_type', label: 'Service Type' },
                 { value: 'cluster_ip', label: 'Cluster IP' },
                 { value: 'endpoint_status', label: 'Endpoint Status' },
-                { value: 'display_name', label: 'Display Name' }
+                { value: 'display_name', label: 'Display Name' },
+                { value: 'http_response_code', label: 'HTTP Response Code' },
+                { value: 'redirect_url', label: 'Redirect Info' }
             ];
             
             const operators = [
@@ -1594,6 +1648,12 @@
                 case 'display_name':
                     cellValue = cells[13]?.textContent || '';
                     break;
+                case 'http_response_code':
+                    cellValue = cells[15]?.textContent || '';
+                    break;
+                case 'redirect_url':
+                    cellValue = cells[16]?.textContent || '';
+                    break;
                 default:
                     cellValue = '';
             }
@@ -1716,6 +1776,12 @@
                         break;
                     case 'display_name':
                         value = service.display_name;
+                        break;
+                    case 'http_response_code':
+                        value = service.http_response_code?.toString() || '';
+                        break;
+                    case 'redirect_url':
+                        value = service.redirect_url || '';
                         break;
                 }
                 if (value) values.add(value);

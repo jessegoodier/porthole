@@ -102,6 +102,20 @@ class Config(BaseModel):
         description="Regex patterns to match frontend services",
     )
 
+    # HTTP checking configuration
+    enable_http_checking: bool = Field(
+        default=True,
+        description="Enable HTTP checking of service endpoints",
+    )
+    http_timeout: int = Field(
+        default=10,
+        description="Timeout in seconds for HTTP requests",
+    )
+    http_user_agent: str = Field(
+        default="porthole-http-checker/1.0",
+        description="User agent string for HTTP requests",
+    )
+
     def is_frontend_service(self, service_name: str) -> bool:
         """Check if a service matches any frontend pattern in name."""
         if not self.frontend_patterns:
@@ -188,6 +202,14 @@ class Config(BaseModel):
         if debug_logging:
             logger.debug(f"Log level from JSON: {log_level}")
 
+        # Get HTTP checking settings from JSON config
+        enable_http_checking = json_config.get("enable-http-checking", True)
+        http_timeout = json_config.get("http-timeout", 10)
+        http_user_agent = json_config.get("http-user-agent", "porthole-http-checker/1.0")
+        if debug_logging:
+            logger.debug(f"HTTP checking enabled: {enable_http_checking}")
+            logger.debug(f"HTTP timeout: {http_timeout}")
+
         return cls(
             kubeconfig_path=os.getenv("KUBECONFIG"),
             output_dir=Path(os.getenv("OUTPUT_DIR", "./generated-output")),
@@ -204,6 +226,9 @@ class Config(BaseModel):
             refresh_interval=refresh_interval,
             log_level=os.getenv("LOG_LEVEL", log_level).upper(),
             frontend_patterns=frontend_patterns,
+            enable_http_checking=os.getenv("ENABLE_HTTP_CHECKING", str(enable_http_checking)).lower() == "true",
+            http_timeout=int(os.getenv("HTTP_TIMEOUT", str(http_timeout))),
+            http_user_agent=os.getenv("HTTP_USER_AGENT", http_user_agent),
         )
 
 

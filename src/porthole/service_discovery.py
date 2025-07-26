@@ -8,6 +8,7 @@ from kubernetes.client.rest import ApiException
 
 from .config import Config
 from .constants import HTTP_NOT_FOUND
+from .http_checker import HttpChecker
 from .k8s_client import KubernetesClient
 from .models import (
     EndpointStatus,
@@ -37,6 +38,10 @@ class ServiceDiscovery:
         """
         self.k8s_client = k8s_client
         self.config = config
+        self.http_checker = HttpChecker(
+            timeout=config.http_timeout,
+            user_agent=config.http_user_agent,
+        ) if config.enable_http_checking else None
 
     def discover_services(self) -> ServiceDiscoveryResult:
         """Discover all services in the cluster.
@@ -149,6 +154,14 @@ class ServiceDiscovery:
                     k8s_service.endpoint_status = self._determine_endpoint_status(
                         endpoints,
                     )
+
+                    # Perform HTTP checking if enabled and service has healthy endpoints
+                    if (
+                        self.http_checker
+                        and k8s_service.endpoint_status == EndpointStatus.HEALTHY
+                        and k8s_service.ports
+                    ):
+                        self._check_service_http_status(k8s_service)
 
                     discovered_services.append(k8s_service)
 
@@ -494,3 +507,42 @@ class ServiceDiscovery:
                 refreshed_services.append(service)
 
         return refreshed_services
+
+    def _check_service_http_status(self, service: KubernetesService) -> None:
+        """Check HTTP status for a service.
+
+        Args:
+            service: KubernetesService to check
+
+        Note:
+            This method updates the service object in-place with HTTP check results.
+            Only checks the first port of the service to avoid overwhelming the network.
+        """
+        if not self.http_checker or not service.ports:
+            return
+
+        # Check only the first port to avoid too many requests
+        # In most cases, services expose their main interface on the first port
+        first_port = service.ports[0]
+
+        logger.debug(f"Checking HTTP status for {service.display_name}:{first_port.port}")
+
+        try:
+            result = self.http_checker.check_service_with_fallback(
+                service.name,
+                service.namespace,
+                first_port.port,
+            )
+
+            service.http_response_code = result.response_code
+            service.redirect_url = result.redirect_url
+
+            if result.response_code:
+                logger.debug(f"HTTP check result for {service.display_name}: {result.response_code}")
+            else:
+                logger.debug(f"HTTP check failed for {service.display_name}: {result.redirect_url}")
+
+        except Exception as e:
+            logger.exception(f"Unexpected error during HTTP check for {service.display_name}: {e}")
+            service.http_response_code = None
+            service.redirect_url = f"Check failed: {str(e)[:100]}"

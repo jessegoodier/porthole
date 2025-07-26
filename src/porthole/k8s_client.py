@@ -128,14 +128,14 @@ class KubernetesClient:
             if self._core_v1 is None:
                 msg = "Core v1 API client not initialized"
                 raise RuntimeError(msg)
-            
+
             # Test API connectivity and authentication
             version = self._core_v1.get_api_resources()
             logger.debug(
                 "Connected to Kubernetes cluster with %d core resources",
                 len(version.resources),
             )
-            
+
             # Additional test to verify we can actually read cluster data
             # This will catch authorization issues more reliably
             try:
@@ -146,26 +146,24 @@ class KubernetesClient:
                     logger.error("Kubernetes API authentication failed (401 Unauthorized)")
                     logger.error("Please check your kubeconfig or service account permissions")
                     raise SystemExit(1) from auth_e
-                elif auth_e.status == 403:
+                if auth_e.status == 403:
                     logger.error("Kubernetes API authorization failed (403 Forbidden)")
                     logger.error("Service account lacks necessary permissions to list namespaces")
                     raise SystemExit(1) from auth_e
-                else:
-                    # Re-raise other API exceptions
-                    raise
-                    
+                # Re-raise other API exceptions
+                raise
+
         except ApiException as e:
             if e.status == 401:
                 logger.error("Kubernetes API authentication failed (401 Unauthorized)")
                 logger.error("Please check your kubeconfig or service account permissions")
                 raise SystemExit(1) from e
-            elif e.status == 403:
+            if e.status == 403:
                 logger.error("Kubernetes API authorization failed (403 Forbidden)")
                 logger.error("Service account lacks necessary permissions")
                 raise SystemExit(1) from e
-            else:
-                logger.exception("Failed to connect to Kubernetes cluster")
-                raise
+            logger.exception("Failed to connect to Kubernetes cluster")
+            raise
 
     @property
     def core_v1(self) -> client.CoreV1Api:
@@ -199,35 +197,34 @@ class KubernetesClient:
         Exits with code 1 if any critical checks fail.
         """
         logger.info("Testing Kubernetes API connectivity and permissions...")
-        
+
         try:
             if not self._is_initialized:
                 self.initialize()
-            
+
             # Test 1: Basic API connectivity
             logger.debug("Testing basic API connectivity...")
             version = self._core_v1.get_api_resources()
             logger.debug(f"✓ Connected to Kubernetes API with {len(version.resources)} core resources")
-            
+
             # Test 2: Authentication and basic read permissions
             logger.debug("Testing authentication and namespace access...")
             try:
                 namespaces = self._core_v1.list_namespace(limit=1)
-                logger.debug(f"✓ Authentication successful - can read namespaces")
+                logger.debug("✓ Authentication successful - can read namespaces")
             except ApiException as auth_e:
                 if auth_e.status == 401:
                     logger.error("✗ Authentication failed: 401 Unauthorized")
                     logger.error("  → Check your kubeconfig file or service account token")
                     logger.error("  → Verify your cluster connection settings")
                     raise SystemExit(1) from auth_e
-                elif auth_e.status == 403:
+                if auth_e.status == 403:
                     logger.error("✗ Authorization failed: 403 Forbidden")
                     logger.error("  → Service account lacks permission to list namespaces")
                     logger.error("  → Required RBAC: 'get' and 'list' on 'namespaces' resource")
                     raise SystemExit(1) from auth_e
-                else:
-                    raise
-            
+                raise
+
             # Test 3: Service discovery permissions
             logger.debug("Testing service discovery permissions...")
             try:
@@ -239,10 +236,9 @@ class KubernetesClient:
                     logger.error("  → Service account lacks permission to list services")
                     logger.error("  → Required RBAC: 'get' and 'list' on 'services' resource")
                     raise SystemExit(1) from svc_e
-                else:
-                    raise
-            
-            # Test 4: Endpoint discovery permissions  
+                raise
+
+            # Test 4: Endpoint discovery permissions
             logger.debug("Testing endpoint discovery permissions...")
             try:
                 endpoints = self._core_v1.list_endpoints_for_all_namespaces(limit=1)
@@ -255,9 +251,9 @@ class KubernetesClient:
                     # Don't exit for endpoints - it's not critical
                 else:
                     raise
-                    
+
             logger.info("✓ Kubernetes API connectivity test completed successfully")
-            
+
         except SystemExit:
             # Re-raise SystemExit to preserve exit code
             raise
