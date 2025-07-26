@@ -55,7 +55,7 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
-            padding: 0.75rem 1.25rem;
+            padding: 0.5rem 1rem;
             color: #ffffff;
             cursor: pointer;
             font-size: 1rem;
@@ -63,7 +63,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            width: 280px; /* ~35 characters at 1rem font size */
+            width: 450px; /* Wider to allow more text on single line */
             justify-content: space-between;
         }
 
@@ -297,7 +297,7 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
-            padding: 0.75rem 1.25rem;
+            padding: 0.5rem 1rem;
             color: #ffffff;
             cursor: pointer;
             font-size: 1rem;
@@ -305,7 +305,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            width: 280px; /* ~35 characters at 1rem font size */
+            width: 450px; /* Wider to allow more text on single line */
             justify-content: space-between;
         }
 
@@ -1069,7 +1069,7 @@
         function getStatusIndicator(service) {
             if (service.is_frontend) {
                 return '<span class="status-indicator frontend-true">✅</span>';
-            } else if (!service.has_endpoints) {
+            } else if (!service.has_endpoints || service.endpoint_status !== 'healthy') {
                 return '<span class="status-indicator endpoints-false">❌</span>';
             } else {
                 return '<span class="status-indicator endpoints-true">✅</span>';
