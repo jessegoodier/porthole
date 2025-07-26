@@ -1090,7 +1090,8 @@
                         data-endpoint-status="${service.endpoint_status}"
                         data-is-frontend="${service.is_frontend}"
                         data-namespace="${service.namespace}"
-                        onclick="openService('${service.proxy_url}')">
+                        data-redirect-url="${service.redirect_url || ''}"
+                        onclick="openService('${service.proxy_url}', '${service.redirect_url || ''}')">
                         <td class="col-status">${statusIndicator}</td>
                         <td class="col-namespace">${service.namespace}</td>
                         <td class="col-service">${service.service}</td>
@@ -1940,9 +1941,17 @@
         }
 
         // Service opening functionality
-        function openService(proxyUrl) {
+        function openService(proxyUrl, redirectUrl) {
             if (proxyUrl && proxyUrl !== 'N/A') {
-                window.open(proxyUrl, '_self');
+                let targetUrl = proxyUrl;
+                
+                // If redirect_url starts with "/", append it to the proxy URL
+                if (redirectUrl && redirectUrl.startsWith('/')) {
+                    // Remove trailing slash from proxy URL and append redirect path
+                    targetUrl = proxyUrl.replace(/\/$/, '') + redirectUrl;
+                }
+                
+                window.open(targetUrl, '_self');
             }
         }
 
