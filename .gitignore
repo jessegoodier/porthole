@@ -212,3 +212,4 @@ __marimo__/
 .streamlit/secrets.toml
 generated-output/locations.conf
 generated-output/services.json
+gke_gcloud_auth_plugin_cache
