@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: porthole
     app.kubernetes.io/component: kubernetes-service-proxy
-    app.kubernetes.io/version: "0.2.49"
+    app.kubernetes.io/version: "0.2.51"
 spec:
   replicas: 1
   selector:
@@ -19,7 +19,7 @@ spec:
       labels:
         app.kubernetes.io/name: porthole
         app.kubernetes.io/component: kubernetes-service-proxy
-        app.kubernetes.io/version: "0.2.49"
+        app.kubernetes.io/version: "0.2.51"
     spec:
       serviceAccountName: porthole
       securityContext:
@@ -29,7 +29,7 @@ spec:
         fsGroup: 101
       initContainers:
       - name: init-config-generator
-        image: jgoodier/porthole:0.2.49
+        image: jgoodier/porthole:0.2.51
         env:
         - name: OUTPUT_DIR
           value: "/app/generated-output"
@@ -55,7 +55,7 @@ spec:
           mountPath: /app/src/porthole/config
       containers:
       - name: porthole
-        image: jgoodier/porthole:0.2.49
+        image: jgoodier/porthole:0.2.51
         imagePullPolicy: IfNotPresent
         env:
         - name: OUTPUT_DIR
@@ -92,6 +92,20 @@ spec:
         - name: http
           containerPort: 7070
           protocol: TCP
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            # Install inotify-tools for file watching
+            apt-get update && apt-get install -y inotify-tools
+            
+            # Start config watcher in background
+            /app/scripts/openresty-config-watcher.sh &
+            
+            # Start OpenResty in foreground
+            exec /opt/bitnami/scripts/openresty/entrypoint.sh /opt/bitnami/scripts/openresty/run.sh
+        env:
+        - name: WATCH_DIR
+          value: "/app/generated-output"
         volumeMounts:
           - name: app-generated-output
             mountPath: /app/generated-output
@@ -101,6 +115,8 @@ spec:
             mountPath: /opt/bitnami/openresty/nginx/tmp
           - name: shared-config
             mountPath: /app/shared-configs
+          - name: watcher-script
+            mountPath: /app/scripts
       volumes:
       - name: app-generated-output
         emptyDir: {}
@@ -114,5 +130,9 @@ spec:
           name: porthole-config
       - name: shared-config
         emptyDir: {}
+      - name: watcher-script
+        configMap:
+          name: openresty-watcher-script
+          defaultMode: 0755
       restartPolicy: Always
       terminationGracePeriodSeconds: 5

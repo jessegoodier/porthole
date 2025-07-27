@@ -93,7 +93,8 @@ class Config(BaseModel):
 
     # Logging configuration
     log_level: str = Field(
-        default="INFO", description="Log level (DEBUG, INFO, WARNING, ERROR)",
+        default="INFO",
+        description="Log level (DEBUG, INFO, WARNING, ERROR)",
     )
 
     # Frontend pattern matching
@@ -219,14 +220,18 @@ class Config(BaseModel):
             locations_config_file=os.getenv("LOCATIONS_CONFIG_FILE", "locations.conf"),
             skip_namespaces=skip_namespaces,
             include_headless_services=os.getenv(
-                "INCLUDE_HEADLESS_SERVICES", "false",
+                "INCLUDE_HEADLESS_SERVICES",
+                "false",
             ).lower()
             == "true",
             portal_title=portal_title,
             refresh_interval=refresh_interval,
             log_level=os.getenv("LOG_LEVEL", log_level).upper(),
             frontend_patterns=frontend_patterns,
-            enable_http_checking=os.getenv("ENABLE_HTTP_CHECKING", str(enable_http_checking)).lower() == "true",
+            enable_http_checking=os.getenv(
+                "ENABLE_HTTP_CHECKING", str(enable_http_checking),
+            ).lower()
+            == "true",
             http_timeout=int(os.getenv("HTTP_TIMEOUT", str(http_timeout))),
             http_user_agent=os.getenv("HTTP_USER_AGENT", http_user_agent),
         )

@@ -188,12 +188,12 @@ class KubernetesClient:
 
     def test_api_connectivity(self) -> None:
         """Test Kubernetes API connectivity and permissions at startup.
-        
+
         This function performs comprehensive tests to ensure the client can:
         1. Connect to the Kubernetes API server
-        2. Authenticate with the cluster  
+        2. Authenticate with the cluster
         3. Has minimum required permissions
-        
+
         Exits with code 1 if any critical checks fail.
         """
         logger.info("Testing Kubernetes API connectivity and permissions...")
@@ -205,7 +205,9 @@ class KubernetesClient:
             # Test 1: Basic API connectivity
             logger.debug("Testing basic API connectivity...")
             version = self._core_v1.get_api_resources()
-            logger.debug(f"✓ Connected to Kubernetes API with {len(version.resources)} core resources")
+            logger.debug(
+                f"✓ Connected to Kubernetes API with {len(version.resources)} core resources",
+            )
 
             # Test 2: Authentication and basic read permissions
             logger.debug("Testing authentication and namespace access...")

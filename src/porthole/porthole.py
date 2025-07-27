@@ -56,7 +56,8 @@ def setup_logging(log_level: str = "INFO") -> None:
 @click.option(
     "--log-level",
     type=click.Choice(
-        ["TRACE", "DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False,
+        ["TRACE", "DEBUG", "INFO", "WARNING", "ERROR"],
+        case_sensitive=False,
     ),
     help="Set logging level",
 )

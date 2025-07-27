@@ -38,10 +38,14 @@ class ServiceDiscovery:
         """
         self.k8s_client = k8s_client
         self.config = config
-        self.http_checker = HttpChecker(
-            timeout=config.http_timeout,
-            user_agent=config.http_user_agent,
-        ) if config.enable_http_checking else None
+        self.http_checker = (
+            HttpChecker(
+                timeout=config.http_timeout,
+                user_agent=config.http_user_agent,
+            )
+            if config.enable_http_checking
+            else None
+        )
 
     def discover_services(self) -> ServiceDiscoveryResult:
         """Discover all services in the cluster.
@@ -120,7 +124,8 @@ class ServiceDiscovery:
         return filtered
 
     def _discover_services_in_namespace(
-        self, namespace: str,
+        self,
+        namespace: str,
     ) -> list[KubernetesService]:
         """Discover services in a specific namespace.
 
@@ -139,10 +144,7 @@ class ServiceDiscovery:
                     k8s_service = self._convert_service(service)
 
                     # Skip headless services if not configured to include them
-                    if (
-                        k8s_service.is_headless
-                        and not self.config.include_headless_services
-                    ):
+                    if k8s_service.is_headless and not self.config.include_headless_services:
                         logger.debug(
                             f"Skipping headless service: {k8s_service.display_name}",
                         )
@@ -252,7 +254,7 @@ class ServiceDiscovery:
         try:
             endpoints.extend(self._get_endpoint_slices(service))
         except Exception as e:
-            logger.error(
+            logger.debug(
                 f"Failed to get endpoint slices for {service.metadata.name}: {e}",
             )
 
@@ -281,11 +283,9 @@ class ServiceDiscovery:
         try:
             # Get endpoint slices for the service
             label_selector = f"kubernetes.io/service-name={service.metadata.name}"
-            endpoint_slices = (
-                self.k8s_client.discovery_v1.list_namespaced_endpoint_slice(
-                    namespace=service.metadata.namespace,
-                    label_selector=label_selector,
-                )
+            endpoint_slices = self.k8s_client.discovery_v1.list_namespaced_endpoint_slice(
+                namespace=service.metadata.namespace,
+                label_selector=label_selector,
             )
 
             for slice_obj in endpoint_slices.items:
@@ -421,7 +421,8 @@ class ServiceDiscovery:
         return endpoints
 
     def _determine_endpoint_status(
-        self, endpoints: list[ServiceEndpoint],
+        self,
+        endpoints: list[ServiceEndpoint],
     ) -> EndpointStatus:
         """Determine the overall endpoint status for a service.
 
@@ -444,7 +445,9 @@ class ServiceDiscovery:
         return EndpointStatus.HEALTHY  # Consider it healthy if at least one is ready
 
     def get_service_by_name(
-        self, namespace: str, name: str,
+        self,
+        namespace: str,
+        name: str,
     ) -> KubernetesService | None:
         """Get a specific service by name.
 
@@ -476,7 +479,8 @@ class ServiceDiscovery:
             return None
 
     def refresh_service_status(
-        self, services: list[KubernetesService],
+        self,
+        services: list[KubernetesService],
     ) -> list[KubernetesService]:
         """Refresh the status of existing services.
 
@@ -492,7 +496,8 @@ class ServiceDiscovery:
             try:
                 # Get fresh service data
                 fresh_service = self.get_service_by_name(
-                    service.namespace, service.name,
+                    service.namespace,
+                    service.name,
                 )
                 if fresh_service:
                     refreshed_services.append(fresh_service)
@@ -538,7 +543,9 @@ class ServiceDiscovery:
             service.redirect_url = result.redirect_url
 
             if result.response_code:
-                logger.debug(f"HTTP check result for {service.display_name}: {result.response_code}")
+                logger.debug(
+                    f"HTTP check result for {service.display_name}: {result.response_code}",
+                )
             else:
                 logger.debug(f"HTTP check failed for {service.display_name}: {result.redirect_url}")
 

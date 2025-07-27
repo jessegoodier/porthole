@@ -71,7 +71,9 @@ class HttpChecker:
             if 300 <= response.status_code < 400:
                 # Redirect response
                 redirect_location = response.headers.get("Location", "")
-                logger.debug(f"HTTP redirect: {url} -> {response.status_code} to {redirect_location}")
+                logger.debug(
+                    f"HTTP redirect: {url} -> {response.status_code} to {redirect_location}",
+                )
                 return HttpCheckResult(
                     response.status_code,
                     redirect_location or f"Redirect ({response.status_code})",

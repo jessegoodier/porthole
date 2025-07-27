@@ -82,7 +82,21 @@ class NginxGenerator:
         locations_file = self.output_dir / self.config.locations_config_file
         locations_file.write_text(content, encoding="utf-8")
 
+        # Create reload trigger file to signal nginx/openresty to reload
+        self._create_reload_trigger()
+
         return str(locations_file)
+
+    def _create_reload_trigger(self) -> None:
+        """Create a trigger file to signal openresty container to reload configuration."""
+        import time
+
+        # Create a trigger file with timestamp to signal reload
+        trigger_file = self.output_dir / "nginx-reload.trigger"
+        trigger_content = f"reload_requested_at={int(time.time())}\n"
+        trigger_file.write_text(trigger_content, encoding="utf-8")
+
+        logger.debug(f"Created reload trigger file: {trigger_file}")
 
     def _build_nginx_config(
         self,

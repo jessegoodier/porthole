@@ -218,9 +218,7 @@ class ServiceDiscoveryResult(BaseModel):
             values["unhealthy_services"] = sum(
                 1 for s in services if s.endpoint_status == EndpointStatus.UNHEALTHY
             )
-            values["frontend_services"] = sum(
-                1 for s in services if s.is_frontend
-            )
+            values["frontend_services"] = sum(1 for s in services if s.is_frontend)
         return values
 
     def get_services_by_namespace(self) -> dict[str, list[KubernetesService]]:
@@ -236,15 +234,17 @@ class ServiceDiscoveryResult(BaseModel):
         """Get services sorted alphabetically by namespace/service:port."""
         return sorted(self.services, key=lambda s: (s.namespace, s.name))
 
-    def to_dict(self, format_type: Literal["portal", "cli"] = "portal", config: "Config | None" = None) -> dict[str, Any]:
+    def to_dict(
+        self, format_type: Literal["portal", "cli"] = "portal", config: "Config | None" = None,
+    ) -> dict[str, Any]:
         """Convert service discovery result to dictionary format.
-        
+
         Args:
             format_type: Type of format to generate:
                 - 'portal': Comprehensive data for web portal (includes proxy_url, display_name, etc.)
                 - 'cli': Simplified data for CLI display
             config: Configuration object for port-level frontend detection (optional)
-                
+
         Returns:
             Dictionary with services data and metadata
         """
@@ -267,9 +267,7 @@ class ServiceDiscoveryResult(BaseModel):
                 "namespaces_scanned": self.namespaces_scanned,
                 "namespaces_skipped": self.namespaces_skipped,
                 "discovery_time": (
-                    self.discovery_time.isoformat()
-                    if self.discovery_time
-                    else None
+                    self.discovery_time.isoformat() if self.discovery_time else None
                 ),
                 "generated_at": datetime.now(UTC).isoformat(),
             },
@@ -295,9 +293,7 @@ class ServiceDiscoveryResult(BaseModel):
                     "endpoint_count": len(service.endpoints),
                     "proxy_url": service.get_proxy_url(port),
                     "display_name": f"{service.display_name}:{port.port}",
-                    "created_at": (
-                        service.created_at.isoformat() if service.created_at else None
-                    ),
+                    "created_at": (service.created_at.isoformat() if service.created_at else None),
                     "http_response_code": service.http_response_code,
                     "redirect_url": service.redirect_url,
                 }
@@ -305,14 +301,16 @@ class ServiceDiscoveryResult(BaseModel):
 
         return services_data
 
-    def _is_port_frontend(self, service: "KubernetesService", port: "ServicePort", config: "Config | None" = None) -> bool:
+    def _is_port_frontend(
+        self, service: "KubernetesService", port: "ServicePort", config: "Config | None" = None,
+    ) -> bool:
         """Determine if a specific port is a frontend port.
-        
+
         Args:
             service: The Kubernetes service
             port: The specific port to check
             config: Configuration object with frontend patterns (optional)
-            
+
         Returns:
             True if this specific port is a frontend port
         """
