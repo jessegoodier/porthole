@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/name: porthole
     app.kubernetes.io/component: kubernetes-service-proxy
     app.kubernetes.io/instance: porthole
-    app.kubernetes.io/version: "0.2.64"
+    app.kubernetes.io/version: "0.2.65"
 spec:
   replicas: 1
   selector:
@@ -22,7 +22,7 @@ spec:
         app.kubernetes.io/name: porthole
         app.kubernetes.io/component: kubernetes-service-proxy
         app.kubernetes.io/instance: porthole
-        app.kubernetes.io/version: "0.2.64"
+        app.kubernetes.io/version: "0.2.65"
     spec:
       serviceAccountName: porthole
       securityContext:
@@ -30,35 +30,35 @@ spec:
         runAsUser: 101
         runAsGroup: 101
         fsGroup: 101
-      initContainers:
-      - name: init-config-generator
-        image: jgoodier/porthole:0.2.64
-        env:
-        - name: OUTPUT_DIR
-          value: "/app/generated-output"
-        - name: LOG_LEVEL
-          value: debug
-        command: ["/bin/bash", "-c", "/app/scripts/init-container-entrypoint.sh"]
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
-          runAsNonRoot: true
-          runAsUser: 1001
-          runAsGroup: 1001
-          capabilities:
-            drop:
-            - ALL
-        volumeMounts:
-        - name: app-generated-output
-          mountPath: /app/generated-output
-        # init-container-entrypoint.sh copies the static files to the shared-config volume
-        - name: shared-config
-          mountPath: /app/shared-configs
-        - name: porthole-config
-          mountPath: /app/src/porthole/config
+      # initContainers:
+      # - name: init-config-generator
+      #   image: jgoodier/porthole:0.2.65
+      #   env:
+      #   - name: OUTPUT_DIR
+      #     value: "/app/generated-output"
+      #   - name: LOG_LEVEL
+      #     value: debug
+      #   command: ["/bin/bash", "-c", "/app/scripts/init-container-entrypoint.sh"]
+      #   securityContext:
+      #     allowPrivilegeEscalation: false
+      #     readOnlyRootFilesystem: false
+      #     runAsNonRoot: true
+      #     runAsUser: 1001
+      #     runAsGroup: 1001
+      #     capabilities:
+      #       drop:
+      #       - ALL
+      #   volumeMounts:
+      #   - name: app-generated-output
+      #     mountPath: /app/generated-output
+      #   # init-container-entrypoint.sh copies the static files to the shared-config volume
+      #   - name: shared-config
+      #     mountPath: /app/shared-configs
+      #   - name: porthole-config
+      #     mountPath: /app/src/porthole/config
       containers:
       - name: porthole
-        image: jgoodier/porthole:0.2.64
+        image: jgoodier/porthole:0.2.65
         imagePullPolicy: IfNotPresent
         env:
         - name: OUTPUT_DIR

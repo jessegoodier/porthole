@@ -47,6 +47,7 @@ COPY --from=builder /python /python
 COPY --from=builder /app /app
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
+COPY src/porthole/config/nginx.conf /etc/nginx/nginx.conf
 
 # Set environment variables  
 ENV PYTHONPATH="/app/src"
