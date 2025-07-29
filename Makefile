@@ -2,9 +2,10 @@
 
 # Configuration
 IMAGE_NAME = jgoodier/porthole
-IMAGE_TAG = 0.2.51
+IMAGE_TAG = 0.2.64
 NAMESPACE = porthole
-DOCKER_FILE = docker/Dockerfile.app-changes-only
+DOCKER_FILE = docker/Dockerfile
+DOCKER_FILE_APP_ONLY = docker/Dockerfile.app-changes-only
 
 # Docker image names (dynamically read IMAGE_TAG)
 REGISTRY = docker.io
@@ -82,8 +83,8 @@ push: ## Push Docker image
 
 .PHONY: build-app-only
 build-app-only: ## Build Docker image
-	podman build --arch amd64 -f Dockerfile-app-only -t "$(FULL_NAME_AMD64)" .
-	podman build --arch arm64 -f Dockerfile-app-only -t "$(FULL_NAME_ARM64)" .
+	podman build --arch amd64 -f $(DOCKER_FILE_APP_ONLY) -t "$(FULL_NAME_AMD64)" .
+	podman build --arch arm64 -f $(DOCKER_FILE_APP_ONLY) -t "$(FULL_NAME_ARM64)" .
 
 .PHONY: push-app-only
 push-app-only: ## Push Docker image

@@ -7,19 +7,22 @@ metadata:
   labels:
     app.kubernetes.io/name: porthole
     app.kubernetes.io/component: kubernetes-service-proxy
-    app.kubernetes.io/version: "0.2.51"
+    app.kubernetes.io/instance: porthole
+    app.kubernetes.io/version: "0.2.64"
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: porthole
       app.kubernetes.io/component: kubernetes-service-proxy
+      app.kubernetes.io/instance: porthole
   template:
     metadata:
       labels:
         app.kubernetes.io/name: porthole
         app.kubernetes.io/component: kubernetes-service-proxy
-        app.kubernetes.io/version: "0.2.51"
+        app.kubernetes.io/instance: porthole
+        app.kubernetes.io/version: "0.2.64"
     spec:
       serviceAccountName: porthole
       securityContext:
@@ -29,7 +32,7 @@ spec:
         fsGroup: 101
       initContainers:
       - name: init-config-generator
-        image: jgoodier/porthole:0.2.51
+        image: jgoodier/porthole:0.2.64
         env:
         - name: OUTPUT_DIR
           value: "/app/generated-output"
@@ -55,14 +58,21 @@ spec:
           mountPath: /app/src/porthole/config
       containers:
       - name: porthole
-        image: jgoodier/porthole:0.2.51
+        image: jgoodier/porthole:0.2.64
         imagePullPolicy: IfNotPresent
         env:
         - name: OUTPUT_DIR
           value: "/app/generated-output"
         - name: LOG_LEVEL
           value: debug
-        command: ["python", "-m", "porthole.porthole", "watch"]
+        - name: WATCH_DIR
+          value: "/app/generated-output"
+        - name: STARTUP_MODE
+          value: "generate"
+        command: ["/app/scripts/startup.sh"]
+        ports:
+        - containerPort: 7070
+          name: http
         resources:
           limits:
             memory: "512Mi"
@@ -82,57 +92,17 @@ spec:
         volumeMounts:
         - name: app-generated-output
           mountPath: /app/generated-output
-        - name: porthole-config
-          mountPath: /app/src/porthole/config
         - name: shared-config
           mountPath: /app/shared-configs
-      - name: openresty
-        image: bitnami/openresty:latest
-        ports:
-        - name: http
-          containerPort: 7070
-          protocol: TCP
-        command: ["/bin/bash", "-c"]
-        args:
-          - |
-            # Install inotify-tools for file watching
-            apt-get update && apt-get install -y inotify-tools
-            
-            # Start config watcher in background
-            /app/scripts/openresty-config-watcher.sh &
-            
-            # Start OpenResty in foreground
-            exec /opt/bitnami/scripts/openresty/entrypoint.sh /opt/bitnami/scripts/openresty/run.sh
-        env:
-        - name: WATCH_DIR
-          value: "/app/generated-output"
-        volumeMounts:
-          - name: app-generated-output
-            mountPath: /app/generated-output
-          - name: openresty-server-config
-            mountPath: /opt/bitnami/openresty/nginx/conf/server_blocks
-          - name: openresty-tmp
-            mountPath: /opt/bitnami/openresty/nginx/tmp
-          - name: shared-config
-            mountPath: /app/shared-configs
-          - name: watcher-script
-            mountPath: /app/scripts
+        - name: porthole-config
+          mountPath: /app/src/porthole/config
       volumes:
       - name: app-generated-output
         emptyDir: {}
-      - name: openresty-server-config
-        configMap:
-          name: openresty-server-config
-      - name: openresty-tmp
+      - name: shared-config
         emptyDir: {}
       - name: porthole-config
         configMap:
           name: porthole-config
-      - name: shared-config
-        emptyDir: {}
-      - name: watcher-script
-        configMap:
-          name: openresty-watcher-script
-          defaultMode: 0755
       restartPolicy: Always
       terminationGracePeriodSeconds: 5

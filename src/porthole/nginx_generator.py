@@ -8,12 +8,8 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader, Template
 
 from .config import Config
-from .models import (
-    KubernetesService,
-    NginxConfig,
-    NginxLocation,
-    ServiceDiscoveryResult,
-)
+from .models import (KubernetesService, NginxConfig, NginxLocation,
+                     ServiceDiscoveryResult)
 
 logger = logging.getLogger(__name__)
 
@@ -54,11 +50,38 @@ class NginxGenerator:
         # Generate nginx config model
         nginx_config = self._build_nginx_config(discovery_result)
 
+        # Generate main nginx config file
+        main_config_file = self._generate_main_config(nginx_config)
+
         # Generate location file
         locations_file = self._generate_locations_config(nginx_config)
 
+        logger.info(f"Generated nginx main config: {main_config_file}")
         logger.info(f"Generated nginx locations: {locations_file}")
         return str(locations_file)
+
+    def _generate_main_config(self, nginx_config: NginxConfig) -> str:
+        """Generate main nginx configuration file.
+
+        Args:
+            nginx_config: NginxConfig model
+
+        Returns:
+            Path to generated main nginx config file
+        """
+        # Load main nginx template
+        template = self.jinja_env.get_template("nginx.conf.j2")
+
+        # Render main nginx configuration
+        content = template.render(
+            generated_at=nginx_config.generated_at,
+        )
+
+        # Write main nginx config file
+        main_config_file = self.output_dir / "nginx.conf"
+        main_config_file.write_text(content, encoding="utf-8")
+
+        return str(main_config_file)
 
     def _generate_locations_config(self, nginx_config: NginxConfig) -> str:
         """Generate locations configuration file.
@@ -82,13 +105,16 @@ class NginxGenerator:
         locations_file = self.output_dir / self.config.locations_config_file
         locations_file.write_text(content, encoding="utf-8")
 
-        # Create reload trigger file to signal nginx/openresty to reload
+        # Ensure the locations file has proper permissions
+        locations_file.chmod(0o644)
+
+        # Create reload trigger file to signal nginx to reload
         self._create_reload_trigger()
 
         return str(locations_file)
 
     def _create_reload_trigger(self) -> None:
-        """Create a trigger file to signal openresty container to reload configuration."""
+        """Create a trigger file to signal nginx container to reload configuration."""
         import time
 
         # Create a trigger file with timestamp to signal reload
@@ -248,12 +274,13 @@ class NginxGenerator:
 
             content = config_path.read_text(encoding="utf-8")
 
-            # Basic syntax checks
-            if content.count("{") != content.count("}"):
+            # Basic syntax validation
+            brace_count = content.count("{") - content.count("}")
+            if brace_count != 0:
                 logger.error("Mismatched braces in nginx config")
                 return False
 
-            # Check for required sections
+            # Check for location blocks
             if "location" not in content:
                 logger.warning("No location blocks found in nginx config")
 

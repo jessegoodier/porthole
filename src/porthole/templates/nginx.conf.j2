@@ -1,0 +1,91 @@
+# Main nginx configuration for porthole
+# Generated at: {{ generated_at }}
+
+# PID file location
+pid /tmp/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    # Logging
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for" '
+                    '"$http_x_auth_request_user" '
+                    '"$http_x_auth_request_email" '
+                    '"$http_x_auth_request_groups"';
+    log_format oauth2_proxy '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for" '
+                    '"$http_x_auth_request_user" '
+                    '"$http_x_auth_request_email" '
+                    '"$http_x_auth_request_groups"';
+    access_log stdout main;
+    error_log stderr warn;
+
+    # Basic settings
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+
+    # Server block for porthole
+    server {
+        listen 7070;
+        server_name _;
+
+        # Root directory for static files
+        root /app/shared-configs;
+        index index.html;
+
+        # Main location for the portal
+        location / {
+            try_files $uri $uri/ @fallback;
+            # Pass OAuth2 Proxy headers to the upstream
+            access_log stdout oauth2_proxy;
+            proxy_set_header X-Auth-Request-User $http_x_auth_request_user;
+            proxy_set_header X-Auth-Request-Email $http_x_auth_request_email;
+            proxy_set_header X-Auth-Request-Groups $http_x_auth_request_groups;
+        }
+
+        # Services JSON data
+        location /services.json {
+            root /app/generated-output;
+            try_files $uri =404;
+        }
+
+        # Fallback location for generated content
+        location @fallback {
+            root /app/generated-output;
+            autoindex on;
+            autoindex_exact_size off;
+            autoindex_localtime on;
+        }
+
+        # Include generated location blocks for Kubernetes services
+        include /app/generated-output/locations.conf;
+    }
+} 

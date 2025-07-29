@@ -70,9 +70,17 @@ class TestConfig:
         """Test creating config from environment with defaults."""
         # Clear any existing environment variables
         env_vars = [
-            "KUBECONFIG", "OUTPUT_DIR", "SERVICE_JSON_FILE", "PORTAL_HTML_FILE",
-            "NGINX_CONFIG_FILE", "LOCATIONS_CONFIG_FILE", "SKIP_NAMESPACES",
-            "INCLUDE_HEADLESS_SERVICES", "PORTAL_TITLE", "REFRESH_INTERVAL", "DEBUG",
+            "KUBECONFIG",
+            "OUTPUT_DIR",
+            "SERVICE_JSON_FILE",
+            "PORTAL_HTML_FILE",
+            "NGINX_CONFIG_FILE",
+            "LOCATIONS_CONFIG_FILE",
+            "SKIP_NAMESPACES",
+            "INCLUDE_HEADLESS_SERVICES",
+            "PORTAL_TITLE",
+            "REFRESH_INTERVAL",
+            "DEBUG",
         ]
         for var in env_vars:
             monkeypatch.delenv(var, raising=False)
@@ -145,7 +153,9 @@ class TestConfig:
             config = Config.from_env()
 
             assert config.debug is expected, f"DEBUG={env_value} should be {expected}"
-            assert config.include_headless_services is expected, f"INCLUDE_HEADLESS_SERVICES={env_value} should be {expected}"
+            assert config.include_headless_services is expected, (
+                f"INCLUDE_HEADLESS_SERVICES={env_value} should be {expected}"
+            )
 
     def test_from_env_integer_parsing(self, monkeypatch):
         """Test integer environment variable parsing."""

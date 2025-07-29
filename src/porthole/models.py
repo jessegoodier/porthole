@@ -235,7 +235,9 @@ class ServiceDiscoveryResult(BaseModel):
         return sorted(self.services, key=lambda s: (s.namespace, s.name))
 
     def to_dict(
-        self, format_type: Literal["portal", "cli"] = "portal", config: "Config | None" = None,
+        self,
+        format_type: Literal["portal", "cli"] = "portal",
+        config: "Config | None" = None,
     ) -> dict[str, Any]:
         """Convert service discovery result to dictionary format.
 
@@ -302,7 +304,10 @@ class ServiceDiscoveryResult(BaseModel):
         return services_data
 
     def _is_port_frontend(
-        self, service: "KubernetesService", port: "ServicePort", config: "Config | None" = None,
+        self,
+        service: "KubernetesService",
+        port: "ServicePort",
+        config: "Config | None" = None,
     ) -> bool:
         """Determine if a specific port is a frontend port.
 

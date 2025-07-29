@@ -370,6 +370,32 @@
             padding-bottom: 0.5rem;
         }
 
+        .namespace-search {
+            margin-bottom: 0.75rem;
+        }
+
+        .namespace-search input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            color: #ffffff;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .namespace-search input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #64b5f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.3);
+        }
+
+        .namespace-search input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         .namespace-options {
             display: flex;
             flex-direction: column;
@@ -872,6 +898,10 @@
                 </button>
                 <div class="namespace-selector" id="namespace-selector">
                     <h3>Select Namespace</h3>
+                    <div class="namespace-search">
+                        <input type="text" id="namespace-search-input" placeholder="Search namespaces..." 
+                               oninput="filterNamespaceOptions()" autocomplete="off">
+                    </div>
                     <div class="namespace-options" id="namespace-options">
                         <div class="namespace-option selected">
                             <input type="radio" name="namespace" value="all" checked>
@@ -1299,6 +1329,29 @@
             applyCurrentFilters();
         }
 
+        // Filter namespace options based on search input
+        function filterNamespaceOptions() {
+            const searchInput = document.getElementById('namespace-search-input');
+            const searchTerm = searchInput.value.toLowerCase();
+            const namespaceOptions = document.querySelectorAll('.namespace-option');
+
+            namespaceOptions.forEach(option => {
+                const label = option.querySelector('label').textContent.toLowerCase();
+                if (label.includes(searchTerm)) {
+                    option.style.display = 'flex';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+
+        // Clear namespace search and show all options
+        function clearNamespaceSearch() {
+            const searchInput = document.getElementById('namespace-search-input');
+            searchInput.value = '';
+            filterNamespaceOptions();
+        }
+
         // Setup namespace selector
         function setupNamespaceSelector() {
             if (!servicesData || !servicesData.meta || !servicesData.meta.namespaces_scanned) return;
@@ -1322,11 +1375,52 @@
             const namespaceButton = document.querySelector('.namespace-button');
             const currentNamespaceSpan = document.getElementById('current-namespace');
 
+            // Setup search input event listeners
+            const namespaceSearchInput = document.getElementById('namespace-search-input');
+            
             // Toggle dropdown
             namespaceButton.addEventListener('click', function(event) {
                 event.stopPropagation();
+                const isOpening = !namespaceSelector.classList.contains('show');
+                
                 namespaceSelector.classList.toggle('show');
                 namespaceButton.classList.toggle('active');
+                
+                // Focus search input and clear search when opening
+                if (isOpening) {
+                    clearNamespaceSearch();
+                    setTimeout(() => namespaceSearchInput.focus(), 100);
+                }
+            });
+
+            // Handle keyboard navigation in search input
+            namespaceSearchInput.addEventListener('keydown', function(event) {
+                const visibleOptions = Array.from(document.querySelectorAll('.namespace-option'))
+                    .filter(option => option.style.display !== 'none');
+                    
+                switch (event.key) {
+                    case 'ArrowDown':
+                        event.preventDefault();
+                        if (visibleOptions.length > 0) {
+                            const firstOption = visibleOptions[0];
+                            firstOption.classList.add('selected');
+                            firstOption.querySelector('input').focus();
+                        }
+                        break;
+                    case 'Enter':
+                        event.preventDefault();
+                        if (visibleOptions.length === 1) {
+                            // If only one option is visible, select it
+                            visibleOptions[0].click();
+                        }
+                        break;
+                    case 'Escape':
+                        event.preventDefault();
+                        namespaceSelector.classList.remove('show');
+                        namespaceButton.classList.remove('active');
+                        this.blur();
+                        break;
+                }
             });
 
             // Handle namespace selection
@@ -1356,6 +1450,7 @@
                 if (!namespaceSelector.contains(event.target) && !namespaceButton.contains(event.target)) {
                     namespaceSelector.classList.remove('show');
                     namespaceButton.classList.remove('active');
+                    clearNamespaceSearch();
                 }
             });
         }

@@ -95,7 +95,6 @@ class TestKubernetesClient:
         assert result is True
         mock_config.load_incluster_config.assert_called_once()
 
-
     @patch("porthole.k8s_client.config")
     @patch("porthole.k8s_client.Path")
     def test_try_kubeconfig_explicit_path(self, mock_path, mock_config):
@@ -130,7 +129,6 @@ class TestKubernetesClient:
             result = client._try_kubeconfig()
 
         assert result is True
-
 
     def test_test_connection_success(self):
         """Test successful connection test."""
@@ -170,7 +168,6 @@ class TestKubernetesClient:
             client._test_connection()
 
         assert "Core v1 API client not initialized" in str(exc_info.value)
-
 
     def test_get_cluster_info_success(self):
         """Test successful cluster info retrieval."""

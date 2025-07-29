@@ -10,14 +10,8 @@ from .config import Config
 from .constants import HTTP_NOT_FOUND
 from .http_checker import HttpChecker
 from .k8s_client import KubernetesClient
-from .models import (
-    EndpointStatus,
-    KubernetesService,
-    ServiceDiscoveryResult,
-    ServiceEndpoint,
-    ServicePort,
-    ServiceType,
-)
+from .models import (EndpointStatus, KubernetesService, ServiceDiscoveryResult,
+                     ServiceEndpoint, ServicePort, ServiceType)
 
 logger = logging.getLogger(__name__)
 if logger.level == logging.TRACE:

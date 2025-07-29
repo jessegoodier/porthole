@@ -118,8 +118,9 @@ class TestCLI:
     @patch("porthole.porthole.ServiceDiscovery")
     @patch("porthole.porthole.PortalGenerator")
     @patch("porthole.porthole.NginxGenerator")
-    def test_generate_command(self, mock_nginx_gen_class, mock_portal_gen_class,
-                             mock_discovery_class, mock_get_client):
+    def test_generate_command(
+        self, mock_nginx_gen_class, mock_portal_gen_class, mock_discovery_class, mock_get_client,
+    ):
         """Test generate command."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Setup mocks
@@ -162,8 +163,9 @@ class TestCLI:
     @patch("porthole.porthole.get_kubernetes_client")
     @patch("porthole.porthole.ServiceDiscovery")
     @patch("porthole.porthole.PortalGenerator")
-    def test_generate_command_selective(self, mock_portal_gen_class,
-                                       mock_discovery_class, mock_get_client):
+    def test_generate_command_selective(
+        self, mock_portal_gen_class, mock_discovery_class, mock_get_client,
+    ):
         """Test generate command with selective output."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Setup mocks
@@ -185,12 +187,16 @@ class TestCLI:
             mock_discovery.discover_services.return_value = result
 
             runner = CliRunner()
-            cli_result = runner.invoke(cli, [
-                "generate",
-                "--output-dir", temp_dir,
-                "--no-portal",
-                "--no-nginx",
-            ])
+            cli_result = runner.invoke(
+                cli,
+                [
+                    "generate",
+                    "--output-dir",
+                    temp_dir,
+                    "--no-portal",
+                    "--no-nginx",
+                ],
+            )
 
             assert cli_result.exit_code == 0
             assert "Generated 1 files:" in cli_result.output
@@ -232,7 +238,6 @@ class TestCLI:
         assert cli_result.exit_code == 1
 
 
-
 class TestDisplayDiscoveryResult:
     """Test the _display_discovery_result function."""
 
@@ -271,6 +276,7 @@ class TestDisplayDiscoveryResult:
                 sys.stdout = old_stdout
 
             import json
+
             data = json.loads(output)
 
             assert data["total_services"] == 1

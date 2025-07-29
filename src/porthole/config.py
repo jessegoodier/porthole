@@ -229,7 +229,8 @@ class Config(BaseModel):
             log_level=os.getenv("LOG_LEVEL", log_level).upper(),
             frontend_patterns=frontend_patterns,
             enable_http_checking=os.getenv(
-                "ENABLE_HTTP_CHECKING", str(enable_http_checking),
+                "ENABLE_HTTP_CHECKING",
+                str(enable_http_checking),
             ).lower()
             == "true",
             http_timeout=int(os.getenv("HTTP_TIMEOUT", str(http_timeout))),

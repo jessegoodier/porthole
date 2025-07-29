@@ -15,8 +15,8 @@ class TestServicePort:
 
     def test_valid_port(self):
         """Test creating a valid service port."""
-        port = ServicePort(port=8080, protocol="TCP")
-        assert port.port == 8080
+        port = ServicePort(port=7070, protocol="TCP")
+        assert port.port == 7070
         assert port.protocol == "TCP"
         assert port.name is None
 
@@ -49,21 +49,21 @@ class TestServiceEndpoint:
 
     def test_valid_endpoint(self):
         """Test creating a valid endpoint."""
-        endpoint = ServiceEndpoint(ip="10.244.1.5", port=8080)
+        endpoint = ServiceEndpoint(ip="10.244.1.5", port=7070)
         assert endpoint.ip == "10.244.1.5"
-        assert endpoint.port == 8080
+        assert endpoint.port == 7070
         assert endpoint.ready is True
 
     def test_endpoint_not_ready(self):
         """Test endpoint that's not ready."""
-        endpoint = ServiceEndpoint(ip="10.244.1.5", port=8080, ready=False)
+        endpoint = ServiceEndpoint(ip="10.244.1.5", port=7070, ready=False)
         assert endpoint.ready is False
 
     def test_endpoint_with_hostname(self):
         """Test endpoint with hostname."""
         endpoint = ServiceEndpoint(
             ip="10.244.1.5",
-            port=8080,
+            port=7070,
             hostname="pod-1.service.default.svc.cluster.local",
         )
         assert endpoint.hostname == "pod-1.service.default.svc.cluster.local"
@@ -120,7 +120,6 @@ class TestKubernetesService:
             endpoints=[],
         )
         assert service.display_name == "production/webapp"
-
 
     def test_no_valid_endpoints(self):
         """Test service with no endpoints."""
@@ -225,7 +224,7 @@ class TestServiceDiscoveryResult:
                 name="api",
                 namespace="default",
                 service_type=ServiceType.CLUSTER_IP,
-                ports=[ServicePort(port=8080)],
+                ports=[ServicePort(port=7070)],
                 endpoints=[],
                 endpoint_status=EndpointStatus.UNHEALTHY,
             ),
@@ -256,7 +255,7 @@ class TestServiceDiscoveryResult:
                 name="api",
                 namespace="production",
                 service_type=ServiceType.CLUSTER_IP,
-                ports=[ServicePort(port=8080)],
+                ports=[ServicePort(port=7070)],
                 endpoints=[],
             ),
         ]
@@ -287,7 +286,7 @@ class TestServiceDiscoveryResult:
                 name="alpha",
                 namespace="default",
                 service_type=ServiceType.CLUSTER_IP,
-                ports=[ServicePort(port=8080)],
+                ports=[ServicePort(port=7070)],
                 endpoints=[],
             ),
         ]
@@ -310,10 +309,10 @@ class TestNginxLocation:
         """Test creating a valid nginx location."""
         location = NginxLocation(
             path="/api",
-            service_dns="api.default.svc.cluster.local:8080",
+            service_dns="api.default.svc.cluster.local:7070",
         )
         assert location.path == "/api"
-        assert location.service_dns == "api.default.svc.cluster.local:8080"
+        assert location.service_dns == "api.default.svc.cluster.local:7070"
 
     def test_location_with_rewrite(self):
         """Test location with rewrite rule."""
@@ -329,7 +328,7 @@ class TestNginxLocation:
         with pytest.raises(ValidationError) as exc_info:
             NginxLocation(
                 path="api",  # Missing leading slash
-                service_dns="api.default.svc.cluster.local:8080",
+                service_dns="api.default.svc.cluster.local:7070",
             )
         assert "Location path must start with /" in str(exc_info.value)
 
@@ -347,7 +346,7 @@ class TestNginxConfig:
         locations = [
             NginxLocation(
                 path="/api",
-                service_dns="api.default.svc.cluster.local:8080",
+                service_dns="api.default.svc.cluster.local:7070",
             ),
             NginxLocation(
                 path="/web",
