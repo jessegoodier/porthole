@@ -1,0 +1,487 @@
+<!-- Porthole FAB Widget - Self-contained floating action button for nginx sub_filter injection -->
+<div id="porthole-fab-container" class="porthole-fab-container">
+    <div id="porthole-fab-tooltip" class="porthole-fab-tooltip">Return to portal • Right-click for options</div>
+    <div id="porthole-fab-notification" class="porthole-fab-notification">URL copied to clipboard!</div>
+    <div id="porthole-fab-context-menu" class="porthole-fab-context-menu">
+        <div class="porthole-fab-context-item" onclick="portholeNavigateToPortal()">
+            <span>🏠</span> Return to Portal
+        </div>
+        <div class="porthole-fab-context-item" onclick="portholeCopyCurrentUrl()">
+            <span>📋</span> Copy URL
+        </div>
+    </div>
+    <button id="porthole-fab-button" class="porthole-fab">
+        <div class="porthole-fab-icon"></div>
+    </button>
+</div>
+
+<style>
+/* Porthole FAB Widget Styles - Collision-resistant with porthole- prefixes */
+.porthole-fab-container {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 20px !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif !important;
+}
+
+.porthole-fab {
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, rgba(100, 181, 246, 0.9) 0%, rgba(100, 181, 246, 0.7) 100%) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 20px rgba(100, 181, 246, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    outline: none !important;
+}
+
+.porthole-fab:hover {
+    transform: translateY(-2px) scale(1.05) !important;
+    background: linear-gradient(135deg, rgba(100, 181, 246, 1) 0%, rgba(100, 181, 246, 0.9) 100%) !important;
+    box-shadow: 0 8px 30px rgba(100, 181, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.porthole-fab:active {
+    transform: translateY(-1px) scale(1.02) !important;
+    transition: all 0.1s ease !important;
+}
+
+.porthole-fab-icon {
+    width: 28px !important;
+    height: 28px !important;
+    background-image: url('data:image/png;base64,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RgEAxigAwBgFABijAABjFABgjAIAjFEAgDEKADBGAQDGKADAGAUAGKMAAGMUAGCMAgCMUQCAMQoAMEYBAMYoAMAYBQAYowAAYxQAYIwCAIxRAIAxCgAwRgEAxigAwBgFABijAABjFABgjAIAjFEAgDEKADBGAQDGKADAGAUAGKMAAGMUAGCMAgCMUQCAMQoAMEYBAMYoAMAYBQAYowAAYxQAYIwCAIxRAIAxCgAwRgEAxigAwBgFABijAABjFABgjAIAjFEAgDEKADBGAQDGKADAGAUAGKMAAGMUAGCMAgCMUQCAMQoAK/BHAzBGAQDGKADAGAUAGKMAAGMUAGCMAgCMUQCAMQoAMEYBAMYoAMAYBQAYowAAYxQAYIwCAIxRAIAxCgAwRgEAxigAwBgFABijAABjFABgjAIAjFEAgDEKADBGAQDGKADAGAUAGKMAAGMUAGCMAgCMUQCAMQoAMEYBAMYoAMAYBQAYowAAYxQAYIwCAIxRAIAxCgAwRgEAxigAwBgFABijAABjFABgjAIAjFEAgDEKADBGAQDGKADAGAUAGKMAAGMUAGCMAgCMUQCAMQoAMEYBAMYoAMAYBQAYowAAYxQAYIwCAIxRAIAxCgAwRgEAxigAwBgFABijAABjFABgjAIAjFEAgDEKADBGAQDGKADAGAUAGPt//3nvPZJw5f0AAAAASUVORK5CYII=') !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    filter: brightness(0) invert(1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.porthole-fab:hover .porthole-fab-icon {
+    transform: rotate(5deg) scale(1.1) !important;
+}
+
+/* FAB Tooltip */
+.porthole-fab-tooltip {
+    position: absolute !important;
+    bottom: 100% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: rgba(45, 45, 45, 0.95) !important;
+    color: #ffffff !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s ease !important;
+    pointer-events: none !important;
+    margin-bottom: 8px !important;
+    z-index: 999998 !important;
+}
+
+.porthole-fab-tooltip::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    border: 6px solid transparent !important;
+    border-top-color: rgba(45, 45, 45, 0.95) !important;
+}
+
+.porthole-fab-container:hover .porthole-fab-tooltip {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%) translateY(-4px) !important;
+}
+
+/* Success notification */
+.porthole-fab-notification {
+    position: absolute !important;
+    bottom: 100% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: rgba(76, 175, 80, 0.95) !important;
+    color: #ffffff !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s ease !important;
+    pointer-events: none !important;
+    margin-bottom: 8px !important;
+    z-index: 999997 !important;
+}
+
+.porthole-fab-notification.porthole-show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%) translateY(-4px) !important;
+}
+
+.porthole-fab-notification::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    border: 6px solid transparent !important;
+    border-top-color: rgba(76, 175, 80, 0.95) !important;
+}
+
+/* Context menu for secondary actions */
+.porthole-fab-context-menu {
+    position: absolute !important;
+    bottom: 100% !important;
+    left: 0 !important;
+    background: rgba(45, 45, 45, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 8px 0 !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(10px) !important;
+    transition: all 0.3s ease !important;
+    pointer-events: none !important;
+    margin-bottom: 8px !important;
+    min-width: 160px !important;
+    z-index: 999996 !important;
+}
+
+.porthole-fab-context-menu.porthole-show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: all !important;
+}
+
+.porthole-fab-context-item {
+    padding: 10px 16px !important;
+    color: #e0e0e0 !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s ease !important;
+    font-size: 0.85rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.porthole-fab-context-item:hover {
+    background: rgba(100, 181, 246, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.porthole-fab-context-item:first-child {
+    border-radius: 8px 8px 0 0 !important;
+}
+
+.porthole-fab-context-item:last-child {
+    border-radius: 0 0 8px 8px !important;
+}
+
+/* Mobile responsiveness for FAB */
+@media (max-width: 768px) {
+    .porthole-fab-container {
+        bottom: 16px !important;
+        left: 16px !important;
+    }
+
+    .porthole-fab {
+        width: 52px !important;
+        height: 52px !important;
+    }
+
+    .porthole-fab-icon {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    .porthole-fab-tooltip,
+    .porthole-fab-notification {
+        font-size: 0.75rem !important;
+        padding: 6px 10px !important;
+    }
+
+    .porthole-fab-context-menu {
+        min-width: 140px !important;
+    }
+
+    .porthole-fab-context-item {
+        padding: 8px 12px !important;
+        font-size: 0.8rem !important;
+    }
+}
+
+/* Pulse animation for first time users */
+.porthole-fab.porthole-pulse {
+    animation: porthole-fab-pulse 2s infinite !important;
+}
+
+@keyframes porthole-fab-pulse {
+    0% {
+        box-shadow: 0 4px 20px rgba(100, 181, 246, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(100, 181, 246, 0.6), 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 10px rgba(100, 181, 246, 0.1) !important;
+    }
+    100% {
+        box-shadow: 0 4px 20px rgba(100, 181, 246, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Prevent duplicate FAB injection
+    if (window.portholeExplorerInjected) {
+        return;
+    }
+    window.portholeExplorerInjected = true;
+
+    // Wait for DOM to be ready
+    function portholeInitFAB() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', portholeInitFAB);
+            return;
+        }
+
+        const fabButton = document.getElementById('porthole-fab-button');
+        const fabContainer = document.getElementById('porthole-fab-container');
+        const fabContextMenu = document.getElementById('porthole-fab-context-menu');
+        const fabTooltip = document.getElementById('porthole-fab-tooltip');
+
+        if (!fabButton || !fabContainer) return;
+
+        // Handle left click - navigate to portal
+        fabButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            portholeNavigateToPortal();
+        });
+
+        // Handle right click - show context menu
+        fabButton.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            portholeShowContextMenu();
+        });
+
+        // Handle long press on mobile
+        let pressTimer;
+        fabButton.addEventListener('touchstart', function(event) {
+            pressTimer = setTimeout(function() {
+                event.preventDefault();
+                portholeShowContextMenu();
+            }, 500); // 500ms for long press
+        });
+
+        fabButton.addEventListener('touchend', function(event) {
+            clearTimeout(pressTimer);
+        });
+
+        fabButton.addEventListener('touchmove', function(event) {
+            clearTimeout(pressTimer);
+        });
+
+        // Close context menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!fabContainer.contains(event.target)) {
+                portholeHideContextMenu();
+            }
+        });
+
+        // Add pulse animation for first-time users
+        try {
+            const hasSeenFAB = localStorage.getItem('porthole-fab-seen');
+            if (!hasSeenFAB) {
+                fabButton.classList.add('porthole-pulse');
+                localStorage.setItem('porthole-fab-seen', 'true');
+                
+                // Remove pulse after 6 seconds
+                setTimeout(() => {
+                    fabButton.classList.remove('porthole-pulse');
+                }, 6000);
+            }
+        } catch (e) {
+            // localStorage might not be available, ignore
+        }
+
+        // Update tooltip based on current page
+        portholeUpdateTooltip();
+    }
+
+    // Navigation function
+    window.portholeNavigateToPortal = function() {
+        // Extract portal host from current URL
+        const currentHost = window.location.host;
+        const protocol = window.location.protocol;
+        
+        // Navigate to portal root
+        window.location.href = protocol + '//' + currentHost + '/';
+    };
+
+    // Copy URL function
+    window.portholeCopyCurrentUrl = function() {
+        const currentUrl = window.location.href;
+        
+        // Try modern Clipboard API first
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(currentUrl).then(function() {
+                portholeShowNotification('URL copied to clipboard!');
+            }).catch(function(err) {
+                console.error('Failed to copy using Clipboard API:', err);
+                portholeFallbackCopy(currentUrl);
+            });
+        } else {
+            // Fallback for older browsers
+            portholeFallbackCopy(currentUrl);
+        }
+    };
+
+    // Fallback copy function
+    function portholeFallbackCopy(text) {
+        // Create temporary textarea element
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '-9999px';
+        document.body.appendChild(textArea);
+        
+        try {
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand('copy');
+            if (successful) {
+                portholeShowNotification('URL copied to clipboard!');
+            } else {
+                portholeShowNotification('Copy failed - please copy manually', true);
+            }
+        } catch (err) {
+            console.error('Fallback copy failed:', err);
+            portholeShowNotification('Copy not supported - please copy manually', true);
+        } finally {
+            document.body.removeChild(textArea);
+        }
+    }
+
+    // Show context menu
+    function portholeShowContextMenu() {
+        const fabContextMenu = document.getElementById('porthole-fab-context-menu');
+        const fabTooltip = document.getElementById('porthole-fab-tooltip');
+        
+        if (!fabContextMenu) return;
+        
+        // Hide tooltip when showing context menu
+        if (fabTooltip) {
+            fabTooltip.style.opacity = '0';
+            fabTooltip.style.visibility = 'hidden';
+        }
+        
+        // Show context menu
+        fabContextMenu.classList.add('porthole-show');
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            portholeHideContextMenu();
+        }, 5000);
+    }
+
+    // Hide context menu
+    function portholeHideContextMenu() {
+        const fabContextMenu = document.getElementById('porthole-fab-context-menu');
+        if (fabContextMenu) {
+            fabContextMenu.classList.remove('porthole-show');
+        }
+    }
+
+    // Show notification
+    function portholeShowNotification(message, isError = false) {
+        const fabNotification = document.getElementById('porthole-fab-notification');
+        const fabTooltip = document.getElementById('porthole-fab-tooltip');
+        
+        if (!fabNotification) return;
+        
+        // Update message and style
+        fabNotification.textContent = message;
+        if (isError) {
+            fabNotification.style.background = 'rgba(244, 67, 54, 0.95)';
+            fabNotification.style.borderTopColor = 'rgba(244, 67, 54, 0.95)';
+        } else {
+            fabNotification.style.background = 'rgba(76, 175, 80, 0.95)';
+            fabNotification.style.borderTopColor = 'rgba(76, 175, 80, 0.95)';
+        }
+        
+        // Hide tooltip and context menu
+        if (fabTooltip) {
+            fabTooltip.style.opacity = '0';
+            fabTooltip.style.visibility = 'hidden';
+        }
+        portholeHideContextMenu();
+        
+        // Show notification
+        fabNotification.classList.add('porthole-show');
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            fabNotification.classList.remove('porthole-show');
+            // Reset color after hiding
+            setTimeout(() => {
+                fabNotification.style.background = 'rgba(76, 175, 80, 0.95)';
+                fabNotification.style.borderTopColor = 'rgba(76, 175, 80, 0.95)';
+            }, 300);
+        }, 3000);
+    }
+
+    // Update tooltip based on context
+    function portholeUpdateTooltip() {
+        const fabTooltip = document.getElementById('porthole-fab-tooltip');
+        if (!fabTooltip) return;
+        
+        const currentPath = window.location.pathname;
+        
+        if (currentPath === '/' || currentPath === '') {
+            fabTooltip.textContent = 'Portal home • Right-click for options';
+        } else {
+            fabTooltip.textContent = 'Return to portal • Right-click to copy URL';
+        }
+    }
+
+    // Initialize FAB
+    portholeInitFAB();
+})();
+</script>

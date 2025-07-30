@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/name: porthole
     app.kubernetes.io/component: kubernetes-service-proxy
     app.kubernetes.io/instance: porthole
-    app.kubernetes.io/version: "0.2.72"
+    app.kubernetes.io/version: "0.2.75"
 spec:
   replicas: 1
   selector:
@@ -22,7 +22,7 @@ spec:
         app.kubernetes.io/name: porthole
         app.kubernetes.io/component: kubernetes-service-proxy
         app.kubernetes.io/instance: porthole
-        app.kubernetes.io/version: "0.2.72"
+        app.kubernetes.io/version: "0.2.75"
     spec:
       serviceAccountName: porthole
       securityContext:
@@ -33,7 +33,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
       - name: porthole
-        image: jgoodier/porthole:0.2.72
+        image: jgoodier/porthole:0.2.75
         imagePullPolicy: IfNotPresent
         env:
         - name: OUTPUT_DIR
@@ -48,6 +48,28 @@ spec:
         ports:
         - containerPort: 7070
           name: http
+        # Liveness probe - check if Python processes are running
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "pgrep -f 'python.*porthole' > /dev/null"
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        # Readiness probe - check if nginx is responding on port 7070
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 7070
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+          successThreshold: 1
         resources:
           limits:
             memory: "512Mi"
@@ -72,7 +94,7 @@ spec:
         - name: porthole-config
           mountPath: /app/src/porthole/config
         - name: logs
-          mountPath: /logs
+          mountPath: /tmp
       volumes:
       - name: app-generated-output
         emptyDir: {}

@@ -71,11 +71,15 @@ class NginxGenerator:
         """
         # Load locations template
         template = self.jinja_env.get_template("locations.conf.j2")
+        
+        # Load FAB widget content
+        fab_widget_content = self._load_fab_widget()
 
         # Render locations configuration
         content = template.render(
             locations=nginx_config.locations,
             generated_at=nginx_config.generated_at,
+            porthole_fab_widget=fab_widget_content,
         )
 
         # Write locations file
@@ -89,6 +93,41 @@ class NginxGenerator:
         self._create_reload_trigger()
 
         return str(locations_file)
+
+    def _load_fab_widget(self) -> str:
+        """Load the FAB widget content from template file.
+        
+        Returns:
+            FAB widget HTML content as string, properly escaped for nginx
+        """
+        try:
+            fab_template_path = self.template_dir / "porthole-fab.html"
+            if fab_template_path.exists():
+                content = fab_template_path.read_text(encoding="utf-8")
+                
+                # Clean up the content for nginx sub_filter
+                # Remove HTML comments to reduce size
+                import re
+                content = re.sub(r'<!--.*?-->', '', content, flags=re.DOTALL)
+                
+                # Compress whitespace but keep structure readable
+                content = re.sub(r'\n\s*\n', '\n', content)  # Remove empty lines
+                content = re.sub(r'^\s+', '', content, flags=re.MULTILINE)  # Remove leading whitespace
+                content = content.strip()
+                
+                # Escape single quotes for nginx configuration
+                content = content.replace("'", "\\'")
+                
+                # Replace newlines with escaped newlines for nginx
+                content = content.replace('\n', '\\n')
+                
+                return content
+            else:
+                logger.warning(f"FAB widget template not found: {fab_template_path}")
+                return "<!-- Porthole FAB widget not found -->"
+        except Exception as e:
+            logger.error(f"Failed to load FAB widget: {e}")
+            return "<!-- Porthole FAB widget load error -->"
 
     def _create_reload_trigger(self) -> None:
         """Create a trigger file to signal nginx container to reload configuration."""
