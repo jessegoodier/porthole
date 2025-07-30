@@ -1071,9 +1071,9 @@
                     <th class="col-status">Status</th>
                     <th class="col-namespace">Namespace</th>
                     <th class="col-service">Service</th>
+                    <th class="col-port_name">Port Name</th>
                     <th class="col-http_response_code">HTTP Code</th>
                     <th class="col-redirect_url">Redirect Info</th>
-                    <th class="col-port_name">Port Name</th>
                     <th class="col-port hidden">Port</th>
                     <th class="col-protocol hidden">Protocol</th>
                     <th class="col-service_type hidden">Service Type</th>
@@ -1211,6 +1211,8 @@
                         <td class="col-namespace">${service.namespace}</td>
                         <td class="col-service">${service.service}</td>
                         <td class="col-port_name">${service.port_name || 'N/A'}</td>
+                        <td class="col-http_response_code">${formatHttpResponseCode(service.http_response_code)}</td>
+                        <td class="col-redirect_url">${service.redirect_url || '-'}</td>
                         <td class="col-port hidden">${service.port}</td>
                         <td class="col-protocol hidden">${service.protocol}</td>
                         <td class="col-service_type hidden">${service.service_type}</td>
@@ -1222,8 +1224,6 @@
                         <td class="col-proxy_url hidden">${service.proxy_url}</td>
                         <td class="col-display_name hidden">${service.display_name}</td>
                         <td class="col-created_at hidden">${formatDateTime(service.created_at)}</td>
-                        <td class="col-http_response_code hidden">${formatHttpResponseCode(service.http_response_code)}</td>
-                        <td class="col-redirect_url hidden">${service.redirect_url || '-'}</td>
                     </tr>
                 `;
             });
@@ -1257,17 +1257,18 @@
                         const allCheckboxes = document.querySelectorAll('.field-checkbox input[type="checkbox"]:not(#field-all)');
                         const allColumns = document.querySelectorAll('th:not(.col-status), td:not(.col-status)');
 
-                        allCheckboxes.forEach(cb => {
-                            cb.checked = this.checked;
-                        });
-
-                        allColumns.forEach(column => {
-                            if (this.checked) {
+                        if (this.checked) {
+                            // Show all fields
+                            allCheckboxes.forEach(cb => {
+                                cb.checked = true;
+                            });
+                            allColumns.forEach(column => {
                                 column.classList.remove('hidden');
-                            } else {
-                                column.classList.add('hidden');
-                            }
-                        });
+                            });
+                        } else {
+                            // Revert to default view
+                            revertToDefaultView();
+                        }
                         return;
                     }
 
@@ -1314,6 +1315,35 @@
                 allCheckbox.checked = false;
                 allCheckbox.indeterminate = true;
             }
+        }
+
+        // Revert to default view (show only the default fields)
+        function revertToDefaultView() {
+            const defaultFields = ['namespace', 'service', 'port_name', 'http_response_code', 'redirect_url'];
+            const allCheckboxes = document.querySelectorAll('.field-checkbox input[type="checkbox"]:not(#field-all)');
+            const allColumns = document.querySelectorAll('th:not(.col-status), td:not(.col-status)');
+
+            // Reset all checkboxes to unchecked
+            allCheckboxes.forEach(cb => {
+                cb.checked = false;
+            });
+
+            // Hide all columns except status
+            allColumns.forEach(column => {
+                column.classList.add('hidden');
+            });
+
+            // Show only default fields
+            defaultFields.forEach(fieldName => {
+                const checkbox = document.getElementById(`field-${fieldName}`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+                const columns = document.querySelectorAll(`.col-${fieldName}`);
+                columns.forEach(column => {
+                    column.classList.remove('hidden');
+                });
+            });
         }
 
         // Toggle field selector
@@ -1853,29 +1883,29 @@
                 case 'port_name':
                     cellValue = cells[3]?.textContent || '';
                     break;
-                case 'port':
+                case 'http_response_code':
                     cellValue = cells[4]?.textContent || '';
                     break;
-                case 'protocol':
+                case 'redirect_url':
                     cellValue = cells[5]?.textContent || '';
                     break;
-                case 'service_type':
+                case 'port':
                     cellValue = cells[6]?.textContent || '';
                     break;
-                case 'cluster_ip':
+                case 'protocol':
                     cellValue = cells[7]?.textContent || '';
+                    break;
+                case 'service_type':
+                    cellValue = cells[8]?.textContent || '';
+                    break;
+                case 'cluster_ip':
+                    cellValue = cells[9]?.textContent || '';
                     break;
                 case 'endpoint_status':
                     cellValue = row.dataset.endpointStatus || '';
                     break;
                 case 'display_name':
                     cellValue = cells[13]?.textContent || '';
-                    break;
-                case 'http_response_code':
-                    cellValue = cells[15]?.textContent || '';
-                    break;
-                case 'redirect_url':
-                    cellValue = cells[16]?.textContent || '';
                     break;
                 default:
                     cellValue = '';
@@ -2182,36 +2212,53 @@
             const currentDomain = window.location.hostname;
             const currentProtocol = window.location.protocol;
             const currentPort = window.location.port;
-
-            // Get all cookies for the current domain
-            const cookies = document.cookie.split(';');
             let clearedCount = 0;
 
+            // Method 1: Clear all cookies from document.cookie
+            const cookies = document.cookie.split(';');
             cookies.forEach(cookie => {
                 const eqPos = cookie.indexOf('=');
                 if (eqPos > 0) {
                     const name = cookie.substring(0, eqPos).trim();
-
-                    // Clear cookie for current domain and path
-                    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-
-                    // Also try to clear for domain without port
-                    if (currentPort) {
-                        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${currentDomain}`;
-                    }
-
-                    // Clear for subdomains if applicable
-                    if (currentDomain.includes('.')) {
-                        const domainParts = currentDomain.split('.');
-                        if (domainParts.length > 1) {
-                            const domain = domainParts.slice(-2).join('.');
-                            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.${domain}`;
-                        }
-                    }
-
-                    clearedCount++;
+                    clearedCount += clearCookieForcefully(name, currentDomain, currentPort);
                 }
             });
+
+            // Method 2: Try to clear common cookie names that might be set by services
+            const commonCookieNames = [
+                'session', 'sessionid', 'sess', 'auth', 'token', 'jwt', 'csrf', 'xsrf',
+                'PHPSESSID', 'JSESSIONID', 'ASP.NET_SessionId', 'connect.sid',
+                'remember_me', 'user_id', 'userid', 'uid', 'login', 'logged_in',
+                'admin', 'admin_session', 'admin_token', 'admin_auth',
+                'oauth', 'oauth_token', 'access_token', 'refresh_token',
+                'k8s', 'kubernetes', 'kubeconfig', 'kubectl',
+                'dashboard', 'portal', 'porthole', 'service', 'namespace'
+            ];
+
+            commonCookieNames.forEach(name => {
+                clearedCount += clearCookieForcefully(name, currentDomain, currentPort);
+            });
+
+            // Method 3: Clear localStorage and sessionStorage
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                console.log('Cleared localStorage and sessionStorage');
+            } catch (e) {
+                console.log('Could not clear localStorage/sessionStorage:', e);
+            }
+
+            // Method 4: Try to clear IndexedDB
+            if ('indexedDB' in window) {
+                indexedDB.databases().then(databases => {
+                    databases.forEach(db => {
+                        indexedDB.deleteDatabase(db.name);
+                    });
+                    console.log('Cleared IndexedDB databases');
+                }).catch(e => {
+                    console.log('Could not clear IndexedDB:', e);
+                });
+            }
 
             // Show feedback to user
             const button = event.target.closest('.cookie-clear-button');
@@ -2221,15 +2268,66 @@
             button.style.borderColor = 'rgba(76, 175, 80, 0.5)';
             button.style.color = '#4caf50';
 
-            // Reset button after 2 seconds
+            // Reset button after 3 seconds
             setTimeout(() => {
                 button.innerHTML = originalText;
                 button.style.background = 'rgba(255, 152, 0, 0.2)';
                 button.style.borderColor = 'rgba(255, 152, 0, 0.3)';
                 button.style.color = '#ff9800';
-            }, 2000);
+            }, 3000);
 
-            console.log(`Cleared ${clearedCount} cookies for domain: ${currentDomain}`);
+            console.log(`Cleared ${clearedCount} cookies and storage for domain: ${currentDomain}`);
+        }
+
+        // Helper function to clear a cookie with multiple strategies
+        function clearCookieForcefully(name, domain, port) {
+            let clearedCount = 0;
+            const expirationDate = 'Thu, 01 Jan 1970 00:00:00 GMT';
+            
+            // Strategy 1: Basic clear with path=/
+            document.cookie = `${name}=; expires=${expirationDate}; path=/`;
+            clearedCount++;
+            
+            // Strategy 2: Clear with domain
+            if (domain) {
+                document.cookie = `${name}=; expires=${expirationDate}; path=/; domain=${domain}`;
+                clearedCount++;
+            }
+            
+            // Strategy 3: Clear with .domain (for subdomains)
+            if (domain && domain.includes('.')) {
+                document.cookie = `${name}=; expires=${expirationDate}; path=/; domain=.${domain}`;
+                clearedCount++;
+            }
+            
+            // Strategy 4: Clear with parent domain
+            if (domain && domain.includes('.')) {
+                const domainParts = domain.split('.');
+                if (domainParts.length > 1) {
+                    const parentDomain = domainParts.slice(-2).join('.');
+                    document.cookie = `${name}=; expires=${expirationDate}; path=/; domain=.${parentDomain}`;
+                    clearedCount++;
+                }
+            }
+            
+            // Strategy 5: Clear with specific paths
+            const paths = ['/', '/admin', '/api', '/auth', '/dashboard', '/portal', '/porthole'];
+            paths.forEach(path => {
+                document.cookie = `${name}=; expires=${expirationDate}; path=${path}`;
+                clearedCount++;
+            });
+            
+            // Strategy 6: Clear with secure flag if on HTTPS
+            if (window.location.protocol === 'https:') {
+                document.cookie = `${name}=; expires=${expirationDate}; path=/; secure`;
+                clearedCount++;
+            }
+            
+            // Strategy 7: Clear with httpOnly flag (though this won't work for httpOnly cookies)
+            document.cookie = `${name}=; expires=${expirationDate}; path=/; httpOnly`;
+            clearedCount++;
+            
+            return clearedCount;
         }
 
         // Initialize the page
