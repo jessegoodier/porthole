@@ -47,7 +47,7 @@ def setup_logging(log_level: str = "INFO") -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(sys.stdout),
-            logging.FileHandler("porthole.log"),
+            logging.FileHandler("/logs/porthole.log"),
         ],
     )
 

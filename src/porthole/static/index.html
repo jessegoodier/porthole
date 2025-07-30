@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -63,7 +64,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            width: 200px; /* Wider to allow more text on single line */
+            width: 200px;
+            /* Wider to allow more text on single line */
             justify-content: space-between;
         }
 
@@ -325,7 +327,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            width: 450px; /* Wider to allow more text on single line */
+            width: 450px;
+            /* Wider to allow more text on single line */
             justify-content: space-between;
         }
 
@@ -479,6 +482,33 @@
             margin-top: 0.2rem;
         }
 
+        /* Cookie Clear Button */
+        .cookie-clear-button {
+            background: rgba(255, 152, 0, 0.2);
+            border: 2px solid rgba(255, 152, 0, 0.3);
+            border-radius: 8px;
+            color: #ff9800;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cookie-clear-button:hover {
+            background: rgba(255, 152, 0, 0.3);
+            border-color: rgba(255, 152, 0, 0.5);
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .cookie-clear-button:active {
+            transform: translateY(0);
+        }
+
         /* Navigation */
         .navigation {
             display: flex;
@@ -497,7 +527,8 @@
             transition: all 0.3s ease;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover,
+        .nav-link.active {
             background: rgba(100, 181, 246, 0.2);
             border-color: #64b5f6;
         }
@@ -668,7 +699,8 @@
             font-weight: 600;
         }
 
-        .http-code-4xx, .http-code-5xx {
+        .http-code-4xx,
+        .http-code-5xx {
             color: #f44336;
             font-weight: 600;
         }
@@ -696,8 +728,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Responsive Design */
@@ -773,6 +810,14 @@
                 min-width: 100px;
             }
 
+            .cookie-clear-button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+                width: 100%;
+                justify-content: center;
+                margin-top: 0.5rem;
+            }
+
             .table-header {
                 margin: 1rem 0.5rem 0.5rem 0.5rem;
             }
@@ -786,7 +831,8 @@
                 min-width: 600px;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 0.4rem 0.3rem;
                 font-size: 0.8rem;
             }
@@ -876,12 +922,14 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <div class="header-nav">
             <div class="advanced-filter">
                 <button class="filter-button" onclick="toggleAdvancedFilter()">
-                    Advanced Filter<span id="filter-active-count" class="filter-active-count" style="display: none;">0</span>
+                    Advanced Filter<span id="filter-active-count" class="filter-active-count"
+                        style="display: none;">0</span>
                 </button>
                 <div class="filter-panel" id="advanced-filter-panel">
                     <h3>Advanced Filter</h3>
@@ -899,8 +947,8 @@
                 <div class="namespace-selector" id="namespace-selector">
                     <h3>Select Namespace</h3>
                     <div class="namespace-search">
-                        <input type="text" id="namespace-search-input" placeholder="Search namespaces..." 
-                               oninput="filterNamespaceOptions()" autocomplete="off">
+                        <input type="text" id="namespace-search-input" placeholder="Search namespaces..."
+                            oninput="filterNamespaceOptions()" autocomplete="off">
                     </div>
                     <div class="namespace-options" id="namespace-options">
                         <div class="namespace-option selected">
@@ -926,6 +974,9 @@
                 <div class="stat-value" id="unhealthy-services">-</div>
                 <div class="stat-label">Unhealthy</div>
             </div>
+            <button class="cookie-clear-button" onclick="clearCookies()" title="Clear cookies for this domain">
+                🍪 Clear Cookies
+            </button>
         </div>
     </header>
 
@@ -935,76 +986,76 @@
             <button class="hamburger-button" onclick="toggleFieldSelector()">☰</button>
             <div class="field-selector" id="field-selector">
                 <h3>Select Fields to Display</h3>
-                            <div class="field-checkboxes">
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-all">
-                    <label for="field-all"><strong>All Fields</strong></label>
+                <div class="field-checkboxes">
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-all">
+                        <label for="field-all"><strong>All Fields</strong></label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-namespace" checked>
+                        <label for="field-namespace">Namespace</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-service" checked>
+                        <label for="field-service">Service</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-port_name" checked>
+                        <label for="field-port_name">Port Name</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-http_response_code" checked>
+                        <label for="field-http_response_code">HTTP Response Code</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-redirect_url" checked>
+                        <label for="field-redirect_url">Redirect Info</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-port">
+                        <label for="field-port">Port</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-protocol">
+                        <label for="field-protocol">Protocol</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-service_type">
+                        <label for="field-service_type">Service Type</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-cluster_ip">
+                        <label for="field-cluster_ip">Cluster IP</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-endpoint_status">
+                        <label for="field-endpoint_status">Endpoint Status</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-is_frontend">
+                        <label for="field-is_frontend">Is Frontend</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-has_endpoints">
+                        <label for="field-has_endpoints">Has Endpoints</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-endpoint_count">
+                        <label for="field-endpoint_count">Endpoint Count</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-proxy_url">
+                        <label for="field-proxy_url">Proxy URL</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-display_name">
+                        <label for="field-display_name">Display Name</label>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="field-created_at">
+                        <label for="field-created_at">Created At</label>
+                    </div>
                 </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-namespace" checked>
-                    <label for="field-namespace">Namespace</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-service" checked>
-                    <label for="field-service">Service</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-port_name" checked>
-                    <label for="field-port_name">Port Name</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-port">
-                    <label for="field-port">Port</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-protocol">
-                    <label for="field-protocol">Protocol</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-service_type">
-                    <label for="field-service_type">Service Type</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-cluster_ip">
-                    <label for="field-cluster_ip">Cluster IP</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-endpoint_status">
-                    <label for="field-endpoint_status">Endpoint Status</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-is_frontend">
-                    <label for="field-is_frontend">Is Frontend</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-has_endpoints">
-                    <label for="field-has_endpoints">Has Endpoints</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-endpoint_count">
-                    <label for="field-endpoint_count">Endpoint Count</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-proxy_url">
-                    <label for="field-proxy_url">Proxy URL</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-display_name">
-                    <label for="field-display_name">Display Name</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-created_at">
-                    <label for="field-created_at">Created At</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-http_response_code">
-                    <label for="field-http_response_code">HTTP Response Code</label>
-                </div>
-                <div class="field-checkbox">
-                    <input type="checkbox" id="field-redirect_url">
-                    <label for="field-redirect_url">Redirect Info</label>
-                </div>
-            </div>
             </div>
         </div>
     </div>
@@ -1020,6 +1071,8 @@
                     <th class="col-status">Status</th>
                     <th class="col-namespace">Namespace</th>
                     <th class="col-service">Service</th>
+                    <th class="col-http_response_code">HTTP Code</th>
+                    <th class="col-redirect_url">Redirect Info</th>
                     <th class="col-port_name">Port Name</th>
                     <th class="col-port hidden">Port</th>
                     <th class="col-protocol hidden">Protocol</th>
@@ -1032,8 +1085,6 @@
                     <th class="col-proxy_url hidden">Proxy URL</th>
                     <th class="col-display_name hidden">Display Name</th>
                     <th class="col-created_at hidden">Created At</th>
-                    <th class="col-http_response_code hidden">HTTP Code</th>
-                    <th class="col-redirect_url hidden">Redirect Info</th>
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -1071,7 +1122,7 @@
             } else {
                 setUrlParameter('filter', null);
             }
-            
+
             if (currentNamespace !== 'all') {
                 setUrlParameter('namespace', currentNamespace);
             } else {
@@ -1089,7 +1140,7 @@
             if (code === null || code === undefined) {
                 return '<span class="http-code-none">No Response</span>';
             }
-            
+
             let className = 'http-code-none';
             if (code >= 200 && code < 300) {
                 className = 'http-code-2xx';
@@ -1100,7 +1151,7 @@
             } else if (code >= 500) {
                 className = 'http-code-5xx';
             }
-            
+
             return `<span class="${className}">${code}</span>`;
         }
 
@@ -1117,7 +1168,7 @@
                 setupFieldSelector();
                 setupNamespaceSelector();
                 setupAdvancedFilter();
-                
+
                 // Apply URL parameters after setup
                 applyUrlParameters();
                 loadAdvancedFiltersFromUrl();
@@ -1132,7 +1183,7 @@
             if (!servicesData || !servicesData.meta) return;
 
             const meta = servicesData.meta;
-            
+
             document.getElementById('total-services').textContent = meta.total_services || 0;
             document.getElementById('healthy-services').textContent = meta.healthy_services || 0;
             document.getElementById('unhealthy-services').textContent = meta.unhealthy_services || 0;
@@ -1148,7 +1199,7 @@
 
             servicesData.services.forEach(service => {
                 const statusIndicator = getStatusIndicator(service);
-                
+
                 html += `
                     <tr data-proxy-url="${service.proxy_url}" 
                         data-endpoint-status="${service.endpoint_status}"
@@ -1196,20 +1247,20 @@
         // Setup field selector
         function setupFieldSelector() {
             const checkboxes = document.querySelectorAll('.field-checkbox input[type="checkbox"]');
-            
+
             checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
+                checkbox.addEventListener('change', function () {
                     const fieldName = this.id.replace('field-', '');
-                    
+
                     // Handle "All" checkbox
                     if (fieldName === 'all') {
                         const allCheckboxes = document.querySelectorAll('.field-checkbox input[type="checkbox"]:not(#field-all)');
                         const allColumns = document.querySelectorAll('th:not(.col-status), td:not(.col-status)');
-                        
+
                         allCheckboxes.forEach(cb => {
                             cb.checked = this.checked;
                         });
-                        
+
                         allColumns.forEach(column => {
                             if (this.checked) {
                                 column.classList.remove('hidden');
@@ -1219,10 +1270,10 @@
                         });
                         return;
                     }
-                    
+
                     // Handle individual field checkboxes
                     const columns = document.querySelectorAll(`.col-${fieldName}`);
-                    
+
                     columns.forEach(column => {
                         if (this.checked) {
                             column.classList.remove('hidden');
@@ -1230,17 +1281,17 @@
                             column.classList.add('hidden');
                         }
                     });
-                    
+
                     // Update "All" checkbox state
                     updateAllCheckboxState();
                 });
             });
 
             // Close field selector when clicking outside
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 const fieldSelector = document.getElementById('field-selector');
                 const hamburgerButton = document.querySelector('.hamburger-button');
-                
+
                 if (!fieldSelector.contains(event.target) && !hamburgerButton.contains(event.target)) {
                     fieldSelector.classList.remove('show');
                 }
@@ -1252,7 +1303,7 @@
             const allCheckbox = document.getElementById('field-all');
             const individualCheckboxes = document.querySelectorAll('.field-checkbox input[type="checkbox"]:not(#field-all)');
             const checkedCount = Array.from(individualCheckboxes).filter(cb => cb.checked).length;
-            
+
             if (checkedCount === 0) {
                 allCheckbox.checked = false;
                 allCheckbox.indeterminate = false;
@@ -1275,12 +1326,12 @@
         function applyUrlParameters() {
             const urlFilter = getUrlParameter('filter');
             const urlNamespace = getUrlParameter('namespace');
-            
+
             // Apply filter if specified
             if (urlFilter && ['all', 'healthy', 'unhealthy', 'frontend'].includes(urlFilter)) {
                 applyFilterFromUrl(urlFilter);
             }
-            
+
             // Apply namespace if specified
             if (urlNamespace) {
                 applyNamespaceFromUrl(urlNamespace);
@@ -1290,17 +1341,17 @@
         // Apply filter from URL parameter
         function applyFilterFromUrl(filterType) {
             currentFilter = filterType;
-            
+
             // Update active state
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
             });
-            
+
             const targetCard = document.querySelector(`[data-filter="${filterType}"]`);
             if (targetCard) {
                 targetCard.classList.add('active');
             }
-            
+
             // Apply the filter
             applyCurrentFilters();
         }
@@ -1308,11 +1359,11 @@
         // Apply namespace from URL parameter
         function applyNamespaceFromUrl(namespace) {
             currentNamespace = namespace;
-            
+
             // Update namespace dropdown
             const currentNamespaceSpan = document.getElementById('current-namespace');
             const namespaceOptions = document.getElementById('namespace-options');
-            
+
             // Find and select the namespace option
             const namespaceOption = namespaceOptions.querySelector(`input[value="${namespace}"]`);
             if (namespaceOption) {
@@ -1324,7 +1375,7 @@
                 currentNamespaceSpan.textContent = 'All';
                 namespaceOptions.querySelector('.namespace-option input[value="all"]').closest('.namespace-option').classList.add('selected');
             }
-            
+
             // Apply the filter
             applyCurrentFilters();
         }
@@ -1377,15 +1428,15 @@
 
             // Setup search input event listeners
             const namespaceSearchInput = document.getElementById('namespace-search-input');
-            
+
             // Toggle dropdown
-            namespaceButton.addEventListener('click', function(event) {
+            namespaceButton.addEventListener('click', function (event) {
                 event.stopPropagation();
                 const isOpening = !namespaceSelector.classList.contains('show');
-                
+
                 namespaceSelector.classList.toggle('show');
                 namespaceButton.classList.toggle('active');
-                
+
                 // Focus search input and clear search when opening
                 if (isOpening) {
                     clearNamespaceSearch();
@@ -1394,10 +1445,10 @@
             });
 
             // Handle keyboard navigation in search input
-            namespaceSearchInput.addEventListener('keydown', function(event) {
+            namespaceSearchInput.addEventListener('keydown', function (event) {
                 const visibleOptions = Array.from(document.querySelectorAll('.namespace-option'))
                     .filter(option => option.style.display !== 'none');
-                    
+
                 switch (event.key) {
                     case 'ArrowDown':
                         event.preventDefault();
@@ -1424,7 +1475,7 @@
             });
 
             // Handle namespace selection
-            namespaceOptions.addEventListener('click', function(event) {
+            namespaceOptions.addEventListener('click', function (event) {
                 const option = event.target.closest('.namespace-option');
                 if (!option) return;
 
@@ -1446,7 +1497,7 @@
             });
 
             // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 if (!namespaceSelector.contains(event.target) && !namespaceButton.contains(event.target)) {
                     namespaceSelector.classList.remove('show');
                     namespaceButton.classList.remove('active');
@@ -1463,16 +1514,16 @@
                 applyAdvancedFilters();
                 return;
             }
-            
+
             const rows = document.querySelectorAll('tbody tr');
-            
+
             rows.forEach(row => {
                 const endpointStatus = row.dataset.endpointStatus;
                 const isFrontend = row.dataset.isFrontend === 'true';
                 const serviceNamespace = row.dataset.namespace;
-                
+
                 let show = true;
-                
+
                 // Apply filter
                 switch (currentFilter) {
                     case 'all':
@@ -1491,19 +1542,19 @@
                         show = true; // Namespace filtering handles this
                         break;
                 }
-                
+
                 // Apply namespace filter
                 if (show && currentNamespace !== 'all') {
                     show = serviceNamespace === currentNamespace;
                 }
-                
+
                 if (show) {
                     row.classList.remove('filtered-out');
                 } else {
                     row.classList.add('filtered-out');
                 }
             });
-            
+
             // Update URL parameters
             updateUrlParameters();
         }
@@ -1512,7 +1563,7 @@
         function filterByNamespace(namespace) {
             // Clear advanced filters when namespace is used
             clearAllFilters();
-            
+
             // Reset stat card selections
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
@@ -1520,7 +1571,7 @@
 
             currentNamespace = namespace;
             currentFilter = 'namespaces'; // Override currentFilter for namespace filtering
-            
+
             applyCurrentFilters();
         }
 
@@ -1528,7 +1579,7 @@
         function filterByStat(filterType) {
             // Clear advanced filters when stat cards are used
             clearAllFilters();
-            
+
             // Update active state
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
@@ -1543,7 +1594,7 @@
 
             currentFilter = filterType;
             currentNamespace = 'all';
-            
+
             applyCurrentFilters();
         }
 
@@ -1551,7 +1602,7 @@
         function toggleAdvancedFilter() {
             const filterPanel = document.getElementById('advanced-filter-panel');
             const filterButton = document.querySelector('.filter-button');
-            
+
             filterPanel.classList.toggle('show');
             filterButton.classList.toggle('active');
         }
@@ -1559,7 +1610,7 @@
         function addFilterRule(column = 'namespace', operator = 'contains', value = '', logic = 'and') {
             filterRuleCounter++;
             const ruleId = `filter-rule-${filterRuleCounter}`;
-            
+
             const rule = {
                 id: ruleId,
                 column: column,
@@ -1567,11 +1618,11 @@
                 value: value,
                 logic: logic
             };
-            
+
             advancedFilters.push(rule);
             renderFilterRules();
             updateFilterActiveCount();
-            
+
             // Show autocomplete for the new rule's column if it's empty
             if (!value) {
                 setTimeout(() => {
@@ -1590,7 +1641,7 @@
         function renderFilterRules() {
             const filterRulesContainer = document.getElementById('filter-rules');
             let html = '';
-            
+
             const availableColumns = [
                 { value: 'namespace', label: 'Namespace' },
                 { value: 'service', label: 'Service' },
@@ -1604,17 +1655,17 @@
                 { value: 'http_response_code', label: 'HTTP Response Code' },
                 { value: 'redirect_url', label: 'Redirect Info' }
             ];
-            
+
             const operators = [
                 { value: 'contains', label: 'Contains' },
                 { value: 'begins_with', label: 'Begins With' },
                 { value: 'ends_with', label: 'Ends With' },
                 { value: 'equals', label: 'Equals' }
             ];
-            
+
             advancedFilters.forEach((rule, index) => {
                 const showLogic = index > 0;
-                
+
                 html += `
                     <div class="filter-rule" data-rule-id="${rule.id}">
                         ${showLogic ? `
@@ -1626,14 +1677,14 @@
                             </div>
                         ` : ''}
                         <select onchange="updateFilterRuleColumn('${rule.id}', this.value)">
-                            ${availableColumns.map(col => 
-                                `<option value="${col.value}" ${rule.column === col.value ? 'selected' : ''}>${col.label}</option>`
-                            ).join('')}
+                            ${availableColumns.map(col =>
+                    `<option value="${col.value}" ${rule.column === col.value ? 'selected' : ''}>${col.label}</option>`
+                ).join('')}
                         </select>
                         <select onchange="updateFilterRule('${rule.id}', 'operator', this.value)">
-                            ${operators.map(op => 
-                                `<option value="${op.value}" ${rule.operator === op.value ? 'selected' : ''}>${op.label}</option>`
-                            ).join('')}
+                            ${operators.map(op =>
+                    `<option value="${op.value}" ${rule.operator === op.value ? 'selected' : ''}>${op.label}</option>`
+                ).join('')}
                         </select>
                         <div class="autocomplete-container">
                             <input type="text" placeholder="Filter value..." value="${rule.value}" 
@@ -1647,7 +1698,7 @@
                     </div>
                 `;
             });
-            
+
             filterRulesContainer.innerHTML = html;
         }
 
@@ -1655,12 +1706,12 @@
             const rule = advancedFilters.find(r => r.id === ruleId);
             if (rule) {
                 rule[property] = value;
-                
+
                 if (property === 'value') {
                     // Show autocomplete while typing
                     showAutocomplete(ruleId, rule.column);
                 }
-                
+
                 applyAdvancedFilters();
             }
         }
@@ -1669,17 +1720,17 @@
             const rule = advancedFilters.find(r => r.id === ruleId);
             if (rule) {
                 rule.column = newColumn;
-                
+
                 // Clear the input value when column changes
                 const input = document.querySelector(`[data-rule-id="${ruleId}"] input`);
                 if (input) {
                     input.value = '';
                     rule.value = '';
                 }
-                
+
                 // Immediately show autocomplete for the new column (empty search)
                 showAutocompleteForColumn(ruleId, newColumn);
-                
+
                 applyAdvancedFilters();
             }
         }
@@ -1687,7 +1738,7 @@
         function updateFilterActiveCount() {
             const activeCount = advancedFilters.filter(rule => rule.value.trim() !== '').length;
             const countElement = document.getElementById('filter-active-count');
-            
+
             if (activeCount > 0) {
                 countElement.textContent = activeCount;
                 countElement.style.display = 'inline';
@@ -1703,7 +1754,7 @@
             renderFilterRules();
             updateFilterActiveCount();
             updateAdvancedFilterUrl();
-            
+
             // Only apply filters if we're not in the middle of another filter operation
             if (typeof event === 'undefined' || !event.target?.closest('.stat-card, .namespace-option')) {
                 applyAdvancedFilters();
@@ -1712,24 +1763,24 @@
 
         function applyAdvancedFilters() {
             if (!servicesData || !servicesData.services) return;
-            
+
             const rows = document.querySelectorAll('tbody tr');
-            
+
             rows.forEach(row => {
                 let show = true;
-                
+
                 // Apply advanced filters first
                 if (advancedFilters.length > 0) {
                     show = evaluateAdvancedFilters(row);
                 }
-                
+
                 // Then apply namespace filter if no advanced filters are active
                 if (show && advancedFilters.filter(rule => rule.value.trim() !== '').length === 0) {
                     // Apply existing filters (stat cards and namespace)
                     const endpointStatus = row.dataset.endpointStatus;
                     const isFrontend = row.dataset.isFrontend === 'true';
                     const serviceNamespace = row.dataset.namespace;
-                    
+
                     // Apply filter
                     switch (currentFilter) {
                         case 'all':
@@ -1748,48 +1799,48 @@
                             show = true; // Namespace filtering handles this
                             break;
                     }
-                    
+
                     // Apply namespace filter
                     if (show && currentNamespace !== 'all') {
                         show = serviceNamespace === currentNamespace;
                     }
                 }
-                
+
                 if (show) {
                     row.classList.remove('filtered-out');
                 } else {
                     row.classList.add('filtered-out');
                 }
             });
-            
+
             updateAdvancedFilterUrl();
         }
 
         function evaluateAdvancedFilters(row) {
             if (advancedFilters.length === 0) return true;
-            
+
             const activeFilters = advancedFilters.filter(rule => rule.value.trim() !== '');
             if (activeFilters.length === 0) return true;
-            
+
             let result = evaluateFilterRule(activeFilters[0], row);
-            
+
             for (let i = 1; i < activeFilters.length; i++) {
                 const rule = activeFilters[i];
                 const ruleResult = evaluateFilterRule(rule, row);
-                
+
                 if (rule.logic === 'and') {
                     result = result && ruleResult;
                 } else {
                     result = result || ruleResult;
                 }
             }
-            
+
             return result;
         }
 
         function evaluateFilterRule(rule, row) {
             let cellValue = '';
-            
+
             // Get the cell value based on column
             const cells = row.querySelectorAll('td');
             switch (rule.column) {
@@ -1829,10 +1880,10 @@
                 default:
                     cellValue = '';
             }
-            
+
             const filterValue = rule.value.toLowerCase();
             const targetValue = cellValue.toLowerCase();
-            
+
             switch (rule.operator) {
                 case 'contains':
                     return targetValue.includes(filterValue);
@@ -1849,7 +1900,7 @@
 
         function updateAdvancedFilterUrl() {
             const url = new URL(window.location);
-            
+
             // Clear existing advanced filter parameters
             const paramsToRemove = [];
             for (const [key] of url.searchParams) {
@@ -1858,7 +1909,7 @@
                 }
             }
             paramsToRemove.forEach(param => url.searchParams.delete(param));
-            
+
             // Add current advanced filter parameters
             const activeFilters = advancedFilters.filter(rule => rule.value.trim() !== '');
             activeFilters.forEach((rule, index) => {
@@ -1870,14 +1921,14 @@
                     url.searchParams.set(`${prefix}_logic`, rule.logic);
                 }
             });
-            
+
             window.history.replaceState({}, '', url);
         }
 
         function loadAdvancedFiltersFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             const filters = [];
-            
+
             // Look for advanced filter parameters
             let index = 0;
             while (true) {
@@ -1885,21 +1936,21 @@
                 const column = urlParams.get(`${prefix}_column`);
                 const operator = urlParams.get(`${prefix}_operator`);
                 const value = urlParams.get(`${prefix}_value`);
-                
+
                 if (!column || !operator || !value) break;
-                
+
                 const logic = index > 0 ? urlParams.get(`${prefix}_logic`) || 'and' : 'and';
-                
+
                 filters.push({
                     column: column,
                     operator: operator,
                     value: value,
                     logic: logic
                 });
-                
+
                 index++;
             }
-            
+
             // Load filters if found
             if (filters.length > 0) {
                 advancedFilters = [];
@@ -1916,9 +1967,9 @@
 
         function getColumnValues(column) {
             if (!servicesData || !servicesData.services) return [];
-            
+
             const values = new Set();
-            
+
             servicesData.services.forEach(service => {
                 let value = '';
                 switch (column) {
@@ -1958,66 +2009,66 @@
                 }
                 if (value) values.add(value);
             });
-            
+
             return Array.from(values).sort();
         }
 
         function showAutocomplete(ruleId, column) {
             const input = document.querySelector(`[data-rule-id="${ruleId}"] input`);
             const suggestionsContainer = document.getElementById(`autocomplete-${ruleId}`);
-            
+
             if (!input || !suggestionsContainer) return;
-            
+
             const inputValue = input.value.toLowerCase();
             const allValues = getColumnValues(column);
-            
+
             // Filter values based on current input
-            const filteredValues = allValues.filter(value => 
+            const filteredValues = allValues.filter(value =>
                 value.toLowerCase().includes(inputValue)
             ).slice(0, 10); // Limit to 10 suggestions
-            
+
             currentAutocompleteSuggestions = filteredValues;
             currentAutocompleteIndex = -1;
-            
+
             if (filteredValues.length === 0) {
                 suggestionsContainer.innerHTML = '<div class="autocomplete-no-results">No matches found</div>';
                 suggestionsContainer.classList.add('show');
                 return;
             }
-            
-            const suggestionsHtml = filteredValues.map((value, index) => 
+
+            const suggestionsHtml = filteredValues.map((value, index) =>
                 `<div class="autocomplete-suggestion" onclick="selectAutocompleteSuggestion('${ruleId}', '${value.replace(/'/g, "\\'")}')" 
                      data-index="${index}">${value}</div>`
             ).join('');
-            
+
             suggestionsContainer.innerHTML = suggestionsHtml;
             suggestionsContainer.classList.add('show');
         }
 
         function showAutocompleteForColumn(ruleId, column) {
             const suggestionsContainer = document.getElementById(`autocomplete-${ruleId}`);
-            
+
             if (!suggestionsContainer) return;
-            
+
             const allValues = getColumnValues(column);
-            
+
             // Show all values for the new column (limit to 10 for performance)
             const displayValues = allValues.slice(0, 10);
-            
+
             currentAutocompleteSuggestions = displayValues;
             currentAutocompleteIndex = -1;
-            
+
             if (displayValues.length === 0) {
                 suggestionsContainer.innerHTML = '<div class="autocomplete-no-results">No values available</div>';
                 suggestionsContainer.classList.add('show');
                 return;
             }
-            
-            const suggestionsHtml = displayValues.map((value, index) => 
+
+            const suggestionsHtml = displayValues.map((value, index) =>
                 `<div class="autocomplete-suggestion" onclick="selectAutocompleteSuggestion('${ruleId}', '${value.replace(/'/g, "\\'")}')" 
                      data-index="${index}">${value}</div>`
             ).join('');
-            
+
             suggestionsContainer.innerHTML = suggestionsHtml;
             suggestionsContainer.classList.add('show');
         }
@@ -2025,40 +2076,40 @@
         function selectAutocompleteSuggestion(ruleId, value) {
             const input = document.querySelector(`[data-rule-id="${ruleId}"] input`);
             const suggestionsContainer = document.getElementById(`autocomplete-${ruleId}`);
-            
+
             if (input) {
                 input.value = value;
                 updateFilterRule(ruleId, 'value', value);
             }
-            
+
             if (suggestionsContainer) {
                 suggestionsContainer.classList.remove('show');
             }
-            
+
             currentAutocompleteIndex = -1;
             currentAutocompleteSuggestions = [];
         }
 
         function handleAutocompleteKeydown(event, ruleId) {
             const suggestionsContainer = document.getElementById(`autocomplete-${ruleId}`);
-            
+
             if (!suggestionsContainer || !suggestionsContainer.classList.contains('show')) return;
-            
+
             const suggestions = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
-            
+
             switch (event.key) {
                 case 'ArrowDown':
                     event.preventDefault();
                     currentAutocompleteIndex = Math.min(currentAutocompleteIndex + 1, suggestions.length - 1);
                     updateAutocompleteHighlight(suggestions);
                     break;
-                    
+
                 case 'ArrowUp':
                     event.preventDefault();
                     currentAutocompleteIndex = Math.max(currentAutocompleteIndex - 1, -1);
                     updateAutocompleteHighlight(suggestions);
                     break;
-                    
+
                 case 'Enter':
                     event.preventDefault();
                     if (currentAutocompleteIndex >= 0 && suggestions[currentAutocompleteIndex]) {
@@ -2066,7 +2117,7 @@
                         selectAutocompleteSuggestion(ruleId, selectedValue);
                     }
                     break;
-                    
+
                 case 'Escape':
                     event.preventDefault();
                     suggestionsContainer.classList.remove('show');
@@ -2095,15 +2146,15 @@
 
         function setupAdvancedFilter() {
             // Close filter panel when clicking outside
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 const filterPanel = document.getElementById('advanced-filter-panel');
                 const filterButton = document.querySelector('.filter-button');
-                
+
                 if (!filterPanel.contains(event.target) && !filterButton.contains(event.target)) {
                     filterPanel.classList.remove('show');
                     filterButton.classList.remove('active');
                 }
-                
+
                 // Hide autocomplete when clicking outside
                 if (!event.target.closest('.autocomplete-container')) {
                     hideAllAutocomplete();
@@ -2115,21 +2166,77 @@
         function openService(proxyUrl, redirectUrl) {
             if (proxyUrl && proxyUrl !== 'N/A') {
                 let targetUrl = proxyUrl;
-                
+
                 // If redirect_url starts with "/", append it to the proxy URL
                 if (redirectUrl && redirectUrl.startsWith('/')) {
                     // Remove trailing slash from proxy URL and append redirect path
                     targetUrl = proxyUrl.replace(/\/$/, '') + redirectUrl;
                 }
-                
+
                 window.open(targetUrl, '_self');
             }
         }
 
+        // Cookie clearing functionality
+        function clearCookies() {
+            const currentDomain = window.location.hostname;
+            const currentProtocol = window.location.protocol;
+            const currentPort = window.location.port;
+
+            // Get all cookies for the current domain
+            const cookies = document.cookie.split(';');
+            let clearedCount = 0;
+
+            cookies.forEach(cookie => {
+                const eqPos = cookie.indexOf('=');
+                if (eqPos > 0) {
+                    const name = cookie.substring(0, eqPos).trim();
+
+                    // Clear cookie for current domain and path
+                    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+
+                    // Also try to clear for domain without port
+                    if (currentPort) {
+                        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${currentDomain}`;
+                    }
+
+                    // Clear for subdomains if applicable
+                    if (currentDomain.includes('.')) {
+                        const domainParts = currentDomain.split('.');
+                        if (domainParts.length > 1) {
+                            const domain = domainParts.slice(-2).join('.');
+                            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.${domain}`;
+                        }
+                    }
+
+                    clearedCount++;
+                }
+            });
+
+            // Show feedback to user
+            const button = event.target.closest('.cookie-clear-button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '✅ Cleared!';
+            button.style.background = 'rgba(76, 175, 80, 0.3)';
+            button.style.borderColor = 'rgba(76, 175, 80, 0.5)';
+            button.style.color = '#4caf50';
+
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = 'rgba(255, 152, 0, 0.2)';
+                button.style.borderColor = 'rgba(255, 152, 0, 0.3)';
+                button.style.color = '#ff9800';
+            }, 2000);
+
+            console.log(`Cleared ${clearedCount} cookies for domain: ${currentDomain}`);
+        }
+
         // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadServicesData();
         });
     </script>
 </body>
+
 </html>
