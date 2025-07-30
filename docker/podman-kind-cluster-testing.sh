@@ -1,35 +1,31 @@
 #!/bin/bash
 
-CONTAINER_KUBECONFIG="/app/.kubeconfig"
+KIND_CLUSTER_NAME="kind2"
+KIND_CONFIG_FILE="kind-config.yaml"
 
-# Image you want to use (change as needed – should have kubectl installed)
-IMAGE_NAME="porthole-dev"
+# Create the cluster if it doesn't exist
+if ! kind get clusters | grep -q "$KIND_CLUSTER_NAME"; then
+    # prompt for confirmation
+    read -p "Create cluster $KIND_CLUSTER_NAME? (y/n): " confirm
+    if [ "$confirm" == "y" ]; then
+        kind create cluster --name "$KIND_CLUSTER_NAME" --config "$KIND_CONFIG_FILE"
+    fi
+fi
+echo "Cluster $KIND_CLUSTER_NAME ready, building image..."
 
-# Substitute 127.0.0.1 with host.containers.internal for Podman Mac networking
-# Add insecure-skip-tls-verify to the kubeconfig
-# cp "$KUBECONFIG_PATH" $TMP_KUBECONFIG_PATH
-# if [[ "$OSTYPE" == "darwin"* ]]; then
-#     sed -i '' '/- cluster:/a\
-#     insecure-skip-tls-verify: true
-#     ' $TMP_KUBECONFIG_PATH
-#     sed -i '' 's/127.0.0.1/host.containers.internal/g' $TMP_KUBECONFIG_PATH
-# else
-#     sed -i 's/127.0.0.1/host.containers.internal/g' $TMP_KUBECONFIG_PATH
-#     sed '/- cluster:/a\
-#     insecure-skip-tls-verify: true
-#     ' $TMP_KUBECONFIG_PATH
-# fi
+# Build the image
+UNIQUE_TAG=$(date +%Y%m%d%H%M%S)
+podman build -t porthole-dev:$UNIQUE_TAG -f docker/Dockerfile.app-changes-only .
+podman save porthole-dev:$UNIQUE_TAG -o porthole-dev-${UNIQUE_TAG}.tar
+echo "Saved image to porthole-dev-${UNIQUE_TAG}.tar"
+kind load image-archive porthole-dev-${UNIQUE_TAG}.tar --name "$KIND_CLUSTER_NAME"
 
-# Start Podman container with kubeconfig mounted and env var set for KUBECONFIG
-podman run -it --rm \
-  --network=host \
-  -v $PWD/.kubeconfig:$CONTAINER_KUBECONFIG:ro \
-  --env KUBECONFIG=$CONTAINER_KUBECONFIG \
-  $IMAGE_NAME \
-  bash
+# check if current context is the kind cluster
+if ! kubectl config current-context | grep -q "$KIND_CLUSTER_NAME"; then
+    kind export kubeconfig --name "$KIND_CLUSTER_NAME"
+fi
 
-  # python -m porthole.porthole generate && \
-  # cat generated-output/services.json |jq -r '.services[] | select(.is_frontend == true) | [.namespace,.service,.port_name, .is_frontend] '
-
-# Cleanup
-# rm $TMP_KUBECONFIG_PATH
+echo "Deploying pod..."
+kubectl create namespace porthole-dev
+kubectl create configmap porthole-config --from-file=./src/porthole/config
+kubectl run -n porthole-dev porthole-dev --image=porthole-dev:$UNIQUE_TAG --restart=Never

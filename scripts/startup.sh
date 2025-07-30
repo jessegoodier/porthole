@@ -12,7 +12,7 @@ echo -e "${BLUE}🚀 Starting porthole with nginx${NC}"
 echo "=============================================="
 
 # Ensure output directory exists
-mkdir -p /app/generated-output /app/shared-configs
+mkdir -p /app/generated-output /app/web-root
 
 # Get refresh interval from environment variable (default 300 seconds)
 REFRESH_INTERVAL="${REFRESH_INTERVAL:-300}"
@@ -30,9 +30,9 @@ echo -e "${GREEN}✅ Initial configuration complete${NC}"
 
 # Copy static files to shared configs (should already be done by init container)
 echo -e "${YELLOW}📁 Ensuring static files are available...${NC}"
-if [ ! -f "/app/shared-configs/index.html" ]; then
+if [ ! -f "/app/web-root/index.html" ]; then
     echo -e "${YELLOW}📁 Copying static files from source...${NC}"
-    cp -r /app/src/porthole/static/* /app/shared-configs/ || {
+    cp -r /app/src/porthole/static/* /app/web-root/ || {
         echo -e "${RED}❌ Failed to copy static files${NC}"
     }
 fi

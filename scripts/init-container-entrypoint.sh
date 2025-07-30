@@ -21,7 +21,7 @@ echo ""
 
 # Ensure output directories exist
 echo -e "${YELLOW}📁 Creating output directories...${NC}"
-mkdir -p /app/generated-output /app/shared-configs
+mkdir -p /app/generated-output /app/web-root
 
 # Set working directory to ensure imports work correctly
 cd /app
@@ -41,6 +41,6 @@ python3 -m porthole.porthole generate --output-dir /app/generated-output || {
 }
 
 # Copy the configmap to the output directory
-cp -r /app/src/porthole/static/* /app/shared-configs/
+cp -r /app/src/porthole/static/* /app/web-root/
 
 echo -e "${GREEN}✅ Configuration init complete ${NC}"

@@ -48,8 +48,8 @@ COPY --from=builder /app /app
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 COPY src/porthole/config/nginx.conf /etc/nginx/nginx.conf
-COPY src/porthole/config/porthole-fab.html /usr/share/nginx/html/porthole-fab.html
-COPY src/porthole/config/porthole-error.html /usr/share/nginx/html/porthole-error.html
+COPY src/porthole/static/ /app/web-root/
+
 
 # Set environment variables  
 ENV PYTHONPATH="/app/src"
@@ -61,7 +61,7 @@ RUN cd /app && \
     python3 -c "import porthole; print('porthole package installed successfully')"
 
 # Create necessary directories and set permissions
-RUN mkdir -p /app/generated-output /app/shared-configs \
+RUN mkdir -p /app/generated-output /app/web-root \
     && chown -R app:app /app \
     && chown -R app:app /var/cache/nginx \
     && chown -R app:app /var/log/nginx \

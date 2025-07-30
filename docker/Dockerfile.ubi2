@@ -1,0 +1,113 @@
+# Use Red Hat UBI Python image for compatibility with OpenShift and KIND clusters
+FROM registry.access.redhat.com/ubi9/python-312:latest
+
+# Environment variables for non-root operation and ports
+ENV HOME=/app \
+    NGINX_PORT=8080 \
+    APP_PORT=8000 \
+    PATH=/app/.venv/bin:$PATH
+
+# Ensure /etc/yum.repos.d is writable and set up NGINX stable repository
+# Run as root for system-level changes
+USER root
+RUN mkdir -p /etc/yum.repos.d && \
+    chmod 755 /etc/yum.repos.d && \
+    echo "[nginx-stable]" > /etc/yum.repos.d/nginx.repo && \
+    echo "name=nginx stable repo" >> /etc/yum.repos.d/nginx.repo && \
+    echo "baseurl=http://nginx.org/packages/rhel/9/\$basearch/" >> /etc/yum.repos.d/nginx.repo && \
+    echo "gpgcheck=1" >> /etc/yum.repos.d/nginx.repo && \
+    echo "enabled=1" >> /etc/yum.repos.d/nginx.repo && \
+    echo "gpgkey=https://nginx.org/keys/nginx_signing.key" >> /etc/yum.repos.d/nginx.repo && \
+    echo "module_hotfixes=true" >> /etc/yum.repos.d/nginx.repo
+
+# Update and install NGINX, then clean up
+RUN dnf update -y && \
+    dnf install -y nginx && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+# Install UV tool using pip (system-wide)
+RUN pip install --no-cache-dir uv
+
+# Install supervisord to manage multiple processes (NGINX and Python app)
+RUN uv pip install --system supervisor
+
+# Section for installing debug tools (curl, wget, jq, yq, vim)
+# Uncomment for development/debugging
+# RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
+#     dnf install -y curl wget jq yq vim && \
+#     dnf clean all && \
+#     rm -rf /var/cache/dnf
+
+# Create non-root group and user (no specific UID to avoid conflicts)
+RUN groupadd -r appgroup && \
+    useradd -r -g appgroup -s /sbin/nologin -c "Default Application User" appuser && \
+    mkdir -p /app /var/cache/nginx/client_temp /var/cache/nginx/proxy_temp /var/cache/nginx/fastcgi_temp /var/cache/nginx/uwsgi_temp /var/cache/nginx/scgi_temp /var/log/nginx /run/nginx && \
+    chown -R appuser:appgroup /app /var/cache/nginx /var/log/nginx /run/nginx /etc/nginx /var/run && \
+    chmod -R 777 /app /var/cache/nginx /var/log/nginx /run/nginx /etc/nginx
+
+# Copy your Python app code
+WORKDIR /app
+COPY . /app
+
+# Create virtual environment with UV and install dependencies
+RUN uv venv /app/.venv && \
+    . /app/.venv/bin/activate && \
+    uv pip install -e '.[dev]' && \
+    chown -R appuser:appgroup /app/.venv
+
+# Configure NGINX for non-root operation and proxy to Python app
+RUN echo "# user appuser;" > /etc/nginx/nginx.conf && \
+    echo "worker_processes auto;" >> /etc/nginx/nginx.conf && \
+    echo "error_log /var/log/nginx/error.log;" >> /etc/nginx/nginx.conf && \
+    echo "pid /run/nginx.pid;" >> /etc/nginx/nginx.conf && \
+    echo "events { worker_connections 1024; }" >> /etc/nginx/nginx.conf && \
+    echo "http { " >> /etc/nginx/nginx.conf && \
+    echo "    include /etc/nginx/mime.types;" >> /etc/nginx/nginx.conf && \
+    echo "    default_type application/octet-stream;" >> /etc/nginx/nginx.conf && \
+    echo "    log_format main '\$remote_addr - \$remote_user [\$time_local] \"\$request\" ' " >> /etc/nginx/nginx.conf && \
+    echo "                    '\$status \$body_bytes_sent \"\$http_referer\" ' " >> /etc/nginx/nginx.conf && \
+    echo "                    '\"\$http_user_agent\" \"\$http_x_forwarded_for\"';" >> /etc/nginx/nginx.conf && \
+    echo "    access_log /var/log/nginx/access.log main;" >> /etc/nginx/nginx.conf && \
+    echo "    sendfile on;" >> /etc/nginx/nginx.conf && \
+    echo "    keepalive_timeout 65;" >> /etc/nginx/nginx.conf && \
+    echo "    server { " >> /etc/nginx/nginx.conf && \
+    echo "        listen ${NGINX_PORT};" >> /etc/nginx/nginx.conf && \
+    echo "        server_name localhost;" >> /etc/nginx/nginx.conf && \
+    echo "        location / { " >> /etc/nginx/nginx.conf && \
+    echo "            proxy_pass http://127.0.0.1:${APP_PORT};" >> /etc/nginx/nginx.conf && \
+    echo "            proxy_set_header Host \$host;" >> /etc/nginx/nginx.conf && \
+    echo "            proxy_set_header X-Real-IP \$remote_addr;" >> /etc/nginx/nginx.conf && \
+    echo "            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;" >> /etc/nginx/nginx.conf && \
+    echo "            proxy_set_header X-Forwarded-Proto \$scheme;" >> /etc/nginx/nginx.conf && \
+    echo "        } " >> /etc/nginx/nginx.conf && \
+    echo "    } " >> /etc/nginx/nginx.conf && \
+    echo "} " >> /etc/nginx/nginx.conf
+
+# Configure supervisord
+RUN echo "[supervisord]" > /etc/supervisord.conf && \
+    echo "nodaemon=true" >> /etc/supervisord.conf && \
+    echo "user=appuser" >> /etc/supervisord.conf && \
+    echo "" >> /etc/supervisord.conf && \
+    echo "[program:nginx]" >> /etc/supervisord.conf && \
+    echo "command=nginx -c /etc/nginx/nginx.conf" >> /etc/supervisord.conf && \
+    echo "autostart=true" >> /etc/supervisord.conf && \
+    echo "autorestart=true" >> /etc/supervisord.conf && \
+    echo "redirect_stderr=true" >> /etc/supervisord.conf && \
+    echo "" >> /etc/supervisord.conf && \
+    echo "[program:python-app]" >> /etc/supervisord.conf && \
+    echo "command=uvicorn main:app --host 0.0.0.0 --port ${APP_PORT}" >> /etc/supervisord.conf && \
+    echo "directory=/app" >> /etc/supervisord.conf && \
+    echo "autostart=true" >> /etc/supervisord.conf && \
+    echo "autorestart=true" >> /etc/supervisord.conf && \
+    echo "redirect_stderr=true" >> /etc/supervisord.conf && \
+    chown appuser:appgroup /etc/supervisord.conf
+
+# Expose the NGINX port
+EXPOSE ${NGINX_PORT}
+
+# Switch to non-root user
+USER appuser
+
+# Start supervisord
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
