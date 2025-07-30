@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Service Unavailable - Porthole</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-container {
+            text-align: center;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 { color: #64b5f6; margin-bottom: 1rem; }
+        p { margin-bottom: 1.5rem; line-height: 1.6; }
+        .service-path { 
+            color: #ff9800; 
+            font-family: monospace; 
+            background: rgba(255, 152, 0, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        ul {
+            text-align: left;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>🚢 Service Temporarily Unavailable</h1>
+        <p>The requested service at <span class="service-path">$request_uri</span> is currently unavailable.</p>
+        <p>This could be due to:</p>
+        <ul>
+            <li>Service is starting up</li>
+            <li>Temporary network issues</li>
+            <li>Service maintenance</li>
+        </ul>
+        <p>Please try again in a few moments, or return to the portal to explore other services.</p>
+    </div>
+</body>
+</html>
