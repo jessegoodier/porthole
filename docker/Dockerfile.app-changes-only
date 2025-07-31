@@ -1,4 +1,17 @@
-FROM jgoodier/porthole:latest
-COPY . /app
+FROM docker.io/jgoodier/nginx-python-ubi-base:latest
+# App code
+COPY src/ /app/src/
+COPY pyproject.toml LICENSE README.md /app/
 COPY src/porthole/config/nginx.conf /etc/nginx/nginx.conf
 COPY src/porthole/static/ /app/web-root/
+COPY docker/entrypoint.sh /docker-entrypoint.d/entrypoint.sh
+COPY docker/entrypoint-nginx.sh /docker-entrypoint.d/entrypoint-nginx.sh
+COPY docker/30-tune-worker-processes.sh /docker-entrypoint.d/30-tune-worker-processes.sh
+USER root
+RUN mkdir -p /app/generated-output/ && touch /app/generated-output/locations.conf && \
+    chmod +x /docker-entrypoint.d/*.sh && \
+    chown -R 1001:1001 /app /docker-entrypoint.d /app
+
+USER 1001
+
+CMD ["bash", "-c", "/docker-entrypoint.d/entrypoint.sh"]

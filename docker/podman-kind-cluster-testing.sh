@@ -15,10 +15,11 @@ echo "Cluster $KIND_CLUSTER_NAME ready, building image..."
 
 # Build the image
 UNIQUE_TAG=$(date +%Y%m%d%H%M%S)
-podman build -t porthole-dev:$UNIQUE_TAG -f docker/Dockerfile.app-changes-only .
+podman build -t porthole-dev:$UNIQUE_TAG -f docker/Dockerfile .
 podman save porthole-dev:$UNIQUE_TAG -o porthole-dev-${UNIQUE_TAG}.tar
 echo "Saved image to porthole-dev-${UNIQUE_TAG}.tar"
 kind load image-archive porthole-dev-${UNIQUE_TAG}.tar --name "$KIND_CLUSTER_NAME"
+rm porthole-dev-${UNIQUE_TAG}.tar
 
 # check if current context is the kind cluster
 if ! kubectl config current-context | grep -q "$KIND_CLUSTER_NAME"; then
@@ -26,6 +27,7 @@ if ! kubectl config current-context | grep -q "$KIND_CLUSTER_NAME"; then
 fi
 
 echo "Deploying pod..."
+kubectl delete ns porthole-dev || true
 kubectl create namespace porthole-dev
 kubectl create configmap porthole-config --from-file=./src/porthole/config
 kubectl run -n porthole-dev porthole-dev --image=porthole-dev:$UNIQUE_TAG --restart=Never

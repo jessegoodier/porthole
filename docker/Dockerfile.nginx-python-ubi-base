@@ -1,0 +1,51 @@
+# Use Red Hat UBI Python image for compatibility with OpenShift and KIND clusters
+FROM registry.access.redhat.com/ubi9/python-312:latest
+
+# Environment variables for non-root operation and ports
+ENV HOME=/app \
+    NGINX_PORT=7070 \
+    PATH=/app/.venv/bin:$PATH
+
+# Ensure /etc/yum.repos.d is writable and set up NGINX stable repository
+# Run as root for system-level changes
+USER root
+RUN mkdir -p /etc/yum.repos.d && \
+    chmod 755 /etc/yum.repos.d && \
+    echo "[nginx-stable]" > /etc/yum.repos.d/nginx.repo && \
+    echo "name=nginx stable repo" >> /etc/yum.repos.d/nginx.repo && \
+    echo "baseurl=http://nginx.org/packages/rhel/9/\$basearch/" >> /etc/yum.repos.d/nginx.repo && \
+    echo "gpgcheck=1" >> /etc/yum.repos.d/nginx.repo && \
+    echo "enabled=1" >> /etc/yum.repos.d/nginx.repo && \
+    echo "gpgkey=https://nginx.org/keys/nginx_signing.key" >> /etc/yum.repos.d/nginx.repo && \
+    echo "module_hotfixes=true" >> /etc/yum.repos.d/nginx.repo && \
+    echo "[kubernetes]" >> /etc/yum.repos.d/kubernetes.repo && \
+    echo "name=Kubernetes" >> /etc/yum.repos.d/kubernetes.repo && \
+    echo "baseurl=https://pkgs.k8s.io/core:/stable:/v1.30/rpm/" >> /etc/yum.repos.d/kubernetes.repo && \
+    echo "enabled=1" >> /etc/yum.repos.d/kubernetes.repo && \
+    echo "gpgcheck=1" >> /etc/yum.repos.d/kubernetes.repo && \
+    echo "gpgkey=https://pkgs.k8s.io/core:/stable:/v1.30/rpm/repodata/repomd.xml.key" >> /etc/yum.repos.d/kubernetes.repo
+
+# Update and install NGINX, then clean up
+RUN dnf update -y && \
+    dnf install -y nginx kubectl && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+# Install UV tool using pip (system-wide)
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir uv && \
+    uv pip install --system "setuptools<81" && \
+    uv pip install --system supervisor
+
+# Create non-root group and user (using UID 1002 to avoid conflicts with base image)
+RUN mkdir -p /app /var/cache/nginx/client_temp /var/cache/nginx/proxy_temp /var/cache/nginx/fastcgi_temp /var/cache/nginx/uwsgi_temp /var/cache/nginx/scgi_temp /var/log/nginx /run/nginx /var/run && \
+    chown -R 1001:1001 /app /var/cache/nginx /var/log/nginx /run/nginx /etc/nginx /var/run && \
+    chmod -R 777 /app /var/cache/nginx /var/log/nginx /run/nginx /etc/nginx /var/run && \
+    uv venv /app/.venv && \
+    . /app/.venv/bin/activate && \
+    chown -R 1001:1001 /app/.venv
+
+WORKDIR /app
+
+# Expose the NGINX port
+EXPOSE ${NGINX_PORT}

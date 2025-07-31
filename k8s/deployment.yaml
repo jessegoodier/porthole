@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/name: porthole
     app.kubernetes.io/component: kubernetes-service-proxy
     app.kubernetes.io/instance: porthole
-    app.kubernetes.io/version: "0.2.78"
+    app.kubernetes.io/version: "0.2.86"
 spec:
   replicas: 1
   selector:
@@ -22,29 +22,24 @@ spec:
         app.kubernetes.io/name: porthole
         app.kubernetes.io/component: kubernetes-service-proxy
         app.kubernetes.io/instance: porthole
-        app.kubernetes.io/version: "0.2.78"
+        app.kubernetes.io/version: "0.2.86"
     spec:
       serviceAccountName: porthole
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1001350000
-        runAsGroup: 1001350000
-        fsGroup: 1001350000
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
         fsGroupChangePolicy: OnRootMismatch
       containers:
       - name: porthole
-        image: jgoodier/porthole:0.2.78
+        image: jgoodier/porthole:0.2.86
         imagePullPolicy: IfNotPresent
         env:
         - name: OUTPUT_DIR
           value: "/app/generated-output"
         - name: LOG_LEVEL
           value: debug
-        - name: WATCH_DIR
-          value: "/app/generated-output"
-        - name: STARTUP_MODE
-          value: "generate"
-        command: ["/app/scripts/startup.sh"]
         ports:
         - containerPort: 7070
           name: http
@@ -81,8 +76,8 @@ spec:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
           runAsNonRoot: true
-          runAsUser: 1001350000
-          runAsGroup: 1001350000
+          runAsUser: 1001
+          runAsGroup: 1001
           capabilities:
             drop:
             - ALL

@@ -79,7 +79,6 @@ output/
 noxfile.py
 helm/
 Makefile
-docker/
 temp/
 tests/
 .venv/

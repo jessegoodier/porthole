@@ -26,13 +26,18 @@ class ConfigHandler(FileSystemEventHandler):
             # Check if nginx is running by looking for the PID file
             pid_file = "/tmp/nginx.pid"
             if not os.path.exists(pid_file):
-                logger.warning(f"Nginx PID file not found at {pid_file}, checking for running processes...")
-                
+                logger.warning(
+                    f"Nginx PID file not found at {pid_file}, checking for running processes..."
+                )
+
                 # Check if nginx process is actually running
                 try:
                     result = subprocess.run(
                         ["pgrep", "-f", "nginx"],
-                        check=False, capture_output=True, text=True, timeout=5
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                        timeout=5,
                     )
                     if result.returncode == 0:
                         logger.info(f"Found nginx process(es): {result.stdout.strip()}")
@@ -43,11 +48,12 @@ class ConfigHandler(FileSystemEventHandler):
                 except Exception as e:
                     logger.error(f"Failed to check for nginx processes: {e}")
                     return
-                
+
             # Test configuration first
             result = subprocess.run(
                 ["nginx", "-t"],
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
                 timeout=10,
             )
@@ -56,7 +62,8 @@ class ConfigHandler(FileSystemEventHandler):
                 # Configuration is valid, reload
                 reload_result = subprocess.run(
                     ["nginx", "-s", "reload"],
-                    check=False, capture_output=True,
+                    check=False,
+                    capture_output=True,
                     text=True,
                     timeout=10,
                 )
@@ -93,5 +100,6 @@ def start_config_watcher(watch_dir: str) -> None:
 
 if __name__ == "__main__":
     import os
-    watch_dir = os.environ.get("WATCH_DIR", "/app/generated-output")
+
+    watch_dir = os.environ.get("OUTPUT_DIR", "/app/generated-output")
     start_config_watcher(watch_dir)
