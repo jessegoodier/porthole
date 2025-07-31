@@ -4,7 +4,7 @@
 REGISTRY = docker.io
 REPO = jgoodier
 IMAGE_NAME_APP = porthole
-IMAGE_TAG_APP = 0.2.86
+IMAGE_TAG_APP = 0.2.87
 IMAGE_NAME_BASE = nginx-python-ubi-base
 IMAGE_TAG_BASE = latest
 NAMESPACE = porthole

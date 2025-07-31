@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/name: porthole
     app.kubernetes.io/component: kubernetes-service-proxy
     app.kubernetes.io/instance: porthole
-    app.kubernetes.io/version: "0.2.86"
+    app.kubernetes.io/version: "0.2.87"
 spec:
   replicas: 1
   selector:
@@ -22,7 +22,7 @@ spec:
         app.kubernetes.io/name: porthole
         app.kubernetes.io/component: kubernetes-service-proxy
         app.kubernetes.io/instance: porthole
-        app.kubernetes.io/version: "0.2.86"
+        app.kubernetes.io/version: "0.2.87"
     spec:
       serviceAccountName: porthole
       securityContext:
@@ -33,9 +33,11 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
       - name: porthole
-        image: jgoodier/porthole:0.2.86
+        image: jgoodier/porthole:0.2.87
         imagePullPolicy: IfNotPresent
         env:
+        - name: REFRESH_INTERVAL
+          value: "60"
         - name: OUTPUT_DIR
           value: "/app/generated-output"
         - name: LOG_LEVEL
@@ -84,10 +86,10 @@ spec:
         volumeMounts:
         - name: app-generated-output
           mountPath: /app/generated-output
-        - name: shared-config
-          mountPath: /app/web-root
-        - name: porthole-config
-          mountPath: /app/src/porthole/config
+        # - name: shared-config
+        #   mountPath: /app/web-root
+        # - name: porthole-config
+        #   mountPath: /app/src/porthole/config
         - name: logs
           mountPath: /tmp
       volumes:

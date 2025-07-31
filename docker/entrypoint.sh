@@ -46,7 +46,7 @@ python3 -m porthole.porthole watch --interval "${REFRESH_INTERVAL}" &
 PORTHOLE_PID=$!
 
 # Set up signal handlers
-trap cleanup SIGTERM SIGINT
+trap "kill $PORTHOLE_PID $NGINX_RELOADER_PID" SIGTERM SIGINT
 
 # Wait for any process to exit
 wait $PORTHOLE_PID $NGINX_RELOADER_PID
