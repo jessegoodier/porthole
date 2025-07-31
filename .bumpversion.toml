@@ -1,5 +1,5 @@
 [tool.bumpversion]
-current_version = "0.2.87"
+current_version = "0.2.91"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"
@@ -25,5 +25,5 @@ replace = 'app.kubernetes.io/version: "{new_version}"'
 
 [[tool.bumpversion.files]]
 filename = "k8s/deployment.yaml"
-search = "image: jgoodier/porthole:{current_version}"
-replace = "image: jgoodier/porthole:{new_version}"
+search = "image: docker.io/jgoodier/porthole:{current_version}"
+replace = "image: docker.io/jgoodier/porthole:{new_version}"

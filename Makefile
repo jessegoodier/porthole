@@ -1,10 +1,12 @@
 # Porthole - Makefile
 
+.ONESHELL:
+
 # Configuration
 REGISTRY = docker.io
 REPO = jgoodier
 IMAGE_NAME_APP = porthole
-IMAGE_TAG_APP = 0.2.87
+IMAGE_TAG_APP = 0.2.91
 IMAGE_NAME_BASE = nginx-python-ubi-base
 IMAGE_TAG_BASE = latest
 NAMESPACE = porthole
@@ -30,19 +32,23 @@ help: ## Show this help message
 ##@ Docker
 .PHONY: build-base
 build-base: ## Build base Docker image
-	podman build --arch amd64 -f $(DOCKER_FILE_BASE) -t "$(FULL_NAME_BASE_AMD64)" .
-	podman build --arch arm64 -f $(DOCKER_FILE_BASE) -t "$(FULL_NAME_BASE_ARM64)" .
+	podman build --platform linux/amd64 -f $(DOCKER_FILE_BASE) -t "$(FULL_NAME_BASE_AMD64)" .
+	podman build --platform linux/arm64 -f $(DOCKER_FILE_BASE) -t "$(FULL_NAME_BASE_ARM64)" .
 
 .PHONY: push-base
-push-base: ## Push base Docker image
+push-base: build-base ## Push base Docker image
 	podman push "$(FULL_NAME_BASE_AMD64)"
 	podman push "$(FULL_NAME_BASE_ARM64)"
 
 	echo "📦 Creating manifest list..."
+	podman manifest rm "$(FULL_NAME_BASE_MULTI)" || true
 	podman manifest create "$(FULL_NAME_BASE_MULTI)"
 	echo "➕ Adding images to manifest..."
-	podman manifest add "$(FULL_NAME_BASE_MULTI)" "$(FULL_NAME_BASE_AMD64)"
-	podman manifest add "$(FULL_NAME_BASE_MULTI)" "$(FULL_NAME_BASE_ARM64)"
+	podman manifest add "$(FULL_NAME_BASE_MULTI)" --arch amd64 "$(FULL_NAME_BASE_AMD64)"
+	podman manifest add "$(FULL_NAME_BASE_MULTI)" --arch arm64 "$(FULL_NAME_BASE_ARM64)"
+
+	echo "🔍 Inspecting manifest..."
+	podman manifest inspect "$(FULL_NAME_BASE_MULTI)"
 
 	echo "📤 Pushing multi-arch image to $(REGISTRY)..."
 	podman manifest push --all "$(FULL_NAME_BASE_MULTI)"
@@ -51,26 +57,34 @@ push-base: ## Push base Docker image
 
 .PHONY: build-app
 build-app: ## Build Docker image
-	podman build --arch amd64 -f $(DOCKER_FILE_APP) -t "$(FULL_NAME_APP_AMD64)" .
-	podman build --arch arm64 -f $(DOCKER_FILE_APP) -t "$(FULL_NAME_APP_ARM64)" .
+	podman build --platform linux/amd64 -f $(DOCKER_FILE_APP) -t "$(FULL_NAME_APP_AMD64)" .
+	podman build --platform linux/arm64 -f $(DOCKER_FILE_APP) -t "$(FULL_NAME_APP_ARM64)" .
 
 .PHONY: push-app
-push-app: ## Push Docker image
+push-app: build-app ## Push Docker image
 	podman push "$(FULL_NAME_APP_AMD64)"
 	podman push "$(FULL_NAME_APP_ARM64)"
 
 	echo "📦 Creating manifest list..."
+	podman manifest rm "$(FULL_NAME_APP_MULTI)" || true
 	podman manifest create "$(FULL_NAME_APP_MULTI)"
 	echo "➕ Adding images to manifest..."
-	podman manifest add "$(FULL_NAME_APP_MULTI)" "$(FULL_NAME_APP_AMD64)"
-	podman manifest add "$(FULL_NAME_APP_MULTI)" "$(FULL_NAME_APP_ARM64)"
+	podman manifest add "$(FULL_NAME_APP_MULTI)" --arch amd64 "$(FULL_NAME_APP_AMD64)"
+	podman manifest add "$(FULL_NAME_APP_MULTI)" --arch arm64 "$(FULL_NAME_APP_ARM64)"
+
+	echo "🔍 Inspecting manifest..."
+	podman manifest inspect "$(FULL_NAME_APP_MULTI)"
 
 	echo "📤 Pushing multi-arch image to $(REGISTRY)..."
 	podman manifest push --all "$(FULL_NAME_APP_MULTI)"
 
-	echo "✅ Done! Multi-arch image pushed to: $(FULL_NAME_APP_MULTI) and $(LATEST_NAME_APP)"
+	echo "✅ Done! Multi-arch image pushed to: $(FULL_NAME_APP_MULTI)"
 
 ##@ Utilities
+.PHONY: clean-manifests
+clean-manifests: ## Clean up podman manifests
+	podman system prune --force
+
 .PHONY: clean
 clean: ## Clean up generated files
 	rm -rf .pytest_cache/
@@ -100,10 +114,8 @@ bump-dry-run: ## Test version bump without making changes
 	uv run bump-my-version bump --allow-dirty --no-commit --no-tag --dry-run patch
 
 .PHONY: build-base-push
-build-base-push: build-base push-base ## Build and push Docker image
+build-base-push: push-base ## Build and push base Docker image
 
 .PHONY: build-app-push
-build-app-push: build-app push-app ## Build and push Docker image
+build-app-push: push-app ## Build and push app Docker image
 
-.PHONY: bump-build-push-app
-bump-build-push-app: build-app push-app ## Build and push Docker image

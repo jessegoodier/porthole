@@ -804,7 +804,7 @@ wheels = [
 
 [[package]]
 name = "porthole"
-version = "0.2.87"
+version = "0.2.91"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
