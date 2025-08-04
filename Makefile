@@ -6,7 +6,7 @@
 REGISTRY = docker.io
 REPO = jgoodier
 IMAGE_NAME_APP = porthole
-IMAGE_TAG_APP = 0.2.91
+IMAGE_TAG_APP = 0.2.93
 IMAGE_NAME_BASE = nginx-python-ubi-base
 IMAGE_TAG_BASE = latest
 NAMESPACE = porthole
@@ -114,8 +114,8 @@ bump-dry-run: ## Test version bump without making changes
 	uv run bump-my-version bump --allow-dirty --no-commit --no-tag --dry-run patch
 
 .PHONY: build-base-push
-build-base-push: push-base ## Build and push base Docker image
+build-base-push: bump-dry-run bump-patch build-base push-base ## Build and push base Docker image
 
 .PHONY: build-app-push
-build-app-push: push-app ## Build and push app Docker image
+build-app-push: bump-dry-run bump-patch build-app push-app ## Build and push app Docker image
 
