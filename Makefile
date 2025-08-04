@@ -6,7 +6,7 @@
 REGISTRY = docker.io
 REPO = jgoodier
 IMAGE_NAME_APP = porthole
-IMAGE_TAG_APP = 0.2.93
+IMAGE_TAG_APP = 0.2.92
 IMAGE_NAME_BASE = nginx-python-ubi-base
 IMAGE_TAG_BASE = latest
 NAMESPACE = porthole
@@ -81,12 +81,12 @@ push-app: build-app ## Push Docker image
 	echo "✅ Done! Multi-arch image pushed to: $(FULL_NAME_APP_MULTI)"
 
 ##@ Utilities
-.PHONY: clean-manifests
-clean-manifests: ## Clean up podman manifests
+.PHONY: podman-prune
+podman-prune: ## Prune podman
 	podman system prune --force
 
 .PHONY: clean
-clean: ## Clean up generated files
+clean: podman-prune ## Clean up generated files
 	rm -rf .pytest_cache/
 	rm -rf .mypy_cache/
 	rm -rf .ruff_cache/
