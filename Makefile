@@ -6,7 +6,7 @@
 REGISTRY = docker.io
 REPO = jgoodier
 IMAGE_NAME_APP = porthole
-IMAGE_TAG_APP = 0.2.92
+IMAGE_TAG_APP = $(shell uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
 IMAGE_NAME_BASE = nginx-python-ubi-base
 IMAGE_TAG_BASE = latest
 NAMESPACE = porthole
@@ -17,9 +17,6 @@ DOCKER_FILE_APP = docker/Dockerfile.app-changes-only
 FULL_NAME_BASE_AMD64 = $(REGISTRY)/$(REPO)/$(IMAGE_NAME_BASE):latest-amd64
 FULL_NAME_BASE_ARM64 = $(REGISTRY)/$(REPO)/$(IMAGE_NAME_BASE):latest-arm64
 FULL_NAME_BASE_MULTI = $(REGISTRY)/$(REPO)/$(IMAGE_NAME_BASE):latest
-FULL_NAME_APP_AMD64 = $(REGISTRY)/$(REPO)/$(IMAGE_NAME_APP):$(IMAGE_TAG_APP)-amd64
-FULL_NAME_APP_ARM64 = $(REGISTRY)/$(REPO)/$(IMAGE_NAME_APP):$(IMAGE_TAG_APP)-arm64
-FULL_NAME_APP_MULTI = $(REGISTRY)/$(REPO)/$(IMAGE_NAME_APP):$(IMAGE_TAG_APP)
 
 # Default target
 .PHONY: help
@@ -57,14 +54,21 @@ push-base: build-base ## Push base Docker image
 
 .PHONY: build-app
 build-app: ## Build Docker image
+	$(eval IMAGE_TAG_APP := $(shell uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"))
+	$(eval FULL_NAME_APP_AMD64 := $(REGISTRY)/$(REPO)/$(IMAGE_NAME_APP):$(IMAGE_TAG_APP)-amd64)
+	$(eval FULL_NAME_APP_ARM64 := $(REGISTRY)/$(REPO)/$(IMAGE_NAME_APP):$(IMAGE_TAG_APP)-arm64)
+	$(eval FULL_NAME_APP_MULTI := $(REGISTRY)/$(REPO)/$(IMAGE_NAME_APP):$(IMAGE_TAG_APP))
 	podman build --platform linux/amd64 -f $(DOCKER_FILE_APP) -t "$(FULL_NAME_APP_AMD64)" .
 	podman build --platform linux/arm64 -f $(DOCKER_FILE_APP) -t "$(FULL_NAME_APP_ARM64)" .
 
 .PHONY: push-app
 push-app: build-app ## Push Docker image
+	$(eval IMAGE_TAG_APP := $(shell uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"))
+	$(eval FULL_NAME_APP_AMD64 := $(REGISTRY)/$(REPO)/$(IMAGE_NAME_APP):$(IMAGE_TAG_APP)-amd64)
+	$(eval FULL_NAME_APP_ARM64 := $(REGISTRY)/$(REPO)/$(IMAGE_NAME_APP):$(IMAGE_TAG_APP)-arm64)
+	$(eval FULL_NAME_APP_MULTI := $(REGISTRY)/$(REPO)/$(IMAGE_NAME_APP):$(IMAGE_TAG_APP))
 	podman push "$(FULL_NAME_APP_AMD64)"
 	podman push "$(FULL_NAME_APP_ARM64)"
-
 	echo "📦 Creating manifest list..."
 	podman manifest rm "$(FULL_NAME_APP_MULTI)" || true
 	podman manifest create "$(FULL_NAME_APP_MULTI)"

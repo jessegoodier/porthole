@@ -1,5 +1,5 @@
 [tool.bumpversion]
-current_version = "0.2.92"
+current_version = "0.2.102"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"
@@ -14,9 +14,9 @@ search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
 
 [[tool.bumpversion.files]]
-filename = "Makefile"
-search = "IMAGE_TAG_APP = {current_version}"
-replace = "IMAGE_TAG_APP = {new_version}"
+filename = "src/porthole/static/index.html"
+search = "title>Porthole - {current_version}"
+replace = "title>Porthole - {new_version}"
 
 [[tool.bumpversion.files]]
 filename = "k8s/deployment.yaml"

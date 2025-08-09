@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Porthole - Kubernetes Services Portal</title>
+    <title>Porthole - 0.2.102</title>
     <style>
         * {
             margin: 0;
@@ -482,7 +482,89 @@
             margin-top: 0.2rem;
         }
 
-        /* Cookie Clear Button */
+        /* Settings Menu */
+        .settings-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .settings-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 0.5rem 0.75rem;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .settings-button:active {
+            transform: translateY(0);
+        }
+
+        .settings-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(45, 45, 45, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            min-width: 250px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .settings-dropdown.show {
+            display: block;
+        }
+
+        .settings-dropdown h3 {
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.3rem 0;
+        }
+
+        .settings-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #64b5f6;
+        }
+
+        .settings-option label {
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .settings-action {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+        }
+
         .cookie-clear-button {
             background: rgba(255, 152, 0, 0.2);
             border: 2px solid rgba(255, 152, 0, 0.3);
@@ -496,6 +578,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            width: 100%;
+            justify-content: center;
         }
 
         .cookie-clear-button:hover {
@@ -810,12 +894,21 @@
                 min-width: 100px;
             }
 
-            .cookie-clear-button {
+            .settings-menu {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+
+            .settings-button {
                 padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
+                font-size: 1rem;
                 width: 100%;
                 justify-content: center;
-                margin-top: 0.5rem;
+            }
+
+            .settings-dropdown {
+                min-width: 200px;
+                right: 0;
             }
 
             .table-header {
@@ -975,9 +1068,23 @@
                 <div class="stat-value" id="unhealthy-services">-</div>
                 <div class="stat-label">Unhealthy</div>
             </div>
-            <button class="cookie-clear-button" onclick="clearCookies()" title="Clear cookies for this domain">
-                🍪 Clear Cookies
-            </button>
+            <div class="settings-menu">
+                <button class="settings-button" onclick="toggleSettings()" title="Settings">
+                    ⚙️
+                </button>
+                <div class="settings-dropdown" id="settings-dropdown">
+                    <h3>Settings</h3>
+                    <div class="settings-option">
+                        <input type="checkbox" id="enable-portal-nav" checked onchange="togglePortalNav()">
+                        <label for="enable-portal-nav">Enable Portal Nav</label>
+                    </div>
+                    <div class="settings-action">
+                        <button class="cookie-clear-button" onclick="clearCookies()" title="Clear cookies for this domain">
+                            🍪 Clear Cookies
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -1101,6 +1208,7 @@
         let currentNamespace = 'all';
         let advancedFilters = [];
         let filterRuleCounter = 0;
+        let enablePortalNav = true;
 
         // URL parameter utilities
         function getUrlParameter(name) {
@@ -1157,6 +1265,37 @@
             return `<span class="${className}">${code}</span>`;
         }
 
+        // Settings menu functionality
+        function toggleSettings() {
+            const settingsDropdown = document.getElementById('settings-dropdown');
+            settingsDropdown.classList.toggle('show');
+        }
+
+        function togglePortalNav() {
+            const checkbox = document.getElementById('enable-portal-nav');
+            enablePortalNav = checkbox.checked;
+            
+            // Save to localStorage
+            localStorage.setItem('enablePortalNav', enablePortalNav.toString());
+            
+            // Set cookie for nginx to read
+            const cookieValue = enablePortalNav ? 'enabled' : 'disabled';
+            document.cookie = `porthole_nav=${cookieValue}; path=/; max-age=31536000`; // 1 year
+        }
+
+        function loadSettings() {
+            // Load from localStorage
+            const saved = localStorage.getItem('enablePortalNav');
+            if (saved !== null) {
+                enablePortalNav = saved === 'true';
+                document.getElementById('enable-portal-nav').checked = enablePortalNav;
+            }
+            
+            // Set cookie for nginx to read (ensure it's always set)
+            const cookieValue = enablePortalNav ? 'enabled' : 'disabled';
+            document.cookie = `porthole_nav=${cookieValue}; path=/; max-age=31536000`; // 1 year
+        }
+
         // Load services data
         async function loadServicesData() {
             try {
@@ -1170,6 +1309,7 @@
                 setupFieldSelector();
                 setupNamespaceSelector();
                 setupAdvancedFilter();
+                loadSettings();
 
                 // Apply URL parameters after setup
                 applyUrlParameters();
@@ -2177,14 +2317,20 @@
         }
 
         function setupAdvancedFilter() {
-            // Close filter panel when clicking outside
+            // Close filter panel and settings when clicking outside
             document.addEventListener('click', function (event) {
                 const filterPanel = document.getElementById('advanced-filter-panel');
                 const filterButton = document.querySelector('.filter-button');
+                const settingsDropdown = document.getElementById('settings-dropdown');
+                const settingsButton = document.querySelector('.settings-button');
 
                 if (!filterPanel.contains(event.target) && !filterButton.contains(event.target)) {
                     filterPanel.classList.remove('show');
                     filterButton.classList.remove('active');
+                }
+
+                if (!settingsDropdown.contains(event.target) && !settingsButton.contains(event.target)) {
+                    settingsDropdown.classList.remove('show');
                 }
 
                 // Hide autocomplete when clicking outside
@@ -2202,7 +2348,7 @@
                 // If redirect_url starts with "/", append it to the proxy URL
                 if (redirectUrl && redirectUrl.startsWith('/')) {
                     // Remove trailing slash from proxy URL and append redirect path
-                    targetUrl = proxyUrl.replace(/\/$/, '') + redirectUrl;
+                    targetUrl = targetUrl.replace(/\/$/, '') + redirectUrl;
                 }
 
                 window.open(targetUrl, '_self');
