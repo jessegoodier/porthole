@@ -1,0 +1,81 @@
+# NGINX location blocks for Kubernetes services
+# Generated at: {{ generated_at }}
+# Total locations: {{ locations|length }}
+# Add these inside your server block
+
+{% for location in locations -%}
+        location {{ location.path }} {
+            set $base_path "{{ location.path }}";
+            rewrite ^{{ location.path }}/?(.*)$ /$1 break;
+            proxy_pass http://{{ location.service_dns }};
+
+            # Check cookie to determine if FAB should be injected
+            set $enable_fab "no";
+            if ($cookie_porthole_nav = "enabled") {
+                set $enable_fab "yes";
+            }
+
+            # Standard proxy headers (always applied)
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            
+            # Conditional FAB configuration based on cookie
+            # Force decompression when FAB is enabled to allow sub_filter processing
+            set $accept_encoding "";
+            if ($enable_fab = "yes") {
+                set $accept_encoding "";
+            }
+            proxy_set_header Accept-Encoding $accept_encoding;
+            
+            # Enable response buffering for sub_filter (when FAB enabled)
+            proxy_buffering on;
+            proxy_buffer_size 128k;
+            proxy_buffers 4 256k;
+            proxy_busy_buffers_size 256k;
+            
+            # Enable error interception for FAB on error pages
+            # proxy_intercept_errors on;
+            
+            # Sub-filter configuration for FAB injection (only when enabled)
+            sub_filter_types text/plain application/json text/css application/javascript text/xml application/xml;
+            sub_filter_once on;
+            sub_filter_last_modified off;
+            
+            # Multiple injection strategies for maximum reliability (conditional)
+            # Strategy 1: Inject before closing body tag (most common)
+            sub_filter '</body>' '<script>if(document.cookie.includes("porthole_nav=enabled")){fetch("/porthole-fab.html").then(r=>r.text()).then(h=>document.body.insertAdjacentHTML("beforeend",h));}</script></body>';
+            
+            # Strategy 2: Inject before closing html tag (backup)
+            # sub_filter '</html>' '<script>if(document.cookie.includes("porthole_nav=enabled")&&!document.getElementById("porthole-fab-container")){fetch("/porthole-fab.html").then(r=>r.text()).then(h=>document.documentElement.insertAdjacentHTML("beforeend",h));}</script></html>';
+            
+            # Strategy 3: Inject at end of any HTML content (fallback)
+            # sub_filter '</head>' '</head><!-- Porthole FAB container ready -->';
+
+            # Handle redirects by returning the location header as plain text
+            proxy_hide_header Location;
+            add_header X-Original-Location $upstream_http_location;
+            add_header X-Original-Status $upstream_status;
+            
+            # If it's a 302 and FAB is enabled, return the location as the response body with FAB
+            # TODO: This is a hack to handle redirects. We should find a better way to handle this.
+            set $redirect_with_fab "";
+            if ($upstream_status = 302) {
+                set $redirect_with_fab "A";
+            }
+            if ($enable_fab = "yes") {
+                set $redirect_with_fab "${redirect_with_fab}B";
+            }
+            if ($redirect_with_fab = "AB") {
+                return 200 '$upstream_http_location<script>fetch("/porthole-fab.html").then(r=>r.text()).then(h=>document.body.insertAdjacentHTML("beforeend",h));</script>';
+            }
+            
+            # Timeout settings
+            proxy_connect_timeout 30s;
+            proxy_send_timeout 30s;
+            proxy_read_timeout 30s;
+        }
+
+{% endfor %}
+
